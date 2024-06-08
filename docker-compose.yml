@@ -1,0 +1,35 @@
+services:
+  postgresql:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: schedule
+      POSTGRES_USER: mystery
+      POSTGRES_PASSWORD: helpmepls
+    volumes:
+      - postgresql:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - schedule
+  liquibase-migrations:
+    image: liquibase/liquibase:4.18
+    depends_on:
+      - postgresql
+    command:
+      - --hub-mode=off
+      - --changelog-file=master.xml
+      - --driver=org.postgresql.Driver
+      - --url=jdbc:postgresql://postgresql:5432/schedule
+      - --username=mystery
+      - --password=helpmepls
+      - update
+    volumes:
+      - ./migrations:/liquibase/changelog
+    networks:
+      - schedule
+
+networks:
+  schedule:
+
+volumes:
+  postgresql:
