@@ -25,7 +25,6 @@ import ru.khanin.dmitrii.schedule.entity.Lesson;
 import ru.khanin.dmitrii.schedule.entity.TempSchedule;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.LessonService;
-import ru.khanin.dmitrii.schedule.service.ScheduleService;
 import ru.khanin.dmitrii.schedule.service.TempScheduleService;
 
 @RestController
@@ -65,11 +64,11 @@ public class TempScheduleController {
 				.findAllByFlow(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
 		List<TempScheduleResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
-			Flow flow = flowService.findById(e.getFlow());
+			Flow foundFlow = flowService.findById(e.getFlow());
 			FlowResponse flowResponse = new FlowResponse(
-					flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup()
+					foundFlow.getFlowLvl(), foundFlow.getCourse(), foundFlow.getFlow(), foundFlow.getSubgroup()
 			);
-					
+
 			Lesson lesson = lessonService.findById(e.getLesson());
 			LessonResponse lessonResponse = new LessonResponse(
 					lesson.getName(), lesson.getTeacher(), lesson.getCabinet()
