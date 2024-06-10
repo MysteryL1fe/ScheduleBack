@@ -21,11 +21,11 @@ public class JdbcScheduleService implements ScheduleService {
 	private final JdbcLessonRepo lessonRepo;
 
 	@Override
-	public Schedule add(long flowId, int dayOfWeek, long lessonId, int lessonNum, boolean isNumerator) {
+	public Schedule add(long flowId, long lessonId, int dayOfWeek, int lessonNum, boolean isNumerator) {
 		Schedule schedule = new Schedule();
 		schedule.setFlow(flowId);
-		schedule.setDayOfWeek(dayOfWeek);
 		schedule.setLesson(lessonId);
+		schedule.setDayOfWeek(dayOfWeek);
 		schedule.setLessonNum(lessonNum);
 		schedule.setNumerator(isNumerator);
 		return scheduleRepo.add(schedule);
@@ -33,12 +33,12 @@ public class JdbcScheduleService implements ScheduleService {
 	
 	@Override
 	public Schedule add(
-			int flowLvl, int course, int flow, int subgroup, int dayOfWeek,
-			long lessonId, int lessonNum, boolean isNumerator
+			int flowLvl, int course, int flow, int subgroup, long lessonId,
+			int dayOfWeek, int lessonNum, boolean isNumerator
 	) {
 		Schedule schedule = new Schedule();
-		schedule.setDayOfWeek(dayOfWeek);
 		schedule.setLesson(lessonId);
+		schedule.setDayOfWeek(dayOfWeek);
 		schedule.setLessonNum(lessonNum);
 		schedule.setNumerator(isNumerator);
 		
@@ -63,8 +63,8 @@ public class JdbcScheduleService implements ScheduleService {
 	
 	@Override
 	public Schedule add(
-			long flowId, int dayOfWeek, String name, String teacher, String cabinet,
-			int lessonNum, boolean isNumerator
+			long flowId, String name, String teacher, String cabinet,
+			int dayOfWeek, int lessonNum, boolean isNumerator
 	) {
 		Schedule schedule = new Schedule();
 		schedule.setFlow(flowId);
@@ -92,8 +92,9 @@ public class JdbcScheduleService implements ScheduleService {
 	
 	@Override
 	public Schedule add(
-			int flowLvl, int course, int flow, int subgroup, int dayOfWeek,
-			String name, String teacher, String cabinet, int lessonNum, boolean isNumerator
+			int flowLvl, int course, int flow, int subgroup,
+			String name, String teacher, String cabinet,
+			int dayOfWeek, int lessonNum, boolean isNumerator
 	) {
 		Schedule schedule = new Schedule();
 		schedule.setDayOfWeek(dayOfWeek);
@@ -160,6 +161,16 @@ public class JdbcScheduleService implements ScheduleService {
 		found.forEach(result::add);
 		return result;
 	}
+	
+	@Override
+	public Collection<Schedule> findAllByFlow(int flowLvl, int course, int flow, int subgroup) {
+		Flow foundFlow = flowRepo
+				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
+				.orElse(null);
+		if (foundFlow == null) return null;
+		
+		return findAllByFlow(foundFlow.getId());
+	}
 
 	@Override
 	public Collection<Schedule> findAllByFlowAndDayOfWeekAndIsNumerator(
@@ -171,6 +182,30 @@ public class JdbcScheduleService implements ScheduleService {
 		Collection<Schedule> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;
+	}
+	
+	@Override
+	public Collection<Schedule> findAllWhereTeacherStartsWith(String teacher) {
+		Iterable<Schedule> found = scheduleRepo.findAllWhereTeacherStartsWith(teacher);
+		Collection<Schedule> result = new ArrayList<>();
+		found.forEach(result::add);
+		return result;
+	}
+	
+	@Override
+	public Schedule delete(int flowLvl, int course, int flow, int subgroup, int dayOfWeek, int lessonNum,
+			boolean isNumerator) {
+		Flow foundFlow = flowRepo
+				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
+				.orElse(null);
+		if (foundFlow == null) return null;
+		
+		Schedule foundSchedule = scheduleRepo
+				.findByFlowAndDayOfWeekAndLessonNumAndIsNumerator(foundFlow.getId(), dayOfWeek, lessonNum, isNumerator)
+				.orElse(null);
+		if (foundSchedule == null) return null;
+		
+		return deleteById(foundSchedule.getId());
 	}
 
 	@Override

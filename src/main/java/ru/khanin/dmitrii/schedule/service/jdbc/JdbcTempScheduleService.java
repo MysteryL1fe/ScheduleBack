@@ -143,6 +143,24 @@ public class JdbcTempScheduleService implements TempScheduleService {
 		found.forEach(result::add);
 		return result;
 	}
+	
+	@Override
+	public Collection<TempSchedule> findAllByFlow(long flowId) {
+		Iterable<TempSchedule> found = tempScheduleRepo.findAllByFlow(flowId);
+		Collection<TempSchedule> result = new ArrayList<>();
+		found.forEach(result::add);
+		return result;
+	}
+	
+	@Override
+	public Collection<TempSchedule> findAllByFlow(int flowLvl, int course, int flow, int subgroup) {
+		Flow foundFlow = flowRepo
+				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
+				.orElse(null);
+		if (foundFlow == null) return null;
+		
+		return findAllByFlow(foundFlow.getId());
+	}
 
 	@Override
 	public Collection<TempSchedule> findAllByFlowAndLessonDate(long flowId, LocalDate lessonDate) {
@@ -150,6 +168,32 @@ public class JdbcTempScheduleService implements TempScheduleService {
 		Collection<TempSchedule> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;
+	}
+	
+	@Override
+	public Collection<TempSchedule> findAllByFlowAndLessonDate(int flowLvl, int course, int flow, int subgroup,
+			LocalDate lessonDate) {
+		Flow foundFlow = flowRepo
+				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
+				.orElse(null);
+		if (foundFlow == null) return null;
+		
+		return findAllByFlowAndLessonDate(foundFlow.getId(), lessonDate);
+	}
+	
+	@Override
+	public TempSchedule delete(int flowLvl, int course, int flow, int subgroup, LocalDate lessonDate, int lessonNum) {
+		Flow foundFlow = flowRepo
+				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
+				.orElse(null);
+		if (foundFlow == null) return null;
+		
+		TempSchedule foundSchedule = tempScheduleRepo
+				.findByFlowAndLessonDateAndLessonNum(foundFlow.getId(), lessonDate, lessonNum)
+				.orElse(null);
+		if (foundSchedule == null) return null;
+		
+		return deleteById(foundSchedule.getId());
 	}
 
 	@Override

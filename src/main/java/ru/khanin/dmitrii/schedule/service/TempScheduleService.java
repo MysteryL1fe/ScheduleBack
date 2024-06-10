@@ -22,7 +22,15 @@ public interface TempScheduleService {
 	);
 	TempSchedule findByFlowAndLessonDateAndLessonNum(long flowId, LocalDate lessonDate, int lessonNum);
 	Collection<TempSchedule> findAll();
+	Collection<TempSchedule> findAllByFlow(long flowId);
+	Collection<TempSchedule> findAllByFlow(int flowLvl, int course, int flow, int subgroup);
 	Collection<TempSchedule> findAllByFlowAndLessonDate(long flowId, LocalDate lessonDate);
+	Collection<TempSchedule> findAllByFlowAndLessonDate(
+			int flowLvl, int course, int flow, int subgroup, LocalDate lessonDate
+	);
+	TempSchedule delete(
+			int flowLvl, int course, int flow, int subgroup, LocalDate lessonDate, int lessonNum
+	);
 	TempSchedule deleteById(long id);
 	Collection<TempSchedule> deleteAll();
 	Collection<TempSchedule> deleteAllBeforeDate(LocalDate date);

@@ -82,6 +82,21 @@ public class JdbcHomeworkService implements HomeworkService {
 		found.forEach(result::add);
 		return result;
 	}
+	
+	@Override
+	public Homework delete(int flowLvl, int course, int flow, int subgroup, LocalDate lessonDate, int lessonNum) {
+		Flow foundFlow = flowRepo
+				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
+				.orElse(null);
+		if (foundFlow == null) return null;
+		
+		Homework foundHomework = homeworkRepo
+				.findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, foundFlow.getId())
+				.orElse(null);
+		if (foundHomework == null) return null;
+		
+		return deleteById(foundHomework.getId());
+	}
 
 	@Override
 	public Homework deleteById(long id) {

@@ -29,6 +29,11 @@ public class JdbcFlowService implements FlowService {
 		flowToAdd.setSubgroup(subgroup);
 		return flowRepo.add(flowToAdd);
 	}
+	
+	@Override
+	public Flow findById(long id) {
+		return flowRepo.findById(id).orElse(null);
+	}
 
 	@Override
 	public Collection<Flow> findAll() {

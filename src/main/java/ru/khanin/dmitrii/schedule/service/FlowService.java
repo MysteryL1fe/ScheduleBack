@@ -6,6 +6,7 @@ import ru.khanin.dmitrii.schedule.entity.Flow;
 
 public interface FlowService {
 	Flow add(int flowLvl, int course, int flow, int subgroup);
+	Flow findById(long id);
 	Collection<Flow> findAll();
 	Collection<Flow> findAllByFlowLvl(int flowLvl);
 	Collection<Flow> findAllByFlowLvlAndCourse(int flowLvl, int course);

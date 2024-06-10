@@ -70,6 +70,15 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 	}
 	
 	@Override
+	public Iterable<TempSchedule> findAllByFlow(long flow) {
+		return jdbcTemplate.query(
+				"SELECT * FROM temp_schedule WHERE flow=:flow",
+				Map.of("flow", flow),
+				rowMapper
+		);
+	}
+	
+	@Override
 	public Iterable<TempSchedule> findAllByFlowAndLessonDate(long flow, LocalDate lessonDate) {
 		return jdbcTemplate.query(
 				"SELECT * FROM temp_schedule WHERE flow=:flow AND lesson_date=:lessonDate",

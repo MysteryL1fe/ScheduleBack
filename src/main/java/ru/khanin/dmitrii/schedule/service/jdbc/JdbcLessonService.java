@@ -26,18 +26,15 @@ public class JdbcLessonService implements LessonService {
 		lesson.setCabinet(cabinet);
 		return lessonRepo.add(lesson);
 	}
+	
+	@Override
+	public Lesson findById(long id) {
+		return lessonRepo.findById(id).orElse(null);
+	}
 
 	@Override
 	public Collection<Lesson> findAll() {
 		Iterable<Lesson> found = lessonRepo.findAll();
-		Collection<Lesson> result = new ArrayList<>();
-		found.forEach(result::add);
-		return result;
-	}
-
-	@Override
-	public Collection<Lesson> findAllByTeacher(String teacher) {
-		Iterable<Lesson> found = lessonRepo.findAllByTeacher(teacher);
 		Collection<Lesson> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;

@@ -66,15 +66,6 @@ public class JdbcLessonRepo implements LessonRepo {
 				rowMapper
 		);
 	}
-	
-	@Override
-	public Iterable<Lesson> findAllByTeacher(String teacher) {
-		return jdbcTemplate.query(
-				"SELECT * FROM lesson WHERE teacher ilike :teacher",
-				Map.of("teacher", teacher),
-				rowMapper
-		);
-	}
 
 	@Override
 	public Optional<Lesson> deleteById(long id) {

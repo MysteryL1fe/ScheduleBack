@@ -90,6 +90,17 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 				rowMapper
 		);
 	}
+	
+	@Override
+	public Iterable<Schedule> findAllWhereTeacherStartsWith(String teacher) {
+		return jdbcTemplate.query(
+				"SELECT s.id, s.flow, s.lesson, s.day_of_week, s.lesson_num, s.is_numerator"
+				+ " FROM schedule s JOIN lesson l ON s.lesson=l.id"
+				+ " WHERE istarts_with(l.teacher, :teacher)",
+				Map.of("teacher", teacher),
+				rowMapper
+		);
+	}
 
 	@Override
 	public Optional<Schedule> deleteById(long id) {

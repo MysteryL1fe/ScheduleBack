@@ -8,8 +8,8 @@ import lombok.EqualsAndHashCode;
 public class Schedule {
 	private long id;
 	private long flow;
-	private int dayOfWeek;
 	private long lesson;
+	private int dayOfWeek;
 	private int lessonNum;
 	private boolean isNumerator;
 }
