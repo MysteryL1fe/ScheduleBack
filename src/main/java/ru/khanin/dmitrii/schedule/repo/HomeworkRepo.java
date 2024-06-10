@@ -14,4 +14,6 @@ public interface HomeworkRepo {
 	Iterable<Homework> findAllByLessonDateAndFlow(LocalDate lessonDate, long flow);
 	Optional<Homework> deleteById(long id);
 	Iterable<Homework> deleteAll();
+	Iterable<Homework> deleteAllBeforeDate(LocalDate date);
+	Iterable<Homework> deleteAllByFlow(long flow);
 }

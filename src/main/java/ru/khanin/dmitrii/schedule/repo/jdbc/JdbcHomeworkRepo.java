@@ -102,7 +102,7 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 				)
 		);
 	}
-	
+		
 	@Override
 	public Iterable<Homework> deleteAll() {
 		return jdbcTemplate.query(
@@ -111,4 +111,22 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 		);
 	}
 
+	@Override
+	public Iterable<Homework> deleteAllBeforeDate(LocalDate date) {
+		return jdbcTemplate.query(
+				"DELETE FROM homework WHERE lesson_date<:date RETURNING *",
+				Map.of("date", date),
+				rowMapper
+		);
+	}
+	
+	@Override
+	public Iterable<Homework> deleteAllByFlow(long flow) {
+		return jdbcTemplate.query(
+				"DELETE FROM homework WHERE flow=:flow RETURNING *",
+				Map.of("flow", flow),
+				rowMapper
+		);
+	}
+	
 }

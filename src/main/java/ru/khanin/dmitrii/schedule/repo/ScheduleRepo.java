@@ -9,8 +9,10 @@ public interface ScheduleRepo {
 	Optional<Schedule> findById(long id);
 	Optional<Schedule> findByFlowAndDayOfWeekAndLessonNumAndIsNumerator(long flow, int dayOfWeek, int lessonNum, boolean isNumerator);
 	Iterable<Schedule> findAll();
-	Iterable<Schedule> findAllByFlow(int flow);
+	Iterable<Schedule> findAllByFlow(long flow);
 	Iterable<Schedule> findAllByFlowAndDayOfWeekAndIsNumerator(long flow, int dayOfWeek, boolean isNumerator);
 	Optional<Schedule> deleteById(long id);
 	Iterable<Schedule> deleteAll();
+	Iterable<Schedule> deleteAllByFlow(long flow);
+	Iterable<Schedule> deleteAllByLesson(long lesson);
 }

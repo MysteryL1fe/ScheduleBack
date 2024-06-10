@@ -13,4 +13,7 @@ public interface TempScheduleRepo {
 	Iterable<TempSchedule> findAllByFlowAndLessonDate(long flow, LocalDate lessonDate);
 	Optional<TempSchedule> deleteById(long id);
 	Iterable<TempSchedule> deleteAll();
+	Iterable<TempSchedule> deleteAllBeforeDate(LocalDate date);
+	Iterable<TempSchedule> deleteAllByFlow(long flow);
+	Iterable<TempSchedule> deleteAllByLesson(long lesson);
 }

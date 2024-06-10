@@ -101,5 +101,32 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 				rowMapper
 		);
 	}
+	
+	@Override
+	public Iterable<TempSchedule> deleteAllBeforeDate(LocalDate date) {
+		return jdbcTemplate.query(
+				"DELETE FROM temp_schedule WHERE lesson_date<:date RETURNING *",
+				Map.of("date", date),
+				rowMapper
+		);
+	}
+	
+	@Override
+	public Iterable<TempSchedule> deleteAllByFlow(long flow) {
+		return jdbcTemplate.query(
+				"DELETE FROM temp_schedule WHERE flow=:flow RETURNING *",
+				Map.of("flow", flow),
+				rowMapper
+		);
+	}
+	
+	@Override
+	public Iterable<TempSchedule> deleteAllByLesson(long lesson) {
+		return jdbcTemplate.query(
+				"DELETE FROM temp_schedule WHERE lesson=:lesson RETURNING *",
+				Map.of("lesson", lesson),
+				rowMapper
+		);
+	}
 
 }

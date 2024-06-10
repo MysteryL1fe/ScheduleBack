@@ -70,7 +70,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	}
 	
 	@Override
-	public Iterable<Schedule> findAllByFlow(int flow) {
+	public Iterable<Schedule> findAllByFlow(long flow) {
 		return jdbcTemplate.query(
 				"SELECT * FROM schedule WHERE flow=:flow",
 				Map.of("flow", flow),
@@ -108,6 +108,24 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	public Iterable<Schedule> deleteAll() {
 		return jdbcTemplate.query(
 				"DELETE FROM schedule RETURNING *",
+				rowMapper
+		);
+	}
+	
+	@Override
+	public Iterable<Schedule> deleteAllByFlow(long flow) {
+		return jdbcTemplate.query(
+				"DELETE FROM schedule WHERE flow=:flow RETURNING *",
+				Map.of("flow", flow),
+				rowMapper
+		);
+	}
+	
+	@Override
+	public Iterable<Schedule> deleteAllByLesson(long lesson) {
+		return jdbcTemplate.query(
+				"DELETE FROM schedule WHERE lesson=:lesson RETURNING *",
+				Map.of("lesson", lesson),
 				rowMapper
 		);
 	}
