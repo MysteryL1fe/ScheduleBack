@@ -27,7 +27,7 @@ import ru.khanin.dmitrii.schedule.service.jdbc.JdbcTempScheduleService;
 
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
-public record AppConfig(@NotNull URI brsBaseUrl, @NotNull AccessType databaseAccessType, @NotNull String cron) {
+public record AppConfig(@NotNull URI brsUrl, @NotNull AccessType databaseAccessType, @NotNull String cron) {
 	public enum AccessType {
 		JDBC
 	}

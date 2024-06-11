@@ -138,7 +138,7 @@ public class JdbcTempScheduleService implements TempScheduleService {
 
 	@Override
 	public Collection<TempSchedule> findAll() {
-		Iterable<TempSchedule> found = tempScheduleRepo.findAll();
+		Iterable<? extends TempSchedule> found = tempScheduleRepo.findAll();
 		Collection<TempSchedule> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;
@@ -146,7 +146,7 @@ public class JdbcTempScheduleService implements TempScheduleService {
 	
 	@Override
 	public Collection<TempSchedule> findAllByFlow(long flowId) {
-		Iterable<TempSchedule> found = tempScheduleRepo.findAllByFlow(flowId);
+		Iterable<? extends TempSchedule> found = tempScheduleRepo.findAllByFlow(flowId);
 		Collection<TempSchedule> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;

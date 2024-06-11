@@ -61,7 +61,7 @@ public class JdbcHomeworkService implements HomeworkService {
 
 	@Override
 	public Collection<Homework> findAll() {
-		Iterable<Homework> found = homeworkRepo.findAll();
+		Iterable<? extends Homework> found = homeworkRepo.findAll();
 		Collection<Homework> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;

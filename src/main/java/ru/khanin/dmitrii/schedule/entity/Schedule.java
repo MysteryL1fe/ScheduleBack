@@ -6,10 +6,10 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Schedule {
-	private long id;
-	private long flow;
-	private long lesson;
-	private int dayOfWeek;
-	private int lessonNum;
-	private boolean isNumerator;
+	protected long id;
+	protected long flow;
+	protected long lesson;
+	protected int dayOfWeek;
+	protected int lessonNum;
+	protected boolean isNumerator;
 }

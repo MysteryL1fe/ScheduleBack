@@ -8,10 +8,10 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Homework {
-	private long id;
-	private String homework;
-	private LocalDate lessonDate;
-	private int lessonNum;
-	private long flow;
-	private String lessonName;
+	protected long id;
+	protected String homework;
+	protected LocalDate lessonDate;
+	protected int lessonNum;
+	protected long flow;
+	protected String lessonName;
 }

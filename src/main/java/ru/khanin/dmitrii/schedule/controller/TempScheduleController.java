@@ -17,12 +17,15 @@ import lombok.RequiredArgsConstructor;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowRequest;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowResponse;
 import ru.khanin.dmitrii.schedule.dto.lesson.LessonResponse;
+import ru.khanin.dmitrii.schedule.dto.schedule.ScheduleResponse;
 import ru.khanin.dmitrii.schedule.dto.temp.DeleteTempScheduleRequest;
 import ru.khanin.dmitrii.schedule.dto.temp.TempScheduleRequest;
 import ru.khanin.dmitrii.schedule.dto.temp.TempScheduleResponse;
 import ru.khanin.dmitrii.schedule.entity.Flow;
 import ru.khanin.dmitrii.schedule.entity.Lesson;
 import ru.khanin.dmitrii.schedule.entity.TempSchedule;
+import ru.khanin.dmitrii.schedule.entity.jdbc.ScheduleJoined;
+import ru.khanin.dmitrii.schedule.entity.jdbc.TempScheduleJoined;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.LessonService;
 import ru.khanin.dmitrii.schedule.service.TempScheduleService;
@@ -40,19 +43,38 @@ public class TempScheduleController {
 		Collection<TempSchedule> found = tempScheduleService.findAll();
 		List<TempScheduleResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
-			Flow flow = flowService.findById(e.getFlow());
-			FlowResponse flowResponse = new FlowResponse(
-					flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup()
-			);
-					
-			Lesson lesson = lessonService.findById(e.getLesson());
-			LessonResponse lessonResponse = new LessonResponse(
-					lesson.getName(), lesson.getTeacher(), lesson.getCabinet()
-			);
-			
-			result.add(new TempScheduleResponse(
-					flowResponse, lessonResponse, e.getLessonDate(), e.getLessonNum(), e.isWillLessonBe()
-			));
+			if (e instanceof TempScheduleJoined) {
+				TempScheduleJoined schedule = (TempScheduleJoined) e;
+				
+				FlowResponse flowResponse = new FlowResponse(
+						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
+						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup()
+				);
+				
+				LessonResponse lessonResponse = new LessonResponse(
+						schedule.getLessonJoined().getName(), schedule.getLessonJoined().getTeacher(),
+						schedule.getLessonJoined().getCabinet()
+				);
+				
+				result.add(new TempScheduleResponse(
+						flowResponse, lessonResponse, schedule.getLessonDate(),
+						schedule.getLessonNum(), schedule.isWillLessonBe()
+				));
+			} else {
+				Flow flow = flowService.findById(e.getFlow());
+				FlowResponse flowResponse = new FlowResponse(
+						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup()
+				);
+						
+				Lesson lesson = lessonService.findById(e.getLesson());
+				LessonResponse lessonResponse = new LessonResponse(
+						lesson.getName(), lesson.getTeacher(), lesson.getCabinet()
+				);
+				
+				result.add(new TempScheduleResponse(
+						flowResponse, lessonResponse, e.getLessonDate(), e.getLessonNum(), e.isWillLessonBe()
+				));
+			}
 		});
 		
 		return ResponseEntity.ok(result);
@@ -64,19 +86,38 @@ public class TempScheduleController {
 				.findAllByFlow(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
 		List<TempScheduleResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
-			Flow foundFlow = flowService.findById(e.getFlow());
-			FlowResponse flowResponse = new FlowResponse(
-					foundFlow.getFlowLvl(), foundFlow.getCourse(), foundFlow.getFlow(), foundFlow.getSubgroup()
-			);
-
-			Lesson lesson = lessonService.findById(e.getLesson());
-			LessonResponse lessonResponse = new LessonResponse(
-					lesson.getName(), lesson.getTeacher(), lesson.getCabinet()
-			);
-			
-			result.add(new TempScheduleResponse(
-					flowResponse, lessonResponse, e.getLessonDate(), e.getLessonNum(), e.isWillLessonBe()
-			));
+			if (e instanceof TempScheduleJoined) {
+				TempScheduleJoined schedule = (TempScheduleJoined) e;
+				
+				FlowResponse flowResponse = new FlowResponse(
+						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
+						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup()
+				);
+				
+				LessonResponse lessonResponse = new LessonResponse(
+						schedule.getLessonJoined().getName(), schedule.getLessonJoined().getTeacher(),
+						schedule.getLessonJoined().getCabinet()
+				);
+				
+				result.add(new TempScheduleResponse(
+						flowResponse, lessonResponse, schedule.getLessonDate(),
+						schedule.getLessonNum(), schedule.isWillLessonBe()
+				));
+			} else {
+				Flow foundFlow = flowService.findById(e.getFlow());
+				FlowResponse flowResponse = new FlowResponse(
+						foundFlow.getFlowLvl(), foundFlow.getCourse(), foundFlow.getFlow(), foundFlow.getSubgroup()
+				);
+	
+				Lesson lesson = lessonService.findById(e.getLesson());
+				LessonResponse lessonResponse = new LessonResponse(
+						lesson.getName(), lesson.getTeacher(), lesson.getCabinet()
+				);
+				
+				result.add(new TempScheduleResponse(
+						flowResponse, lessonResponse, e.getLessonDate(), e.getLessonNum(), e.isWillLessonBe()
+				));
+			}
 		});
 		
 		return ResponseEntity.ok(result);

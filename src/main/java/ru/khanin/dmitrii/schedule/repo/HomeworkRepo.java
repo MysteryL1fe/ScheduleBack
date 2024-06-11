@@ -9,7 +9,7 @@ public interface HomeworkRepo {
 	Homework add(Homework homework);
 	Optional<Homework> findById(long id);
 	Optional<Homework> findByLessonDateAndLessonNumAndFlow(LocalDate lessonDate, int lessonNum, long flow);
-	Iterable<Homework> findAll();
+	Iterable<? extends Homework> findAll();
 	Iterable<Homework> findAllByFlow(long flow);
 	Iterable<Homework> findAllByLessonDateAndFlow(LocalDate lessonDate, long flow);
 	Optional<Homework> deleteById(long id);

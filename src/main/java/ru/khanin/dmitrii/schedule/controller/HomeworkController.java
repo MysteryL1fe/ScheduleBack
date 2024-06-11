@@ -20,6 +20,7 @@ import ru.khanin.dmitrii.schedule.dto.homework.HomeworkRequest;
 import ru.khanin.dmitrii.schedule.dto.homework.HomeworkResponse;
 import ru.khanin.dmitrii.schedule.entity.Flow;
 import ru.khanin.dmitrii.schedule.entity.Homework;
+import ru.khanin.dmitrii.schedule.entity.jdbc.HomeworkJoined;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.HomeworkService;
 
@@ -35,14 +36,28 @@ public class HomeworkController {
 		Collection<Homework> found = homeworkService.findAll();
 		List<HomeworkResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
-			Flow flow = flowService.findById(e.getFlow());
-			FlowResponse flowResponse = new FlowResponse(
-					flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup()
-			);
-					
-			result.add(new HomeworkResponse(
-					e.getHomework(), e.getLessonDate(), e.getLessonNum(), flowResponse, e.getLessonName()
-			));
+			if (e instanceof HomeworkJoined) {
+				HomeworkJoined homework = (HomeworkJoined) e;
+				
+				FlowResponse flowResponse = new FlowResponse(
+						homework.getJoinedFlow().getFlowLvl(), homework.getJoinedFlow().getCourse(),
+						homework.getJoinedFlow().getFlow(), homework.getJoinedFlow().getSubgroup()
+				);
+				
+				result.add(new HomeworkResponse(
+						homework.getHomework(), homework.getLessonDate(), homework.getLessonNum(),
+						flowResponse, homework.getLessonName()
+				));
+			} else {
+				Flow flow = flowService.findById(e.getFlow());
+				FlowResponse flowResponse = new FlowResponse(
+						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup()
+				);
+						
+				result.add(new HomeworkResponse(
+						e.getHomework(), e.getLessonDate(), e.getLessonNum(), flowResponse, e.getLessonName()
+				));
+			}
 		});
 		return ResponseEntity.ok(result);
 	}

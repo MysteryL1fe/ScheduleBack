@@ -13,13 +13,16 @@ import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
 import ru.khanin.dmitrii.schedule.entity.Homework;
+import ru.khanin.dmitrii.schedule.entity.jdbc.HomeworkJoined;
 import ru.khanin.dmitrii.schedule.repo.HomeworkRepo;
+import ru.khanin.dmitrii.schedule.repo.jdbc.mapper.HomeworkJoinedRowMapper;
 
 @Repository
 @RequiredArgsConstructor
 public class JdbcHomeworkRepo implements HomeworkRepo {
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private final RowMapper<Homework> rowMapper = new DataClassRowMapper<>(Homework.class);
+	private final RowMapper<HomeworkJoined> joinedRowMapper = new HomeworkJoinedRowMapper();
 	
 	@Override
 	public Homework add(Homework homework) {
@@ -62,10 +65,12 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 	}
 
 	@Override
-	public Iterable<Homework> findAll() {
+	public Iterable<? extends Homework> findAll() {
 		return jdbcTemplate.query(
-				"SELECT * FROM homework",
-				rowMapper
+				"SELECT h.id AS homework_id, h.homework, h.lesson_date, h.lesson_num, h.flow AS flow_id, h.lesson_name,"
+				+ " f.flow_lvl, f.course, f.flow, f.subgroup"
+				+ " FROM homework h JOIN flow f ON h.flow=f.id",
+				joinedRowMapper
 		);
 	}
 	

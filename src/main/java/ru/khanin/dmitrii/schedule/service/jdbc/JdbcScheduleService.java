@@ -148,7 +148,7 @@ public class JdbcScheduleService implements ScheduleService {
 
 	@Override
 	public Collection<Schedule> findAll() {
-		Iterable<Schedule> found = scheduleRepo.findAll();
+		Iterable<? extends Schedule> found = scheduleRepo.findAll();
 		Collection<Schedule> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;
@@ -156,7 +156,7 @@ public class JdbcScheduleService implements ScheduleService {
 
 	@Override
 	public Collection<Schedule> findAllByFlow(long flowId) {
-		Iterable<Schedule> found = scheduleRepo.findAllByFlow(flowId);
+		Iterable<? extends Schedule> found = scheduleRepo.findAllByFlow(flowId);
 		Collection<Schedule> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;
@@ -186,7 +186,7 @@ public class JdbcScheduleService implements ScheduleService {
 	
 	@Override
 	public Collection<Schedule> findAllWhereTeacherStartsWith(String teacher) {
-		Iterable<Schedule> found = scheduleRepo.findAllWhereTeacherStartsWith(teacher);
+		Iterable<? extends Schedule> found = scheduleRepo.findAllWhereTeacherStartsWith(teacher);
 		Collection<Schedule> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;

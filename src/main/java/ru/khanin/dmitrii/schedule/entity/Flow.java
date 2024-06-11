@@ -6,9 +6,9 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Flow {
-	private long id;
-	private int flowLvl;
-	private int course;
-	private int flow;
-	private int subgroup;
+	protected long id;
+	protected int flowLvl;
+	protected int course;
+	protected int flow;
+	protected int subgroup;
 }

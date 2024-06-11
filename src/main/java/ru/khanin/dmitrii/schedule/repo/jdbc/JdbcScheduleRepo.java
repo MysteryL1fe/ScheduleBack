@@ -12,13 +12,16 @@ import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
 import ru.khanin.dmitrii.schedule.entity.Schedule;
+import ru.khanin.dmitrii.schedule.entity.jdbc.ScheduleJoined;
 import ru.khanin.dmitrii.schedule.repo.ScheduleRepo;
+import ru.khanin.dmitrii.schedule.repo.jdbc.mapper.ScheduleJoinedRowMapper;
 
 @Repository
 @RequiredArgsConstructor
 public class JdbcScheduleRepo implements ScheduleRepo {
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private final RowMapper<Schedule> rowMapper = new DataClassRowMapper<>(Schedule.class);
+	private final RowMapper<ScheduleJoined> joinedRowMapper = new ScheduleJoinedRowMapper();
 	
 	@Override
 	public Schedule add(Schedule schedule) {
@@ -62,19 +65,24 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	}
 
 	@Override
-	public Iterable<Schedule> findAll() {
+	public Iterable<? extends Schedule> findAll() {
 		return jdbcTemplate.query(
-				"SELECT * FROM schedule",
-				rowMapper
+				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
+				+ " s.is_numerator, f.flow_lvl, f.course, f.flow, f.subgroup, l.name, l.teacher, l.cabinet"
+				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id",
+				joinedRowMapper
 		);
 	}
 	
 	@Override
-	public Iterable<Schedule> findAllByFlow(long flow) {
+	public Iterable<? extends Schedule> findAllByFlow(long flow) {
 		return jdbcTemplate.query(
-				"SELECT * FROM schedule WHERE flow=:flow",
+				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
+				+ " s.is_numerator, f.flow_lvl, f.course, f.flow, f.subgroup, l.name, l.teacher, l.cabinet"
+				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id"
+				+ " WHERE flow=:flow",
 				Map.of("flow", flow),
-				rowMapper
+				joinedRowMapper
 		);
 	}
 	
@@ -92,13 +100,14 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	}
 	
 	@Override
-	public Iterable<Schedule> findAllWhereTeacherStartsWith(String teacher) {
+	public Iterable<? extends Schedule> findAllWhereTeacherStartsWith(String teacher) {
 		return jdbcTemplate.query(
-				"SELECT s.id, s.flow, s.lesson, s.day_of_week, s.lesson_num, s.is_numerator"
-				+ " FROM schedule s JOIN lesson l ON s.lesson=l.id"
+				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
+				+ " s.is_numerator, f.flow_lvl, f.course, f.flow, f.subgroup, l.name, l.teacher, l.cabinet"
+				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id"
 				+ " WHERE istarts_with(l.teacher, :teacher)",
 				Map.of("teacher", teacher),
-				rowMapper
+				joinedRowMapper
 		);
 	}
 

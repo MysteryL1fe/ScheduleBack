@@ -13,13 +13,16 @@ import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
 import ru.khanin.dmitrii.schedule.entity.TempSchedule;
+import ru.khanin.dmitrii.schedule.entity.jdbc.TempScheduleJoined;
 import ru.khanin.dmitrii.schedule.repo.TempScheduleRepo;
+import ru.khanin.dmitrii.schedule.repo.jdbc.mapper.TempScheduleJoinedRowMapper;
 
 @Repository
 @RequiredArgsConstructor
 public class JdbcTempScheduleRepo implements TempScheduleRepo {
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private final RowMapper<TempSchedule> rowMapper = new DataClassRowMapper<>(TempSchedule.class);
+	private final RowMapper<TempScheduleJoined> joinedRowMapper = new TempScheduleJoinedRowMapper();
 	
 	@Override
 	public TempSchedule add(TempSchedule tempSchedule) {
@@ -49,7 +52,8 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 		return Optional.ofNullable(
 				DataAccessUtils.singleResult(
 						jdbcTemplate.query(
-								"SELECT * FROM temp_schedule WHERE flow=:flow AND lesson_date=:lessonDate AND lesson_num=:lessonNum",
+								"SELECT * FROM temp_schedule"
+								+ " WHERE flow=:flow AND lesson_date=:lessonDate AND lesson_num=:lessonNum",
 								Map.of(
 										"flow", flow,
 										"lessonDate", lessonDate,
@@ -62,19 +66,24 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 	}
 
 	@Override
-	public Iterable<TempSchedule> findAll() {
+	public Iterable<? extends TempSchedule> findAll() {
 		return jdbcTemplate.query(
-				"SELECT * FROM temp_schedule",
-				rowMapper
+				"SELECT ts.id AS temp_schedule_id, ts.flow AS flow_id, ts.lesson AS lesson_id, ts.lesson_date, ts.lesson_num,"
+				+ " ts.will_lesson_be, f.flow_lvl, f.course, f.flow, f.subgroup, l.name, l.teacher, l.cabinet"
+				+ " FROM temp_schedule ts JOIN flow f ON ts.flow=f.id JOIN lesson l ON ts.lesson=l.id",
+				joinedRowMapper
 		);
 	}
 	
 	@Override
-	public Iterable<TempSchedule> findAllByFlow(long flow) {
+	public Iterable<? extends TempSchedule> findAllByFlow(long flow) {
 		return jdbcTemplate.query(
-				"SELECT * FROM temp_schedule WHERE flow=:flow",
+				"SELECT ts.id AS temp_schedule_id, ts.flow AS flow_id, ts.lesson AS lesson_id, ts.lesson_date, ts.lesson_num,"
+				+ " ts.will_lesson_be, f.flow_lvl, f.course, f.flow, f.subgroup, l.name, l.teacher, l.cabinet"
+				+ " FROM temp_schedule ts JOIN flow f ON ts.flow=f.id JOIN lesson l ON ts.lesson=l.id"
+				+ " WHERE flow=:flow",
 				Map.of("flow", flow),
-				rowMapper
+				joinedRowMapper
 		);
 	}
 	
