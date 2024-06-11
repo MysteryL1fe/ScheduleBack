@@ -11,4 +11,9 @@ public class Flow {
 	protected int course;
 	protected int flow;
 	protected int subgroup;
+	
+	public boolean equalsWithoutId(Flow other) {
+		return this.flowLvl == other.flowLvl && this.course == other.course
+				&& this.flow == other.flow && this.subgroup == other.subgroup;
+	}
 }

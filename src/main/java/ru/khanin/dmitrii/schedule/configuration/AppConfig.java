@@ -9,6 +9,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import ru.khanin.dmitrii.schedule.client.BrsClient;
 import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcFlowRepo;
 import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcHomeworkRepo;
 import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcLessonRepo;
@@ -26,8 +30,21 @@ import ru.khanin.dmitrii.schedule.service.jdbc.JdbcScheduleService;
 import ru.khanin.dmitrii.schedule.service.jdbc.JdbcTempScheduleService;
 
 @Validated
+@Configuration
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
-public record AppConfig(@NotNull URI brsUrl, @NotNull AccessType databaseAccessType, @NotNull String cron) {
+@RequiredArgsConstructor
+@Getter
+@Setter
+public class AppConfig {
+	@NotNull
+	private URI brsUrl;
+	
+	@NotNull
+	private AccessType databaseAccessType;
+	
+	@NotNull
+	private String cron;
+	
 	public enum AccessType {
 		JDBC
 	}
@@ -68,5 +85,10 @@ public record AppConfig(@NotNull URI brsUrl, @NotNull AccessType databaseAccessT
 		) {
 			return new JdbcTempScheduleService(tempScheduleRepo, flowRepo, lessonRepo);
 		}
+	}
+	
+	@Bean
+	public BrsClient brsClient() {
+		return new BrsClient(brsUrl);
 	}
 }
