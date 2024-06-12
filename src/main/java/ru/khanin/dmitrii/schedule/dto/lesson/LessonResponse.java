@@ -1,3 +1,6 @@
 package ru.khanin.dmitrii.schedule.dto.lesson;
 
-public record LessonResponse(String name, String teacher, String cabinet) {}
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
+
+public record LessonResponse(@NotNull String name, @Nullable String teacher, @Nullable String cabinet) {}

@@ -40,7 +40,7 @@ public class JdbcUserRepo implements UserRepo {
 	@Override
 	public Iterable<? extends User> findAllByApiKey(String apiKey) {
 		return jdbcTemplate.query(
-				"SELECT * FROM flow WHERE api_key=:apiKey",
+				"SELECT * FROM users WHERE api_key=:apiKey",
 				Map.of("apiKey", apiKey),
 				rowMapper
 		);
@@ -51,7 +51,7 @@ public class JdbcUserRepo implements UserRepo {
 		return Optional.ofNullable(
 				DataAccessUtils.singleResult(
 						jdbcTemplate.query(
-								"DELETE FROM flow WHERE id=:id RETURNING *",
+								"DELETE FROM users WHERE id=:id RETURNING *",
 								Map.of("id", id),
 								rowMapper
 						)
@@ -62,7 +62,7 @@ public class JdbcUserRepo implements UserRepo {
 	@Override
 	public Iterable<? extends User> deleteAll() {
 		return jdbcTemplate.query(
-				"DELETE FROM flow RETURNING *",
+				"DELETE FROM users RETURNING *",
 				rowMapper
 		);
 	}
@@ -70,7 +70,7 @@ public class JdbcUserRepo implements UserRepo {
 	@Override
 	public Iterable<? extends User> deleteAllWhereApiKeyIsNotNull() {
 		return jdbcTemplate.query(
-				"DELETE FROM flow WHERE flow IS NOT NULL RETURNING *",
+				"DELETE FROM flow WHERE users IS NOT NULL RETURNING *",
 				rowMapper
 		);
 	}
@@ -78,7 +78,7 @@ public class JdbcUserRepo implements UserRepo {
 	@Override
 	public Iterable<? extends User> deleteAllByApiKey(String apiKey) {
 		return jdbcTemplate.query(
-				"DELETE FROM flow WHERE api_key=:apiKey RETURNING *",
+				"DELETE FROM users WHERE api_key=:apiKey RETURNING *",
 				Map.of("apiKey", apiKey),
 				rowMapper
 		);
@@ -87,7 +87,7 @@ public class JdbcUserRepo implements UserRepo {
 	@Override
 	public Iterable<? extends User> deleteAllByFlow(long flow) {
 		return jdbcTemplate.query(
-				"DELETE FROM flow WHERE flow=:flow RETURNING *",
+				"DELETE FROM users WHERE flow=:flow RETURNING *",
 				Map.of("flow", flow),
 				rowMapper
 		);

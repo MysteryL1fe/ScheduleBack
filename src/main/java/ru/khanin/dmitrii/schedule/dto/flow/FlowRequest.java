@@ -1,3 +1,7 @@
 package ru.khanin.dmitrii.schedule.dto.flow;
 
-public record FlowRequest(int flow_lvl, int course, int flow, int subgroup) {}
+import jakarta.validation.constraints.NotNull;
+
+public record FlowRequest(
+		@NotNull Integer flow_lvl, @NotNull Integer course, @NotNull Integer flow, @NotNull Integer subgroup
+) {}

@@ -2,7 +2,10 @@ package ru.khanin.dmitrii.schedule.dto.brs;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotNull;
+
 public record StudGroupResponse(
-		int course, int num, int sub_count,
-		LocalDate lessons_start_day, LocalDate session_start_date, LocalDate session_end_date
+		@NotNull Integer course, @NotNull Integer num, @NotNull Integer sub_count,
+		@NotNull LocalDate lessons_start_day, @NotNull LocalDate session_start_date,
+		@NotNull LocalDate session_end_date
 ) {}
