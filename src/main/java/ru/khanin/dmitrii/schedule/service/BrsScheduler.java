@@ -21,12 +21,18 @@ public class BrsScheduler {
 	
 	@Scheduled(cron = "${app.cron}")
 	public void checkStudGroups() {
-		List<StudGroupResponse> studGroups = brsClient.getStudGroups();
-		List<Flow> brsFlows = new ArrayList<>();
-		for (StudGroupResponse studGroup : studGroups) {
-			brsFlows.addAll(convertStudGroupsToFlows(studGroup));
+		List<StudGroupResponse> studGroups = null;
+		try {
+			studGroups = brsClient.getStudGroups();
+		} catch (Exception e) {
+			return;
 		}
 		
+		if (studGroups == null || studGroups.isEmpty()) return;
+		
+		List<Flow> brsFlows = new ArrayList<>();
+		for (StudGroupResponse studGroup : studGroups)
+			brsFlows.addAll(convertStudGroupsToFlows(studGroup));
 		Collection<Flow> flows = flowService.findAll();
 		
 		if (flows.size() != brsFlows.size())  {
