@@ -13,6 +13,7 @@ public interface HomeworkService {
 	);
 	Collection<Homework> findAll();
 	Collection<Homework> findAllByFlow(long flowId);
+	Collection<Homework> findAllByFlow(int flowLvl, int course, int flow, int subgroup);
 	Collection<Homework> findAllByLessonDateAndFlow(LocalDate lessonDate, long flowId);
 	Homework delete(int flowLvl, int course, int flow, int subgroup, LocalDate lessonDate, int lessonNum);
 	Homework deleteById(long id);

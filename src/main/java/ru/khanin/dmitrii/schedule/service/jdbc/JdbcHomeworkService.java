@@ -67,6 +67,16 @@ public class JdbcHomeworkService implements HomeworkService {
 		found.forEach(result::add);
 		return result;
 	}
+	
+	@Override
+	public Collection<Homework> findAllByFlow(int flowLvl, int course, int flow, int subgroup) {
+		Flow foundFlow = flowRepo
+				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
+				.orElse(null);
+		if (foundFlow == null) return null;
+		
+		return findAllByFlow(foundFlow.getId());
+	}
 
 	@Override
 	public Collection<Homework> findAllByLessonDateAndFlow(LocalDate lessonDate, long flowId) {
