@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +29,7 @@ import ru.khanin.dmitrii.schedule.entity.jdbc.TempScheduleJoined;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.LessonService;
 import ru.khanin.dmitrii.schedule.service.TempScheduleService;
+import ru.khanin.dmitrii.schedule.service.UserService;
 
 @RestController
 @RequestMapping("temp")
@@ -35,6 +38,7 @@ public class TempScheduleController {
 	private final TempScheduleService tempScheduleService;
 	private final FlowService flowService;
 	private final LessonService lessonService;
+	private final UserService userService;
 	
 	@GetMapping("/all")
 	public ResponseEntity<List<TempScheduleResponse>> getAllTempSchedules() {
@@ -122,7 +126,14 @@ public class TempScheduleController {
 	}
 	
 	@PostMapping("/schedule")
-	public ResponseEntity<?> addTempSchedule(@RequestBody TempScheduleRequest tempSchedule) {
+	public ResponseEntity<?> addTempSchedule(
+			@RequestHeader("api_key") String apiKey, @RequestBody TempScheduleRequest tempSchedule
+	) {
+		if (!userService.checkFlowAccessByApiKey(
+				apiKey, tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(),
+				tempSchedule.flow().flow(), tempSchedule.flow().subgroup()
+		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		tempScheduleService.add(
 				tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
 				tempSchedule.flow().subgroup(), tempSchedule.lesson().name(), tempSchedule.lesson().teacher(),
@@ -134,7 +145,22 @@ public class TempScheduleController {
 	
 	@PostMapping("/schedules")
 	@Transactional
-	public ResponseEntity<?> addTempSchedules(@RequestBody List<TempScheduleRequest> tempSchedules) {
+	public ResponseEntity<?> addTempSchedules(
+			@RequestHeader("api_key") String apiKey, @RequestBody List<TempScheduleRequest> tempSchedules
+	) {
+		List<Flow> flows = new ArrayList<>();
+		tempSchedules.forEach((e) -> {
+			Flow flow = new Flow();
+			flow.setFlowLvl(e.flow().flow_lvl());
+			flow.setCourse(e.flow().course());
+			flow.setFlow(e.flow().flow());
+			flow.setSubgroup(e.flow().subgroup());
+			
+			flows.add(flow);
+		});
+		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
+			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		for (TempScheduleRequest tempSchedule : tempSchedules) {
 			tempScheduleService.add(
 					tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
@@ -147,7 +173,14 @@ public class TempScheduleController {
 	}
 	
 	@DeleteMapping("/schedule")
-	public ResponseEntity<?> deleteTempSchedule(@RequestBody DeleteTempScheduleRequest tempSchedule) {
+	public ResponseEntity<?> deleteTempSchedule(
+			@RequestHeader("api_key") String apiKey, @RequestBody DeleteTempScheduleRequest tempSchedule
+	) {
+		if (!userService.checkFlowAccessByApiKey(
+				apiKey, tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(),
+				tempSchedule.flow().flow(), tempSchedule.flow().subgroup()
+		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		tempScheduleService.delete(
 				tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
 				tempSchedule.flow().subgroup(), tempSchedule.lesson_date(), tempSchedule.lesson_num()
@@ -157,7 +190,22 @@ public class TempScheduleController {
 	
 	@DeleteMapping("/schedules")
 	@Transactional
-	public ResponseEntity<?> deleteSchedules(@RequestBody List<DeleteTempScheduleRequest> tempSchedules) {
+	public ResponseEntity<?> deleteSchedules(
+			@RequestHeader("api_key") String apiKey, @RequestBody List<DeleteTempScheduleRequest> tempSchedules
+	) {
+		List<Flow> flows = new ArrayList<>();
+		tempSchedules.forEach((e) -> {
+			Flow flow = new Flow();
+			flow.setFlowLvl(e.flow().flow_lvl());
+			flow.setCourse(e.flow().course());
+			flow.setFlow(e.flow().flow());
+			flow.setSubgroup(e.flow().subgroup());
+			
+			flows.add(flow);
+		});
+		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
+			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		for (DeleteTempScheduleRequest tempSchedule : tempSchedules) {
 			tempScheduleService.delete(
 					tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
@@ -168,7 +216,10 @@ public class TempScheduleController {
 	}
 	
 	@DeleteMapping("/all")
-	public ResponseEntity<?> deleteAllTempSchedules() {
+	public ResponseEntity<?> deleteAllTempSchedules(@RequestHeader("api_key") String apiKey) {
+		if (!userService.checkAdminAccessByApiKey(apiKey))
+			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		tempScheduleService.deleteAll();
 		return ResponseEntity.ok().build();
 	}

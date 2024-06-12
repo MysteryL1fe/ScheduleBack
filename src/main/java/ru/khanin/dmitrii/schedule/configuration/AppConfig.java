@@ -18,16 +18,19 @@ import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcHomeworkRepo;
 import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcLessonRepo;
 import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcScheduleRepo;
 import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcTempScheduleRepo;
+import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcUserRepo;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.HomeworkService;
 import ru.khanin.dmitrii.schedule.service.LessonService;
 import ru.khanin.dmitrii.schedule.service.ScheduleService;
 import ru.khanin.dmitrii.schedule.service.TempScheduleService;
+import ru.khanin.dmitrii.schedule.service.UserService;
 import ru.khanin.dmitrii.schedule.service.jdbc.JdbcFlowService;
 import ru.khanin.dmitrii.schedule.service.jdbc.JdbcHomeworkService;
 import ru.khanin.dmitrii.schedule.service.jdbc.JdbcLessonService;
 import ru.khanin.dmitrii.schedule.service.jdbc.JdbcScheduleService;
 import ru.khanin.dmitrii.schedule.service.jdbc.JdbcTempScheduleService;
+import ru.khanin.dmitrii.schedule.service.jdbc.JdbcUserService;
 
 @Validated
 @Configuration
@@ -55,9 +58,10 @@ public class AppConfig {
 		@Bean
 		public FlowService flowService(
 				JdbcFlowRepo flowRepo, JdbcHomeworkRepo homeworkRepo,
-				JdbcScheduleRepo scheduleRepo, JdbcTempScheduleRepo tempScheduleRepo
+				JdbcScheduleRepo scheduleRepo, JdbcTempScheduleRepo tempScheduleRepo,
+				JdbcUserRepo userRepo
 		) {
-			return new JdbcFlowService(flowRepo, homeworkRepo, scheduleRepo, tempScheduleRepo);
+			return new JdbcFlowService(flowRepo, homeworkRepo, scheduleRepo, tempScheduleRepo, userRepo);
 		}
 		
 		@Bean
@@ -84,6 +88,11 @@ public class AppConfig {
 				JdbcTempScheduleRepo tempScheduleRepo, JdbcFlowRepo flowRepo, JdbcLessonRepo lessonRepo
 		) {
 			return new JdbcTempScheduleService(tempScheduleRepo, flowRepo, lessonRepo);
+		}
+		
+		@Bean
+		public UserService userService(JdbcUserRepo userRepo, JdbcFlowRepo flowRepo) {
+			return new JdbcUserService(userRepo, flowRepo);
 		}
 	}
 	

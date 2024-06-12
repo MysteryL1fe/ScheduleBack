@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +29,7 @@ import ru.khanin.dmitrii.schedule.entity.jdbc.ScheduleJoined;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.LessonService;
 import ru.khanin.dmitrii.schedule.service.ScheduleService;
+import ru.khanin.dmitrii.schedule.service.UserService;
 
 @RestController
 @RequestMapping("/schedule")
@@ -35,6 +38,7 @@ public class ScheduleController {
 	private final ScheduleService scheduleService;
 	private final FlowService flowService;
 	private final LessonService lessonService;
+	private final UserService userService;
 	
 	@GetMapping("/all")
 	public ResponseEntity<List<ScheduleResponse>> getAllSchedules() {
@@ -163,7 +167,14 @@ public class ScheduleController {
 	}
 	
 	@PostMapping("/schedule")
-	public ResponseEntity<?> addSchedule(@RequestBody ScheduleRequest schedule) {
+	public ResponseEntity<?> addSchedule(
+			@RequestHeader("api_key") String apiKey, @RequestBody ScheduleRequest schedule
+	) {
+		if (!userService.checkFlowAccessByApiKey(
+				apiKey, schedule.flow().flow_lvl(), schedule.flow().course(),
+				schedule.flow().flow(), schedule.flow().subgroup()
+		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		scheduleService.add(
 				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
 				schedule.flow().subgroup(), schedule.lesson().name(), schedule.lesson().teacher(),
@@ -175,7 +186,22 @@ public class ScheduleController {
 	
 	@PostMapping("/schedules")
 	@Transactional
-	public ResponseEntity<?> addSchedules(@RequestBody List<ScheduleRequest> schedules) {
+	public ResponseEntity<?> addSchedules(
+			@RequestHeader("api_key") String apiKey, @RequestBody List<ScheduleRequest> schedules
+	) {
+		List<Flow> flows = new ArrayList<>();
+		schedules.forEach((e) -> {
+			Flow flow = new Flow();
+			flow.setFlowLvl(e.flow().flow_lvl());
+			flow.setCourse(e.flow().course());
+			flow.setFlow(e.flow().flow());
+			flow.setSubgroup(e.flow().subgroup());
+			
+			flows.add(flow);
+		});
+		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
+			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		for (ScheduleRequest schedule : schedules) {
 			scheduleService.add(
 					schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
@@ -188,7 +214,14 @@ public class ScheduleController {
 	}
 	
 	@DeleteMapping("/schedule")
-	public ResponseEntity<?> deleteSchedule(@RequestBody DeleteScheduleRequest schedule) {
+	public ResponseEntity<?> deleteSchedule(
+			@RequestHeader("api_key") String apiKey, @RequestBody DeleteScheduleRequest schedule
+	) {
+		if (!userService.checkFlowAccessByApiKey(
+				apiKey, schedule.flow().flow_lvl(), schedule.flow().course(),
+				schedule.flow().flow(), schedule.flow().subgroup()
+		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		scheduleService.delete(
 				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
 				schedule.flow().subgroup(), schedule.day_of_week(), schedule.lesson_num(), schedule.is_numerator()
@@ -198,7 +231,22 @@ public class ScheduleController {
 	
 	@DeleteMapping("/schedules")
 	@Transactional
-	public ResponseEntity<?> deleteSchedules(@RequestBody List<DeleteScheduleRequest> schedules) {
+	public ResponseEntity<?> deleteSchedules(
+			@RequestHeader("api_key") String apiKey, @RequestBody List<DeleteScheduleRequest> schedules
+	) {
+		List<Flow> flows = new ArrayList<>();
+		schedules.forEach((e) -> {
+			Flow flow = new Flow();
+			flow.setFlowLvl(e.flow().flow_lvl());
+			flow.setCourse(e.flow().course());
+			flow.setFlow(e.flow().flow());
+			flow.setSubgroup(e.flow().subgroup());
+			
+			flows.add(flow);
+		});
+		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
+			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		for (DeleteScheduleRequest schedule : schedules) {
 			scheduleService.delete(
 					schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
@@ -209,7 +257,10 @@ public class ScheduleController {
 	}
 	
 	@DeleteMapping("/all")
-	public ResponseEntity<?> deleteAllSchedules() {
+	public ResponseEntity<?> deleteAllSchedules(@RequestHeader("api_key") String apiKey) {
+		if (!userService.checkAdminAccessByApiKey(apiKey))
+			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		scheduleService.deleteAll();
 		return ResponseEntity.ok().build();
 	}

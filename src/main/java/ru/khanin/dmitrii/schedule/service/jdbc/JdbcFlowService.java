@@ -11,6 +11,7 @@ import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcFlowRepo;
 import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcHomeworkRepo;
 import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcScheduleRepo;
 import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcTempScheduleRepo;
+import ru.khanin.dmitrii.schedule.repo.jdbc.JdbcUserRepo;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class JdbcFlowService implements FlowService {
 	private final JdbcHomeworkRepo homeworkRepo;
 	private final JdbcScheduleRepo scheduleRepo;
 	private final JdbcTempScheduleRepo tempScheduleRepo;
+	private final JdbcUserRepo userRepo;
 
 	@Override
 	public Flow add(int flowLvl, int course, int flow, int subgroup) {
@@ -73,6 +75,7 @@ public class JdbcFlowService implements FlowService {
 		homeworkRepo.deleteAllByFlow(id);
 		scheduleRepo.deleteAllByFlow(id);
 		tempScheduleRepo.deleteAllByFlow(id);
+		userRepo.deleteAllByFlow(id);
 		return flowRepo.deleteById(id).orElse(null);
 	}
 
@@ -82,6 +85,7 @@ public class JdbcFlowService implements FlowService {
 		homeworkRepo.deleteAll();
 		scheduleRepo.deleteAll();
 		tempScheduleRepo.deleteAll();
+		userRepo.deleteAllWhereApiKeyIsNotNull();
 		Iterable<Flow> deleted = flowRepo.deleteAll();
 		Collection<Flow> result = new ArrayList<>();
 		deleted.forEach(result::add);

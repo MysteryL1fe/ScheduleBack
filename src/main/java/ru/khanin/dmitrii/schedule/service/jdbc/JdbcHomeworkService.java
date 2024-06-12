@@ -30,16 +30,11 @@ public class JdbcHomeworkService implements HomeworkService {
 	}
 	
 	@Override
+	@Transactional
 	public Homework add(
 			String homework, LocalDate lessonDate, int lessonNum, int flowLvl, int course, int flow,
 			int subgroup, String lessonName
 	) {
-		Homework homeworkToAdd = new Homework();
-		homeworkToAdd.setHomework(homework);
-		homeworkToAdd.setLessonDate(lessonDate);
-		homeworkToAdd.setLessonNum(lessonNum);
-		homeworkToAdd.setLessonName(lessonName);
-		
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
 				.orElse(null);
@@ -51,12 +46,10 @@ public class JdbcHomeworkService implements HomeworkService {
 			flowToAdd.setSubgroup(subgroup);
 			Flow addedFlow = flowRepo.add(flowToAdd);
 			
-			homeworkToAdd.setFlow(addedFlow.getId());
-		} else {
-			homeworkToAdd.setFlow(foundFlow.getId());
+			return add(homework, lessonDate, lessonNum, addedFlow.getId(), lessonName);
 		}
 		
-		return homeworkRepo.add(homeworkToAdd);
+		return add(homework, lessonDate, lessonNum, foundFlow.getId(), lessonName);
 	}
 
 	@Override

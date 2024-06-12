@@ -33,6 +33,7 @@ public class JdbcTempScheduleService implements TempScheduleService {
 	}
 	
 	@Override
+	@Transactional
 	public TempSchedule add(int flowLvl, int course, int flow, int subgroup, long lessonId, LocalDate lessonDate,
 			int lessonNum, boolean willLessonBe) {
 		TempSchedule tempSchedule = new TempSchedule();
@@ -61,6 +62,7 @@ public class JdbcTempScheduleService implements TempScheduleService {
 	}
 	
 	@Override
+	@Transactional
 	public TempSchedule add(long flowId, String name, String teacher, String cabinet, LocalDate lessonDate,
 			int lessonNum, boolean willLessonBe) {
 		TempSchedule tempSchedule = new TempSchedule();
@@ -88,6 +90,7 @@ public class JdbcTempScheduleService implements TempScheduleService {
 	}
 	
 	@Override
+	@Transactional
 	public TempSchedule add(int flowLvl, int course, int flow, int subgroup, String name, String teacher,
 			String cabinet, LocalDate lessonDate, int lessonNum, boolean willLessonBe) {
 		TempSchedule tempSchedule = new TempSchedule();

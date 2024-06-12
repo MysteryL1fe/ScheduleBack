@@ -32,6 +32,7 @@ public class JdbcScheduleService implements ScheduleService {
 	}
 	
 	@Override
+	@Transactional
 	public Schedule add(
 			int flowLvl, int course, int flow, int subgroup, long lessonId,
 			int dayOfWeek, int lessonNum, boolean isNumerator
@@ -62,6 +63,7 @@ public class JdbcScheduleService implements ScheduleService {
 	}
 	
 	@Override
+	@Transactional
 	public Schedule add(
 			long flowId, String name, String teacher, String cabinet,
 			int dayOfWeek, int lessonNum, boolean isNumerator
@@ -91,6 +93,7 @@ public class JdbcScheduleService implements ScheduleService {
 	}
 	
 	@Override
+	@Transactional
 	public Schedule add(
 			int flowLvl, int course, int flow, int subgroup,
 			String name, String teacher, String cabinet,

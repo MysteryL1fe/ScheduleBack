@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,6 +25,7 @@ import ru.khanin.dmitrii.schedule.entity.Homework;
 import ru.khanin.dmitrii.schedule.entity.jdbc.HomeworkJoined;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.HomeworkService;
+import ru.khanin.dmitrii.schedule.service.UserService;
 
 @RestController
 @RequestMapping("homework")
@@ -30,6 +33,7 @@ import ru.khanin.dmitrii.schedule.service.HomeworkService;
 public class HomeworkController {
 	private final HomeworkService homeworkService;
 	private final FlowService flowService;
+	private final UserService userService;
 	
 	@GetMapping("/all")
 	public ResponseEntity<List<HomeworkResponse>> getAllHomeworks() {
@@ -63,7 +67,14 @@ public class HomeworkController {
 	}
 	
 	@PostMapping("/homework")
-	public ResponseEntity<?> addHomework(@RequestBody HomeworkRequest homework) {
+	public ResponseEntity<?> addHomework(
+			@RequestHeader("api_key") String apiKey, @RequestBody HomeworkRequest homework
+	) {
+		if (!userService.checkFlowAccessByApiKey(
+				apiKey, homework.flow().flow_lvl(), homework.flow().course(),
+				homework.flow().flow(), homework.flow().subgroup()
+		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		homeworkService.add(
 				homework.homework(), homework.lesson_date(), homework.lesson_num(), homework.flow().flow_lvl(),
 				homework.flow().course(), homework.flow().flow(), homework.flow().subgroup(), homework.lesson_name()
@@ -72,7 +83,14 @@ public class HomeworkController {
 	}
 	
 	@DeleteMapping("/homework")
-	public ResponseEntity<?> deleteHomework(@RequestBody DeleteHomeworkRequest homework) {
+	public ResponseEntity<?> deleteHomework(
+			@RequestHeader("api_key") String apiKey, @RequestBody DeleteHomeworkRequest homework
+	) {
+		if (!userService.checkFlowAccessByApiKey(
+				apiKey, homework.flow().flow_lvl(), homework.flow().course(),
+				homework.flow().flow(), homework.flow().subgroup()
+		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		homeworkService.delete(
 				homework.flow().flow_lvl(), homework.flow().course(), homework.flow().flow(),
 				homework.flow().subgroup(), homework.lesson_date(), homework.lesson_num()
@@ -82,7 +100,22 @@ public class HomeworkController {
 	
 	@DeleteMapping("/homeworks")
 	@Transactional
-	public ResponseEntity<?> deleteHomeworks(@RequestBody List<DeleteHomeworkRequest> homeworks) {
+	public ResponseEntity<?> deleteHomeworks(
+			@RequestHeader("api_key") String apiKey, @RequestBody List<DeleteHomeworkRequest> homeworks
+	) {
+		List<Flow> flows = new ArrayList<>();
+		homeworks.forEach((e) -> {
+			Flow flow = new Flow();
+			flow.setFlowLvl(e.flow().flow_lvl());
+			flow.setCourse(e.flow().course());
+			flow.setFlow(e.flow().flow());
+			flow.setSubgroup(e.flow().subgroup());
+			
+			flows.add(flow);
+		});
+		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
+			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		for (DeleteHomeworkRequest homework : homeworks) {
 			homeworkService.delete(
 					homework.flow().flow_lvl(), homework.flow().course(), homework.flow().flow(),
@@ -93,7 +126,10 @@ public class HomeworkController {
 	}
 	
 	@DeleteMapping("/all")
-	public ResponseEntity<?> deleteAllHomeworks() {
+	public ResponseEntity<?> deleteAllHomeworks(@RequestHeader("api_key") String apiKey) {
+		if (!userService.checkAdminAccessByApiKey(apiKey))
+			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		
 		homeworkService.deleteAll();
 		return ResponseEntity.ok().build();
 	}
