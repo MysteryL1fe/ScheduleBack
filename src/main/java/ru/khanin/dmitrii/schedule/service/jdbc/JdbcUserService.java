@@ -120,13 +120,25 @@ public class JdbcUserService implements UserService {
 	
 	@Override
 	public boolean checkFlowAccessByApiKey(String apiKey, int flowLvl, int course, int flow, int subgroup) {
+		Iterable<? extends User> users = userRepo.findAllByApiKey(apiKey);
+		for (User user : users) {
+			if (user.getAccess() == AccessType.admin)
+				return true;
+		}
 		Optional<Flow> flowToAccess = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup);
 		return flowToAccess.isPresent() && checkFlowAccessByApiKey(apiKey, flowToAccess.get().getId());
 	}
 	
 	@Override
-	public boolean checkFlowsAccessByApiKey(String apiKey, List<Flow> flows) {
+	public boolean checkFlowsAccessByApiKey(String apiKey, List<Flow> flows) {		
+		Iterable<? extends User> users = userRepo.findAllByApiKey(apiKey);
+		List<Long> accessedFlows = new ArrayList<>();
+		for (User user : users) {
+			if (user.getAccess() == AccessType.admin) return true;
+			if (user.getAccess() == AccessType.flow) accessedFlows.add(user.getFlow());
+		}
+		
 		List<Long> flowsToAccess = new ArrayList<>();
 		for (Flow flow : flows) {
 			Optional<Flow> flowToAccess = flowRepo
@@ -136,13 +148,6 @@ public class JdbcUserService implements UserService {
 			if (flowToAccess.isEmpty()) return false;
 			flowsToAccess.add(flowToAccess.get().getId());
 		};
-		
-		Iterable<? extends User> users = userRepo.findAllByApiKey(apiKey);
-		List<Long> accessedFlows = new ArrayList<>();
-		for (User user : users) {
-			if (user.getAccess() == AccessType.admin) return true;
-			if (user.getAccess() == AccessType.flow) accessedFlows.add(user.getFlow());
-		}
 		
 		if (accessedFlows.containsAll(flowsToAccess)) return true;
 		

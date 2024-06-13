@@ -10,7 +10,7 @@ public class User {
 	protected String apiKey;
 	protected String name;
 	protected AccessType access;
-	protected long flow;
+	protected Long flow;
 	
 	public enum AccessType {
 		admin,
