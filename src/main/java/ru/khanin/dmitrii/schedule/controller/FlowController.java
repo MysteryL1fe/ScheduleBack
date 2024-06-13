@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowRequest;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowResponse;
 import ru.khanin.dmitrii.schedule.entity.Flow;
+import ru.khanin.dmitrii.schedule.exception.NoAccessException;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.UserService;
 
@@ -42,7 +42,7 @@ public class FlowController {
 	@PostMapping("/flow")
 	public ResponseEntity<?> addSingleFlow(@RequestHeader("api_key") String apiKey, @RequestBody FlowRequest flow) {
 		if (!userService.checkAdminAccessByApiKey(apiKey))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для добавления группы");
 		
 		flowService.add(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
 		return ResponseEntity.ok().build();
@@ -52,7 +52,7 @@ public class FlowController {
 	@Transactional
 	public ResponseEntity<?> addFlows(@RequestHeader("api_key") String apiKey, @RequestBody List<FlowRequest> flows) {
 		if (!userService.checkAdminAccessByApiKey(apiKey))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для добавления групп");
 		
 		for (FlowRequest flow : flows) {
 			flowService.add(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
@@ -63,7 +63,7 @@ public class FlowController {
 	@DeleteMapping("/all")
 	public ResponseEntity<?> deleteAllFlows(@RequestHeader("api_key") String apiKey) {
 		if (!userService.checkAdminAccessByApiKey(apiKey))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для удаления групп");
 		
 		flowService.deleteAll();
 		return ResponseEntity.ok().build();

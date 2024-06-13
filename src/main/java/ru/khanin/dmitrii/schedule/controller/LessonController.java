@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import ru.khanin.dmitrii.schedule.dto.lesson.LessonRequest;
 import ru.khanin.dmitrii.schedule.dto.lesson.LessonResponse;
 import ru.khanin.dmitrii.schedule.entity.Lesson;
+import ru.khanin.dmitrii.schedule.exception.NoAccessException;
 import ru.khanin.dmitrii.schedule.service.LessonService;
 import ru.khanin.dmitrii.schedule.service.UserService;
 
@@ -29,10 +29,7 @@ public class LessonController {
 	private final UserService userService;
 	
 	@GetMapping("/all")
-	public ResponseEntity<List<LessonResponse>> getAllLessons(@RequestHeader("api_key") String apiKey) {
-		if (!userService.checkAdminAccessByApiKey(apiKey))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
-		
+	public ResponseEntity<List<LessonResponse>> getAllLessons() {
 		Collection<Lesson> found = lessonService.findAll();
 		List<LessonResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
@@ -44,7 +41,7 @@ public class LessonController {
 	@PostMapping("/lesson")
 	public ResponseEntity<?> addLesson(@RequestHeader("api_key") String apiKey, @RequestBody LessonRequest lesson) {
 		if (!userService.checkAdminAccessByApiKey(apiKey))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для добавления занятия");
 		
 		lessonService.add(lesson.name(), lesson.teacher(), lesson.cabinet());
 		return ResponseEntity.ok().build();
@@ -53,7 +50,7 @@ public class LessonController {
 	@DeleteMapping("/all")
 	public ResponseEntity<?> deleteAllLessons(@RequestHeader("api_key") String apiKey) {
 		if (!userService.checkAdminAccessByApiKey(apiKey))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для удаления занятий");
 		
 		lessonService.deleteAll();
 		return ResponseEntity.ok().build();

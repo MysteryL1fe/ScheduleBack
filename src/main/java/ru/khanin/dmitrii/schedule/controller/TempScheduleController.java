@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +25,7 @@ import ru.khanin.dmitrii.schedule.entity.Flow;
 import ru.khanin.dmitrii.schedule.entity.Lesson;
 import ru.khanin.dmitrii.schedule.entity.TempSchedule;
 import ru.khanin.dmitrii.schedule.entity.jdbc.TempScheduleJoined;
+import ru.khanin.dmitrii.schedule.exception.NoAccessException;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.LessonService;
 import ru.khanin.dmitrii.schedule.service.TempScheduleService;
@@ -132,7 +132,7 @@ public class TempScheduleController {
 		if (!userService.checkFlowAccessByApiKey(
 				apiKey, tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(),
 				tempSchedule.flow().flow(), tempSchedule.flow().subgroup()
-		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		)) throw new NoAccessException("Нет доступа для добавления временного занятия");
 		
 		tempScheduleService.add(
 				tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
@@ -159,7 +159,7 @@ public class TempScheduleController {
 			flows.add(flow);
 		});
 		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для добавления временных занятий");
 		
 		for (TempScheduleRequest tempSchedule : tempSchedules) {
 			tempScheduleService.add(
@@ -179,7 +179,7 @@ public class TempScheduleController {
 		if (!userService.checkFlowAccessByApiKey(
 				apiKey, tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(),
 				tempSchedule.flow().flow(), tempSchedule.flow().subgroup()
-		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		)) throw new NoAccessException("Нет доступа для удаления временного занятия");
 		
 		tempScheduleService.delete(
 				tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
@@ -204,7 +204,7 @@ public class TempScheduleController {
 			flows.add(flow);
 		});
 		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для удаления временных занятий");
 		
 		for (DeleteTempScheduleRequest tempSchedule : tempSchedules) {
 			tempScheduleService.delete(
@@ -218,7 +218,7 @@ public class TempScheduleController {
 	@DeleteMapping("/all")
 	public ResponseEntity<?> deleteAllTempSchedules(@RequestHeader("api_key") String apiKey) {
 		if (!userService.checkAdminAccessByApiKey(apiKey))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для удаления временных занятий");
 		
 		tempScheduleService.deleteAll();
 		return ResponseEntity.ok().build();

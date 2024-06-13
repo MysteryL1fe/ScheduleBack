@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +23,7 @@ import ru.khanin.dmitrii.schedule.dto.homework.HomeworkResponse;
 import ru.khanin.dmitrii.schedule.entity.Flow;
 import ru.khanin.dmitrii.schedule.entity.Homework;
 import ru.khanin.dmitrii.schedule.entity.jdbc.HomeworkJoined;
+import ru.khanin.dmitrii.schedule.exception.NoAccessException;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.HomeworkService;
 import ru.khanin.dmitrii.schedule.service.UserService;
@@ -107,7 +107,7 @@ public class HomeworkController {
 		if (!userService.checkFlowAccessByApiKey(
 				apiKey, homework.flow().flow_lvl(), homework.flow().course(),
 				homework.flow().flow(), homework.flow().subgroup()
-		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		)) throw new NoAccessException("Нет доступа для добавления д/з");
 		
 		homeworkService.add(
 				homework.homework(), homework.lesson_date(), homework.lesson_num(), homework.flow().flow_lvl(),
@@ -123,7 +123,7 @@ public class HomeworkController {
 		if (!userService.checkFlowAccessByApiKey(
 				apiKey, homework.flow().flow_lvl(), homework.flow().course(),
 				homework.flow().flow(), homework.flow().subgroup()
-		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		)) throw new NoAccessException("Нет доступа для добавления д/з");
 		
 		homeworkService.delete(
 				homework.flow().flow_lvl(), homework.flow().course(), homework.flow().flow(),
@@ -148,7 +148,7 @@ public class HomeworkController {
 			flows.add(flow);
 		});
 		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для удаления д/з");
 		
 		for (DeleteHomeworkRequest homework : homeworks) {
 			homeworkService.delete(
@@ -162,7 +162,7 @@ public class HomeworkController {
 	@DeleteMapping("/all")
 	public ResponseEntity<?> deleteAllHomeworks(@RequestHeader("api_key") String apiKey) {
 		if (!userService.checkAdminAccessByApiKey(apiKey))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для удаления д/з");
 		
 		homeworkService.deleteAll();
 		return ResponseEntity.ok().build();

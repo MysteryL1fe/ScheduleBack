@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +25,7 @@ import ru.khanin.dmitrii.schedule.entity.Flow;
 import ru.khanin.dmitrii.schedule.entity.Lesson;
 import ru.khanin.dmitrii.schedule.entity.Schedule;
 import ru.khanin.dmitrii.schedule.entity.jdbc.ScheduleJoined;
+import ru.khanin.dmitrii.schedule.exception.NoAccessException;
 import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.LessonService;
 import ru.khanin.dmitrii.schedule.service.ScheduleService;
@@ -173,7 +173,7 @@ public class ScheduleController {
 		if (!userService.checkFlowAccessByApiKey(
 				apiKey, schedule.flow().flow_lvl(), schedule.flow().course(),
 				schedule.flow().flow(), schedule.flow().subgroup()
-		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		)) throw new NoAccessException("Нет доступа для добавления занятия");
 		
 		scheduleService.add(
 				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
@@ -200,7 +200,7 @@ public class ScheduleController {
 			flows.add(flow);
 		});
 		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для добавления занятий");
 		
 		for (ScheduleRequest schedule : schedules) {
 			scheduleService.add(
@@ -220,7 +220,7 @@ public class ScheduleController {
 		if (!userService.checkFlowAccessByApiKey(
 				apiKey, schedule.flow().flow_lvl(), schedule.flow().course(),
 				schedule.flow().flow(), schedule.flow().subgroup()
-		)) return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+		)) throw new NoAccessException("Нет доступа для удаления занятия");
 		
 		scheduleService.delete(
 				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
@@ -245,7 +245,7 @@ public class ScheduleController {
 			flows.add(flow);
 		});
 		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для удаления занятий");
 		
 		for (DeleteScheduleRequest schedule : schedules) {
 			scheduleService.delete(
@@ -259,7 +259,7 @@ public class ScheduleController {
 	@DeleteMapping("/all")
 	public ResponseEntity<?> deleteAllSchedules(@RequestHeader("api_key") String apiKey) {
 		if (!userService.checkAdminAccessByApiKey(apiKey))
-			return ResponseEntity.status(HttpStatusCode.valueOf(401)).build();
+			throw new NoAccessException("Нет доступа для удаления занятий");
 		
 		scheduleService.deleteAll();
 		return ResponseEntity.ok().build();
