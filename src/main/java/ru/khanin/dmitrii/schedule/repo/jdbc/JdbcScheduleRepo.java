@@ -37,7 +37,8 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	public Schedule update(Schedule schedule) {
 		return jdbcTemplate.queryForObject(
 				"UPDATE schedule SET lesson = :lesson"
-				+ " WHERE flow=:flow AND day_of_week=:dayOfWeek AND lesson_num=:lessonNum AND is_numerator=:isNumerator",
+				+ " WHERE flow=:flow AND day_of_week=:dayOfWeek AND lesson_num=:lessonNum"
+				+ " AND is_numerator=:isNumerator RETURNING *",
 				new BeanPropertySqlParameterSource(schedule),
 				rowMapper
 		);

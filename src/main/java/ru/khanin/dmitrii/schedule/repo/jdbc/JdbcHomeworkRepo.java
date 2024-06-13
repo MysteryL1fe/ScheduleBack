@@ -38,7 +38,8 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 	public Homework update(Homework homework) {
 		return jdbcTemplate.queryForObject(
 				"UPDATE homework SET homework = :homework, lesson_name = :lessonName"
-				+ " WHERE lesson_date=:lessonDate AND lesson_num=:lessonNum AND flow=:flow",
+				+ " WHERE lesson_date=:lessonDate AND lesson_num=:lessonNum AND flow=:flow"
+				+ " RETURNING *",
 				new BeanPropertySqlParameterSource(homework),
 				rowMapper
 		);

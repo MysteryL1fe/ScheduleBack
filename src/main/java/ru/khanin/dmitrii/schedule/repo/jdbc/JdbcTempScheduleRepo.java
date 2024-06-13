@@ -38,7 +38,8 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 	public TempSchedule update(TempSchedule tempSchedule) {
 		return jdbcTemplate.queryForObject(
 				"UPDATE temp_schedule SET lesson = :lesson, will_lesson_be = :willLessonBe"
-				+ " WHERE flow=:flow AND lesson_date=:lessonDate AND lesson_num=:lessonNum",
+				+ " WHERE flow=:flow AND lesson_date=:lessonDate AND lesson_num=:lessonNum"
+				+ " RETURNING *",
 				new BeanPropertySqlParameterSource(tempSchedule),
 				rowMapper
 		);
