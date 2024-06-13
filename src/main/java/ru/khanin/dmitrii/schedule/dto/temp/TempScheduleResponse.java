@@ -2,12 +2,11 @@ package ru.khanin.dmitrii.schedule.dto.temp;
 
 import java.time.LocalDate;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowResponse;
 import ru.khanin.dmitrii.schedule.dto.lesson.LessonResponse;
 
 public record TempScheduleResponse(
-		@NotNull FlowResponse flow, @NotNull LessonResponse lesson, @NotNull LocalDate lesson_date,
-		@NotNull Integer lesson_num, @Nullable boolean will_lesson_be
+		@NonNull FlowResponse flow, @NonNull LessonResponse lesson, @NonNull LocalDate lesson_date,
+		@NonNull Integer lesson_num, @NonNull Boolean will_lesson_be
 ) {}

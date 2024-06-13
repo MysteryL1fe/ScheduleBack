@@ -2,9 +2,9 @@ package ru.khanin.dmitrii.schedule.dto.temp;
 
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowRequest;
 
 public record DeleteTempScheduleRequest(
-		@NotNull FlowRequest flow, @NotNull LocalDate lesson_date, @NotNull Integer lesson_num
+		@NonNull FlowRequest flow, @NonNull LocalDate lesson_date, @NonNull Integer lesson_num
 ) {}

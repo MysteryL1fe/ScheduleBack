@@ -1,7 +1,7 @@
 package ru.khanin.dmitrii.schedule.dto.flow;
 
-import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 
 public record FlowRequest(
-		@NotNull Integer flow_lvl, @NotNull Integer course, @NotNull Integer flow, @NotNull Integer subgroup
+		@NonNull Integer flow_lvl, @NonNull Integer course, @NonNull Integer flow, @NonNull Integer subgroup
 ) {}

@@ -1,10 +1,9 @@
 package ru.khanin.dmitrii.schedule.dto.user;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import ru.khanin.dmitrii.schedule.entity.User.AccessType;
 
 public record UserResponse(
-		@NotNull Long id, @NotNull String api_key, @NotNull String name, @NotNull AccessType access,
-		@Nullable long flow
+		@NonNull Long id, @NonNull String api_key, @NonNull String name, @NonNull AccessType access,
+		Long flow
 ) {}
