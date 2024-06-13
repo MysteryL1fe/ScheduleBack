@@ -6,6 +6,7 @@ import ru.khanin.dmitrii.schedule.entity.Schedule;
 
 public interface ScheduleRepo {
 	Schedule add(Schedule schedule);
+	Schedule update(Schedule schedule);
 	Optional<Schedule> findById(long id);
 	Optional<Schedule> findByFlowAndDayOfWeekAndLessonNumAndIsNumerator(long flow, int dayOfWeek, int lessonNum, boolean isNumerator);
 	Iterable<? extends Schedule> findAll();

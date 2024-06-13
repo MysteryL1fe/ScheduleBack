@@ -33,6 +33,16 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 				rowMapper
 		);
 	}
+	
+	@Override
+	public Homework update(Homework homework) {
+		return jdbcTemplate.queryForObject(
+				"UPDATE homework SET homework = :homework, lesson_name = :lessonName"
+				+ " WHERE lesson_date=:lessonDate AND lesson_num=:lessonNum AND flow=:flow",
+				new BeanPropertySqlParameterSource(homework),
+				rowMapper
+		);
+	}
 
 	@Override
 	public Optional<Homework> findById(long id) {

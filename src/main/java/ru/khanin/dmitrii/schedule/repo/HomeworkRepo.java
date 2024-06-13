@@ -7,6 +7,7 @@ import ru.khanin.dmitrii.schedule.entity.Homework;
 
 public interface HomeworkRepo {
 	Homework add(Homework homework);
+	Homework update(Homework homework);
 	Optional<Homework> findById(long id);
 	Optional<Homework> findByLessonDateAndLessonNumAndFlow(LocalDate lessonDate, int lessonNum, long flow);
 	Iterable<? extends Homework> findAll();

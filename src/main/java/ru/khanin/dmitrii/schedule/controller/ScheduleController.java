@@ -175,7 +175,7 @@ public class ScheduleController {
 				schedule.flow().flow(), schedule.flow().subgroup()
 		)) throw new NoAccessException("Нет доступа для добавления занятия");
 		
-		scheduleService.add(
+		scheduleService.addOrUpdate(
 				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
 				schedule.flow().subgroup(), schedule.lesson().name(), schedule.lesson().teacher(),
 				schedule.lesson().cabinet(), schedule.day_of_week(),
@@ -203,7 +203,7 @@ public class ScheduleController {
 			throw new NoAccessException("Нет доступа для добавления занятий");
 		
 		for (ScheduleRequest schedule : schedules) {
-			scheduleService.add(
+			scheduleService.addOrUpdate(
 					schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
 					schedule.flow().subgroup(), schedule.lesson().name(), schedule.lesson().teacher(),
 					schedule.lesson().cabinet(), schedule.day_of_week(),

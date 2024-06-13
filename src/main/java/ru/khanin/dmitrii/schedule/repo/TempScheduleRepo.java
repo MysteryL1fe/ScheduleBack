@@ -7,6 +7,7 @@ import ru.khanin.dmitrii.schedule.entity.TempSchedule;
 
 public interface TempScheduleRepo {
 	TempSchedule add(TempSchedule tempSchedule);
+	TempSchedule update(TempSchedule tempSchedule);
 	Optional<TempSchedule> findById(long id);
 	Optional<TempSchedule> findByFlowAndLessonDateAndLessonNum(long flow, LocalDate lessonDate, int lessonNum);
 	Iterable<? extends TempSchedule> findAll();

@@ -6,16 +6,16 @@ import java.util.Collection;
 import ru.khanin.dmitrii.schedule.entity.TempSchedule;
 
 public interface TempScheduleService {
-	TempSchedule add(long flowId, long lessonId, LocalDate lessonDate, int lessonNum, boolean willLessonBe);
-	TempSchedule add(
+	TempSchedule addOrUpdate(long flowId, long lessonId, LocalDate lessonDate, int lessonNum, boolean willLessonBe);
+	TempSchedule addOrUpdate(
 			int flowLvl, int course, int flow, int subgroup,
 			long lessonId, LocalDate lessonDate, int lessonNum, boolean willLessonBe
 	);
-	TempSchedule add(
+	TempSchedule addOrUpdate(
 			long flowId, String name, String teacher, String cabinet,
 			LocalDate lessonDate, int lessonNum, boolean willLessonBe
 	);
-	TempSchedule add(
+	TempSchedule addOrUpdate(
 			int flowLvl, int course, int flow, int subgroup,
 			String name, String teacher, String cabinet,
 			LocalDate lessonDate, int lessonNum, boolean willLessonBe

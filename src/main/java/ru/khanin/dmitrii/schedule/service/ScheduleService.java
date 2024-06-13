@@ -5,16 +5,16 @@ import java.util.Collection;
 import ru.khanin.dmitrii.schedule.entity.Schedule;
 
 public interface ScheduleService {
-	Schedule add(long flowId, long lessonId, int dayOfWeek, int lessonNum, boolean isNumerator);
-	Schedule add(
+	Schedule addOrUpdate(long flowId, long lessonId, int dayOfWeek, int lessonNum, boolean isNumerator);
+	Schedule addOrUpdate(
 			int flowLvl, int course, int flow, int subgroup, long lessonId,
 			int dayOfWeek, int lessonNum, boolean isNumerator
 	);
-	Schedule add(
+	Schedule addOrUpdate(
 			long flowId, String name, String teacher, String cabinet, int dayOfWeek,
 			int lessonNum, boolean isNumerator
 	);
-	Schedule add(
+	Schedule addOrUpdate(
 			int flowLvl, int course, int flow, int subgroup,
 			String name, String teacher, String cabinet,
 			int dayOfWeek, int lessonNum, boolean isNumerator

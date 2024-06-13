@@ -19,37 +19,40 @@ public class JdbcHomeworkService implements HomeworkService {
 	private final JdbcFlowRepo flowRepo;
 
 	@Override
-	public Homework add(String homework, LocalDate lessonDate, int lessonNum, long flowId, String lessonName) {
+	public Homework addOrUpdate(String homework, LocalDate lessonDate, int lessonNum, long flowId, String lessonName) {
 		Homework homeworkToAdd = new Homework();
 		homeworkToAdd.setHomework(homework);
 		homeworkToAdd.setLessonDate(lessonDate);
 		homeworkToAdd.setLessonNum(lessonNum);
 		homeworkToAdd.setFlow(flowId);
 		homeworkToAdd.setLessonName(lessonName);
+		
+		if (homeworkRepo.findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, flowId).isPresent())
+			return homeworkRepo.update(homeworkToAdd);
+		
 		return homeworkRepo.add(homeworkToAdd);
 	}
 	
 	@Override
 	@Transactional
-	public Homework add(
+	public Homework addOrUpdate(
 			String homework, LocalDate lessonDate, int lessonNum, int flowLvl, int course, int flow,
 			int subgroup, String lessonName
 	) {
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) {
-			Flow flowToAdd = new Flow();
-			flowToAdd.setFlowLvl(flowLvl);
-			flowToAdd.setCourse(course);
-			flowToAdd.setFlow(flow);
-			flowToAdd.setSubgroup(subgroup);
-			Flow addedFlow = flowRepo.add(flowToAdd);
-			
-			return add(homework, lessonDate, lessonNum, addedFlow.getId(), lessonName);
-		}
+				.orElseGet(() -> {
+					Flow flowToAdd = new Flow();
+					flowToAdd.setFlowLvl(flowLvl);
+					flowToAdd.setCourse(course);
+					flowToAdd.setFlow(flow);
+					flowToAdd.setSubgroup(subgroup);
+					Flow addedFlow = flowRepo.add(flowToAdd);
+					
+					return addedFlow;
+				});
 		
-		return add(homework, lessonDate, lessonNum, foundFlow.getId(), lessonName);
+		return addOrUpdate(homework, lessonDate, lessonNum, foundFlow.getId(), lessonName);
 	}
 
 	@Override

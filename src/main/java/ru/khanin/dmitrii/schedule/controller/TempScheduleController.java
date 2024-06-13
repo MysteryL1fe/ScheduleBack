@@ -134,7 +134,7 @@ public class TempScheduleController {
 				tempSchedule.flow().flow(), tempSchedule.flow().subgroup()
 		)) throw new NoAccessException("Нет доступа для добавления временного занятия");
 		
-		tempScheduleService.add(
+		tempScheduleService.addOrUpdate(
 				tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
 				tempSchedule.flow().subgroup(), tempSchedule.lesson().name(), tempSchedule.lesson().teacher(),
 				tempSchedule.lesson().cabinet(), tempSchedule.lesson_date(), tempSchedule.lesson_num(),
@@ -162,7 +162,7 @@ public class TempScheduleController {
 			throw new NoAccessException("Нет доступа для добавления временных занятий");
 		
 		for (TempScheduleRequest tempSchedule : tempSchedules) {
-			tempScheduleService.add(
+			tempScheduleService.addOrUpdate(
 					tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
 					tempSchedule.flow().subgroup(), tempSchedule.lesson().name(), tempSchedule.lesson().teacher(),
 					tempSchedule.lesson().cabinet(), tempSchedule.lesson_date(), tempSchedule.lesson_num(),

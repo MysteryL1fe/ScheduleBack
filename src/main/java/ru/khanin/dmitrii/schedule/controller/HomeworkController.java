@@ -109,7 +109,7 @@ public class HomeworkController {
 				homework.flow().flow(), homework.flow().subgroup()
 		)) throw new NoAccessException("Нет доступа для добавления д/з");
 		
-		homeworkService.add(
+		homeworkService.addOrUpdate(
 				homework.homework(), homework.lesson_date(), homework.lesson_num(), homework.flow().flow_lvl(),
 				homework.flow().course(), homework.flow().flow(), homework.flow().subgroup(), homework.lesson_name()
 		);

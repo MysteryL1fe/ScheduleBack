@@ -32,6 +32,16 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 				rowMapper
 		);
 	}
+	
+	@Override
+	public Schedule update(Schedule schedule) {
+		return jdbcTemplate.queryForObject(
+				"UPDATE schedule SET lesson = :lesson"
+				+ " WHERE flow=:flow AND day_of_week=:dayOfWeek AND lesson_num=:lessonNum AND is_numerator=:isNumerator",
+				new BeanPropertySqlParameterSource(schedule),
+				rowMapper
+		);
+	}
 
 	@Override
 	public Optional<Schedule> findById(long id) {

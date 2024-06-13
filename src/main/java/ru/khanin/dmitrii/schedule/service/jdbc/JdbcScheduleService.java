@@ -21,19 +21,25 @@ public class JdbcScheduleService implements ScheduleService {
 	private final JdbcLessonRepo lessonRepo;
 
 	@Override
-	public Schedule add(long flowId, long lessonId, int dayOfWeek, int lessonNum, boolean isNumerator) {
+	public Schedule addOrUpdate(long flowId, long lessonId, int dayOfWeek, int lessonNum, boolean isNumerator) {
 		Schedule schedule = new Schedule();
 		schedule.setFlow(flowId);
 		schedule.setLesson(lessonId);
 		schedule.setDayOfWeek(dayOfWeek);
 		schedule.setLessonNum(lessonNum);
 		schedule.setNumerator(isNumerator);
+		
+		if (scheduleRepo
+				.findByFlowAndDayOfWeekAndLessonNumAndIsNumerator(flowId, dayOfWeek, lessonNum, isNumerator)
+				.isPresent())
+			return scheduleRepo.update(schedule);
+		
 		return scheduleRepo.add(schedule);
 	}
 	
 	@Override
 	@Transactional
-	public Schedule add(
+	public Schedule addOrUpdate(
 			int flowLvl, int course, int flow, int subgroup, long lessonId,
 			int dayOfWeek, int lessonNum, boolean isNumerator
 	) {
@@ -45,26 +51,23 @@ public class JdbcScheduleService implements ScheduleService {
 		
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) {
-			Flow flowToAdd = new Flow();
-			flowToAdd.setFlowLvl(flowLvl);
-			flowToAdd.setCourse(course);
-			flowToAdd.setFlow(flow);
-			flowToAdd.setSubgroup(subgroup);
-			Flow addedFlow = flowRepo.add(flowToAdd);
-			
-			schedule.setFlow(addedFlow.getId());
-		} else {
-			schedule.setFlow(foundFlow.getId());
-		}
+				.orElseGet(() -> {
+					Flow flowToAdd = new Flow();
+					flowToAdd.setFlowLvl(flowLvl);
+					flowToAdd.setCourse(course);
+					flowToAdd.setFlow(flow);
+					flowToAdd.setSubgroup(subgroup);
+					Flow addedFlow = flowRepo.add(flowToAdd);
+					
+					return addedFlow;
+				});
 		
-		return scheduleRepo.add(schedule);
+		return addOrUpdate(foundFlow.getId(), lessonId, dayOfWeek, lessonNum, isNumerator);
 	}
 	
 	@Override
 	@Transactional
-	public Schedule add(
+	public Schedule addOrUpdate(
 			long flowId, String name, String teacher, String cabinet,
 			int dayOfWeek, int lessonNum, boolean isNumerator
 	) {
@@ -76,25 +79,22 @@ public class JdbcScheduleService implements ScheduleService {
 		
 		Lesson foundLesson = lessonRepo
 				.findByNameAndTeacherAndCabinet(name, teacher, cabinet)
-				.orElse(null);
-		if (foundLesson == null) {
-			Lesson lessonToAdd = new Lesson();
-			lessonToAdd.setName(name);
-			lessonToAdd.setTeacher(teacher);
-			lessonToAdd.setCabinet(cabinet);
-			Lesson addedLesson = lessonRepo.add(lessonToAdd);
-			
-			schedule.setLesson(addedLesson.getId());
-		} else {
-			schedule.setLesson(foundLesson.getId());
-		}
+				.orElseGet(() -> {
+					Lesson lessonToAdd = new Lesson();
+					lessonToAdd.setName(name);
+					lessonToAdd.setTeacher(teacher);
+					lessonToAdd.setCabinet(cabinet);
+					Lesson addedLesson = lessonRepo.add(lessonToAdd);
+					
+					return addedLesson;
+				});
 		
-		return scheduleRepo.add(schedule);
+		return addOrUpdate(flowId, foundLesson.getId(), dayOfWeek, lessonNum, isNumerator);
 	}
 	
 	@Override
 	@Transactional
-	public Schedule add(
+	public Schedule addOrUpdate(
 			int flowLvl, int course, int flow, int subgroup,
 			String name, String teacher, String cabinet,
 			int dayOfWeek, int lessonNum, boolean isNumerator
@@ -106,36 +106,30 @@ public class JdbcScheduleService implements ScheduleService {
 		
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) {
-			Flow flowToAdd = new Flow();
-			flowToAdd.setFlowLvl(flowLvl);
-			flowToAdd.setCourse(course);
-			flowToAdd.setFlow(flow);
-			flowToAdd.setSubgroup(subgroup);
-			Flow addedFlow = flowRepo.add(flowToAdd);
-			
-			schedule.setFlow(addedFlow.getId());
-		} else {
-			schedule.setFlow(foundFlow.getId());
-		}
+				.orElseGet(() -> {
+					Flow flowToAdd = new Flow();
+					flowToAdd.setFlowLvl(flowLvl);
+					flowToAdd.setCourse(course);
+					flowToAdd.setFlow(flow);
+					flowToAdd.setSubgroup(subgroup);
+					Flow addedFlow = flowRepo.add(flowToAdd);
+					
+					return addedFlow;
+				});
 		
 		Lesson foundLesson = lessonRepo
 				.findByNameAndTeacherAndCabinet(name, teacher, cabinet)
-				.orElse(null);
-		if (foundLesson == null) {
-			Lesson lessonToAdd = new Lesson();
-			lessonToAdd.setName(name);
-			lessonToAdd.setTeacher(teacher);
-			lessonToAdd.setCabinet(cabinet);
-			Lesson addedLesson = lessonRepo.add(lessonToAdd);
-			
-			schedule.setLesson(addedLesson.getId());
-		} else {
-			schedule.setLesson(foundLesson.getId());
-		}
+				.orElseGet(() -> {
+					Lesson lessonToAdd = new Lesson();
+					lessonToAdd.setName(name);
+					lessonToAdd.setTeacher(teacher);
+					lessonToAdd.setCabinet(cabinet);
+					Lesson addedLesson = lessonRepo.add(lessonToAdd);
+					
+					return addedLesson;
+				});
 		
-		return scheduleRepo.add(schedule);
+		return addOrUpdate(foundFlow.getId(), foundLesson.getId(), dayOfWeek, lessonNum, isNumerator);
 	}
 
 	@Override

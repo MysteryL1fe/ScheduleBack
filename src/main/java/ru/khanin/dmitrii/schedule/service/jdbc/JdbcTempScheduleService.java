@@ -22,19 +22,25 @@ public class JdbcTempScheduleService implements TempScheduleService {
 	private final JdbcLessonRepo lessonRepo;
 
 	@Override
-	public TempSchedule add(long flowId, long lessonId, LocalDate lessonDate, int lessonNum, boolean willLessonBe) {
+	public TempSchedule addOrUpdate(long flowId, long lessonId, LocalDate lessonDate, int lessonNum, boolean willLessonBe) {
 		TempSchedule tempSchedule = new TempSchedule();
 		tempSchedule.setFlow(flowId);
 		tempSchedule.setLesson(lessonId);
 		tempSchedule.setLessonDate(lessonDate);
 		tempSchedule.setLessonNum(lessonNum);
 		tempSchedule.setWillLessonBe(willLessonBe);
+		
+		if (tempScheduleRepo
+				.findByFlowAndLessonDateAndLessonNum(flowId, lessonDate, lessonNum)
+				.isPresent())
+			return tempScheduleRepo.update(tempSchedule);
+		
 		return tempScheduleRepo.add(tempSchedule);
 	}
 	
 	@Override
 	@Transactional
-	public TempSchedule add(int flowLvl, int course, int flow, int subgroup, long lessonId, LocalDate lessonDate,
+	public TempSchedule addOrUpdate(int flowLvl, int course, int flow, int subgroup, long lessonId, LocalDate lessonDate,
 			int lessonNum, boolean willLessonBe) {
 		TempSchedule tempSchedule = new TempSchedule();
 		tempSchedule.setLesson(lessonId);
@@ -44,26 +50,23 @@ public class JdbcTempScheduleService implements TempScheduleService {
 		
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) {
-			Flow flowToAdd = new Flow();
-			flowToAdd.setFlowLvl(flowLvl);
-			flowToAdd.setCourse(course);
-			flowToAdd.setFlow(flow);
-			flowToAdd.setSubgroup(subgroup);
-			Flow addedFlow = flowRepo.add(flowToAdd);
-			
-			tempSchedule.setFlow(addedFlow.getId());
-		} else {
-			tempSchedule.setFlow(foundFlow.getId());
-		}
+				.orElseGet(() -> {
+					Flow flowToAdd = new Flow();
+					flowToAdd.setFlowLvl(flowLvl);
+					flowToAdd.setCourse(course);
+					flowToAdd.setFlow(flow);
+					flowToAdd.setSubgroup(subgroup);
+					Flow addedFlow = flowRepo.add(flowToAdd);
+					
+					return addedFlow;
+				});
 		
-		return tempScheduleRepo.add(tempSchedule);
+		return addOrUpdate(foundFlow.getId(), lessonId, lessonDate, lessonNum, willLessonBe);
 	}
 	
 	@Override
 	@Transactional
-	public TempSchedule add(long flowId, String name, String teacher, String cabinet, LocalDate lessonDate,
+	public TempSchedule addOrUpdate(long flowId, String name, String teacher, String cabinet, LocalDate lessonDate,
 			int lessonNum, boolean willLessonBe) {
 		TempSchedule tempSchedule = new TempSchedule();
 		tempSchedule.setFlow(flowId);
@@ -73,25 +76,22 @@ public class JdbcTempScheduleService implements TempScheduleService {
 
 		Lesson foundLesson = lessonRepo
 				.findByNameAndTeacherAndCabinet(name, teacher, cabinet)
-				.orElse(null);
-		if (foundLesson == null) {
-			Lesson lessonToAdd = new Lesson();
-			lessonToAdd.setName(name);
-			lessonToAdd.setTeacher(teacher);
-			lessonToAdd.setCabinet(cabinet);
-			Lesson addedLesson = lessonRepo.add(lessonToAdd);
-			
-			tempSchedule.setLesson(addedLesson.getId());
-		} else {
-			tempSchedule.setLesson(foundLesson.getId());
-		}
+				.orElseGet(() -> {
+					Lesson lessonToAdd = new Lesson();
+					lessonToAdd.setName(name);
+					lessonToAdd.setTeacher(teacher);
+					lessonToAdd.setCabinet(cabinet);
+					Lesson addedLesson = lessonRepo.add(lessonToAdd);
+					
+					return addedLesson;
+				});
 		
-		return tempScheduleRepo.add(tempSchedule);
+		return addOrUpdate(flowId, foundLesson.getId(), lessonDate, lessonNum, willLessonBe);
 	}
 	
 	@Override
 	@Transactional
-	public TempSchedule add(int flowLvl, int course, int flow, int subgroup, String name, String teacher,
+	public TempSchedule addOrUpdate(int flowLvl, int course, int flow, int subgroup, String name, String teacher,
 			String cabinet, LocalDate lessonDate, int lessonNum, boolean willLessonBe) {
 		TempSchedule tempSchedule = new TempSchedule();
 		tempSchedule.setLessonDate(lessonDate);
@@ -100,36 +100,30 @@ public class JdbcTempScheduleService implements TempScheduleService {
 		
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) {
-			Flow flowToAdd = new Flow();
-			flowToAdd.setFlowLvl(flowLvl);
-			flowToAdd.setCourse(course);
-			flowToAdd.setFlow(flow);
-			flowToAdd.setSubgroup(subgroup);
-			Flow addedFlow = flowRepo.add(flowToAdd);
-			
-			tempSchedule.setFlow(addedFlow.getId());
-		} else {
-			tempSchedule.setFlow(foundFlow.getId());
-		}
+				.orElseGet(() -> {
+					Flow flowToAdd = new Flow();
+					flowToAdd.setFlowLvl(flowLvl);
+					flowToAdd.setCourse(course);
+					flowToAdd.setFlow(flow);
+					flowToAdd.setSubgroup(subgroup);
+					Flow addedFlow = flowRepo.add(flowToAdd);
+					
+					return addedFlow;
+				});
 		
 		Lesson foundLesson = lessonRepo
 				.findByNameAndTeacherAndCabinet(name, teacher, cabinet)
-				.orElse(null);
-		if (foundLesson == null) {
-			Lesson lessonToAdd = new Lesson();
-			lessonToAdd.setName(name);
-			lessonToAdd.setTeacher(teacher);
-			lessonToAdd.setCabinet(cabinet);
-			Lesson addedLesson = lessonRepo.add(lessonToAdd);
-			
-			tempSchedule.setLesson(addedLesson.getId());
-		} else {
-			tempSchedule.setLesson(foundLesson.getId());
-		}
+				.orElseGet(() -> {
+					Lesson lessonToAdd = new Lesson();
+					lessonToAdd.setName(name);
+					lessonToAdd.setTeacher(teacher);
+					lessonToAdd.setCabinet(cabinet);
+					Lesson addedLesson = lessonRepo.add(lessonToAdd);
+					
+					return addedLesson;
+				});
 		
-		return tempScheduleRepo.add(tempSchedule);
+		return addOrUpdate(foundFlow.getId(), foundLesson.getId(), lessonDate, lessonNum, willLessonBe);
 	}
 
 	@Override
