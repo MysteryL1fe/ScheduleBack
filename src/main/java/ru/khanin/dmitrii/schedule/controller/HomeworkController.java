@@ -46,7 +46,8 @@ public class HomeworkController {
 				
 				FlowResponse flowResponse = new FlowResponse(
 						homework.getJoinedFlow().getFlowLvl(), homework.getJoinedFlow().getCourse(),
-						homework.getJoinedFlow().getFlow(), homework.getJoinedFlow().getSubgroup()
+						homework.getJoinedFlow().getFlow(), homework.getJoinedFlow().getSubgroup(),
+						homework.getJoinedFlow().getLastEdit()
 				);
 				
 				result.add(new HomeworkResponse(
@@ -56,7 +57,8 @@ public class HomeworkController {
 			} else {
 				Flow flow = flowService.findById(e.getFlow());
 				FlowResponse flowResponse = new FlowResponse(
-						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup()
+						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
+						flow.getLastEdit()
 				);
 						
 				result.add(new HomeworkResponse(
@@ -79,7 +81,8 @@ public class HomeworkController {
 				
 				FlowResponse flowResponse = new FlowResponse(
 						homework.getJoinedFlow().getFlowLvl(), homework.getJoinedFlow().getCourse(),
-						homework.getJoinedFlow().getFlow(), homework.getJoinedFlow().getSubgroup()
+						homework.getJoinedFlow().getFlow(), homework.getJoinedFlow().getSubgroup(),
+						homework.getJoinedFlow().getLastEdit()
 				);
 				
 				result.add(new HomeworkResponse(
@@ -89,7 +92,8 @@ public class HomeworkController {
 			} else {
 				Flow foundFlow = flowService.findById(e.getFlow());
 				FlowResponse flowResponse = new FlowResponse(
-						foundFlow.getFlowLvl(), foundFlow.getCourse(), foundFlow.getFlow(), foundFlow.getSubgroup()
+						foundFlow.getFlowLvl(), foundFlow.getCourse(), foundFlow.getFlow(), foundFlow.getSubgroup(),
+						foundFlow.getLastEdit()
 				);
 						
 				result.add(new HomeworkResponse(

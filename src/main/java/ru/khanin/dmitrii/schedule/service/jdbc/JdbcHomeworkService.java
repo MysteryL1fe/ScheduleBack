@@ -1,6 +1,7 @@
 package ru.khanin.dmitrii.schedule.service.jdbc;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -47,6 +48,7 @@ public class JdbcHomeworkService implements HomeworkService {
 					flowToAdd.setCourse(course);
 					flowToAdd.setFlow(flow);
 					flowToAdd.setSubgroup(subgroup);
+					flowToAdd.setLastEdit(LocalDateTime.now());
 					Flow addedFlow = flowRepo.add(flowToAdd);
 					
 					return addedFlow;

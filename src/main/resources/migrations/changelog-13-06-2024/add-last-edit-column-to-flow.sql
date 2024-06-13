@@ -1,0 +1,1 @@
+ALTER TABLE flow ADD COLUMN IF NOT EXISTS last_edit timestamp NOT NULL DEFAULT 'epoch';

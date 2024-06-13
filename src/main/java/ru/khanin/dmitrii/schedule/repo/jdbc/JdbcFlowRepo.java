@@ -23,7 +23,18 @@ public class JdbcFlowRepo implements FlowRepo {
 	@Override
 	public Flow add(Flow flow) {
 		return jdbcTemplate.queryForObject(
-				"INSERT INTO flow(flow_lvl, course, flow, subgroup) VALUES (:flowLvl, :course, :flow, :subgroup) RETURNING *",
+				"INSERT INTO flow(flow_lvl, course, flow, subgroup, last_edit)"
+				+ " VALUES (:flowLvl, :course, :flow, :subgroup, :lastEdit) RETURNING *",
+				new BeanPropertySqlParameterSource(flow),
+				rowMapper
+		);
+	}
+	
+	@Override
+	public Flow update(Flow flow) {
+		return jdbcTemplate.queryForObject(
+				"UPDATE flow SET last_edit = :lastEdit"
+				+ " WHERE flow_lvl=:flowLvl AND course=:course AND flow=:flow AND subgroup=:subgroup RETURNING *",
 				new BeanPropertySqlParameterSource(flow),
 				rowMapper
 		);
@@ -47,7 +58,8 @@ public class JdbcFlowRepo implements FlowRepo {
 		return Optional.ofNullable(
 				DataAccessUtils.singleResult(
 						jdbcTemplate.query(
-								"SELECT * FROM flow WHERE flow_lvl=:flowLvl AND course=:course AND flow=:flow AND subgroup=:subgroup",
+								"SELECT * FROM flow"
+								+ " WHERE flow_lvl=:flowLvl AND course=:course AND flow=:flow AND subgroup=:subgroup",
 								Map.of(
 										"flowLvl", flowLvl,
 										"course", course,

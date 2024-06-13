@@ -17,4 +17,6 @@
     <include file="changelog-08-06-2024/create-temp-schedule-table.sql"/>
     
     <include file="changelog-11-06-2024/create-users-table.sql"/>
+    
+    <include file="changelog-13-06-2024/add-last-edit-column-to-flow"/>
 </databaseChangeLog>

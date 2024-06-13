@@ -1,5 +1,6 @@
 package ru.khanin.dmitrii.schedule.service.jdbc;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -29,6 +30,10 @@ public class JdbcScheduleService implements ScheduleService {
 		schedule.setLessonNum(lessonNum);
 		schedule.setNumerator(isNumerator);
 		
+		Flow flow = flowRepo.findById(flowId).orElseThrow();
+		flow.setLastEdit(LocalDateTime.now());
+		flowRepo.update(flow);
+		
 		if (scheduleRepo
 				.findByFlowAndDayOfWeekAndLessonNumAndIsNumerator(flowId, dayOfWeek, lessonNum, isNumerator)
 				.isPresent())
@@ -57,6 +62,7 @@ public class JdbcScheduleService implements ScheduleService {
 					flowToAdd.setCourse(course);
 					flowToAdd.setFlow(flow);
 					flowToAdd.setSubgroup(subgroup);
+					flowToAdd.setLastEdit(LocalDateTime.now());
 					Flow addedFlow = flowRepo.add(flowToAdd);
 					
 					return addedFlow;
@@ -112,6 +118,7 @@ public class JdbcScheduleService implements ScheduleService {
 					flowToAdd.setCourse(course);
 					flowToAdd.setFlow(flow);
 					flowToAdd.setSubgroup(subgroup);
+					flowToAdd.setLastEdit(LocalDateTime.now());
 					Flow addedFlow = flowRepo.add(flowToAdd);
 					
 					return addedFlow;

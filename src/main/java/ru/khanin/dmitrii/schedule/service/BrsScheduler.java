@@ -42,7 +42,7 @@ public class BrsScheduler {
 		
 		for (Flow flow : flows) {
 			for (Flow brsFlow : brsFlows) {
-				if (!flow.equalsWithoutId(brsFlow)) {
+				if (!flow.equalsByFlowData(brsFlow)) {
 					updateFlows(brsFlows);
 					return;
 				}
@@ -51,7 +51,7 @@ public class BrsScheduler {
 		
 		for (Flow brsFlow : brsFlows) {
 			for (Flow flow : flows) {
-				if (!flow.equalsWithoutId(brsFlow)) {
+				if (!flow.equalsByFlowData(brsFlow)) {
 					updateFlows(brsFlows);
 					return;
 				}
@@ -63,7 +63,7 @@ public class BrsScheduler {
 	private void updateFlows(List<Flow> newFlows) {
 		flowService.deleteAll();
 		for (Flow flow : newFlows) {
-			flowService.add(flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup());
+			flowService.addOrUpdate(flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup());
 		}
 	}
 	

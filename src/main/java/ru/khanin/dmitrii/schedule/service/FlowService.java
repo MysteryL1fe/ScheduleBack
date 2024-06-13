@@ -5,7 +5,7 @@ import java.util.Collection;
 import ru.khanin.dmitrii.schedule.entity.Flow;
 
 public interface FlowService {
-	Flow add(int flowLvl, int course, int flow, int subgroup);
+	Flow addOrUpdate(int flowLvl, int course, int flow, int subgroup);
 	Flow findById(long id);
 	Collection<Flow> findAll();
 	Collection<Flow> findAllByFlowLvl(int flowLvl);

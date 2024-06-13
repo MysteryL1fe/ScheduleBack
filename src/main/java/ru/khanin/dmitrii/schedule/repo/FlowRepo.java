@@ -6,6 +6,7 @@ import ru.khanin.dmitrii.schedule.entity.Flow;
 
 public interface FlowRepo {
 	Flow add(Flow flow);
+	Flow update(Flow flow);
 	Optional<Flow> findById(long id);
 	Optional<Flow> findByFlowLvlAndCourseAndFlowAndSubgroup(int flowLvl, int course, int flow, int subgroup);
 	Iterable<Flow> findAll();

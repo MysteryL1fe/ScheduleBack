@@ -1,5 +1,7 @@
 package ru.khanin.dmitrii.schedule.controller;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -57,9 +59,17 @@ public class ScheduleExceptionHandler {
 	
 	@ExceptionHandler(NullPointerException.class)
 	public ResponseEntity<ErrorResponse> nullPointerException(NullPointerException ex) {
-		return ResponseEntity.status(401).body(new ErrorResponse(
+		return ResponseEntity.status(400).body(new ErrorResponse(
 				ex.getClass().getName(),
 				"Something went wrong"
+		));
+	}
+	
+	@ExceptionHandler(NoSuchElementException.class)
+	public ResponseEntity<ErrorResponse> noSuchElementException(NoSuchElementException ex) {
+		return ResponseEntity.status(400).body(new ErrorResponse(
+				ex.getClass().getName(),
+				"No such element"
 		));
 	}
 	

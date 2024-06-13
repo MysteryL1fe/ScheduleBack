@@ -34,7 +34,7 @@ public class FlowController {
 		Collection<Flow> found = flowService.findAll();
 		List<FlowResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
-			result.add(new FlowResponse(e.getFlowLvl(), e.getCourse(), e.getFlow(), e.getSubgroup()));
+			result.add(new FlowResponse(e.getFlowLvl(), e.getCourse(), e.getFlow(), e.getSubgroup(), e.getLastEdit()));
 		});
 		return ResponseEntity.ok(result);
 	}
@@ -44,7 +44,7 @@ public class FlowController {
 		if (!userService.checkAdminAccessByApiKey(apiKey))
 			throw new NoAccessException("Нет доступа для добавления группы");
 		
-		flowService.add(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
+		flowService.addOrUpdate(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
 		return ResponseEntity.ok().build();
 	}
 	
@@ -55,7 +55,7 @@ public class FlowController {
 			throw new NoAccessException("Нет доступа для добавления групп");
 		
 		for (FlowRequest flow : flows) {
-			flowService.add(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
+			flowService.addOrUpdate(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
 		}
 		return ResponseEntity.ok().build();
 	}

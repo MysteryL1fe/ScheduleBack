@@ -50,7 +50,8 @@ public class ScheduleController {
 				
 				FlowResponse flowResponse = new FlowResponse(
 						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
-						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup()
+						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
+						schedule.getFlowJoined().getLastEdit()
 				);
 				
 				LessonResponse lessonResponse = new LessonResponse(
@@ -65,7 +66,8 @@ public class ScheduleController {
 			} else {
 				Flow flow = flowService.findById(e.getFlow());
 				FlowResponse flowResponse = new FlowResponse(
-						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup()
+						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
+						flow.getLastEdit()
 				);
 						
 				Lesson lesson = lessonService.findById(e.getLesson());
@@ -92,7 +94,8 @@ public class ScheduleController {
 				
 				FlowResponse flowResponse = new FlowResponse(
 						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
-						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup()
+						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
+						schedule.getFlowJoined().getLastEdit()
 				);
 				
 				LessonResponse lessonResponse = new LessonResponse(
@@ -107,7 +110,8 @@ public class ScheduleController {
 			} else {
 				Flow foundflow = flowService.findById(e.getFlow());
 				FlowResponse flowResponse = new FlowResponse(
-						foundflow.getFlowLvl(), foundflow.getCourse(), foundflow.getFlow(), foundflow.getSubgroup()
+						foundflow.getFlowLvl(), foundflow.getCourse(), foundflow.getFlow(), foundflow.getSubgroup(),
+						foundflow.getLastEdit()
 				);
 						
 				Lesson lesson = lessonService.findById(e.getLesson());
@@ -134,7 +138,8 @@ public class ScheduleController {
 				
 				FlowResponse flowResponse = new FlowResponse(
 						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
-						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup()
+						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
+						schedule.getFlowJoined().getLastEdit()
 				);
 				
 				LessonResponse lessonResponse = new LessonResponse(
@@ -149,7 +154,8 @@ public class ScheduleController {
 			} else {
 				Flow foundflow = flowService.findById(e.getFlow());
 				FlowResponse flowResponse = new FlowResponse(
-						foundflow.getFlowLvl(), foundflow.getCourse(), foundflow.getFlow(), foundflow.getSubgroup()
+						foundflow.getFlowLvl(), foundflow.getCourse(), foundflow.getFlow(), foundflow.getSubgroup(),
+						foundflow.getLastEdit()
 				);
 						
 				Lesson lesson = lessonService.findById(e.getLesson());

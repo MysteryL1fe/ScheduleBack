@@ -1,5 +1,6 @@
 package ru.khanin.dmitrii.schedule.service.jdbc;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -23,12 +24,17 @@ public class JdbcFlowService implements FlowService {
 	private final JdbcUserRepo userRepo;
 
 	@Override
-	public Flow add(int flowLvl, int course, int flow, int subgroup) {
+	public Flow addOrUpdate(int flowLvl, int course, int flow, int subgroup) {
 		Flow flowToAdd = new Flow();
 		flowToAdd.setFlowLvl(flowLvl);
 		flowToAdd.setCourse(course);
 		flowToAdd.setFlow(flow);
 		flowToAdd.setSubgroup(subgroup);
+		flowToAdd.setLastEdit(LocalDateTime.now());
+		
+		if (flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup).isPresent())
+			flowRepo.update(flowToAdd);
+		
 		return flowRepo.add(flowToAdd);
 	}
 	
