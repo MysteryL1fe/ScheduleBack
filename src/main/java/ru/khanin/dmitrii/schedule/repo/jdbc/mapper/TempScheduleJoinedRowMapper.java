@@ -19,6 +19,7 @@ public class TempScheduleJoinedRowMapper implements RowMapper<TempScheduleJoined
 		flow.setCourse(rs.getInt("course"));
 		flow.setFlow(rs.getInt("flow"));
 		flow.setSubgroup(rs.getInt("subgroup"));
+		flow.setLastEdit(rs.getTimestamp("last_edit").toLocalDateTime());
 		
 		Lesson lesson = new Lesson();
 		lesson.setId(rs.getLong("lesson_id"));
@@ -30,7 +31,7 @@ public class TempScheduleJoinedRowMapper implements RowMapper<TempScheduleJoined
 		result.setId(rs.getLong("temp_schedule_id"));
 		result.setFlow(rs.getLong("flow_id"));
 		result.setFlowJoined(flow);
-		result.setLesson(rs.getLong("leson_id"));
+		result.setLesson(rs.getLong("lesson_id"));
 		result.setLessonJoined(lesson);
 		result.setLessonDate(rs.getDate("lesson_date").toLocalDate());
 		result.setLessonNum(rs.getInt("lesson_num"));

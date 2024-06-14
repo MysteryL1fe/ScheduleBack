@@ -147,7 +147,7 @@ public class JdbcScheduleService implements ScheduleService {
 				.findByFlowAndDayOfWeekAndLessonNumAndIsNumerator(
 						flowId, dayOfWeek, lessonNum, isNumerator
 				)
-				.orElse(null);
+				.orElseThrow();
 	}
 
 	@Override
@@ -170,8 +170,7 @@ public class JdbcScheduleService implements ScheduleService {
 	public Collection<Schedule> findAllByFlow(int flowLvl, int course, int flow, int subgroup) {
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) return null;
+				.orElseThrow();
 		
 		return findAllByFlow(foundFlow.getId());
 	}
@@ -201,20 +200,18 @@ public class JdbcScheduleService implements ScheduleService {
 			boolean isNumerator) {
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) return null;
+				.orElseThrow();
 		
 		Schedule foundSchedule = scheduleRepo
 				.findByFlowAndDayOfWeekAndLessonNumAndIsNumerator(foundFlow.getId(), dayOfWeek, lessonNum, isNumerator)
-				.orElse(null);
-		if (foundSchedule == null) return null;
+				.orElseThrow();
 		
 		return deleteById(foundSchedule.getId());
 	}
 
 	@Override
 	public Schedule deleteById(long id) {
-		return scheduleRepo.deleteById(id).orElse(null);
+		return scheduleRepo.deleteById(id).orElseThrow();
 	}
 
 	@Override

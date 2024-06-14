@@ -79,7 +79,7 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 	public Iterable<? extends Homework> findAll() {
 		return jdbcTemplate.query(
 				"SELECT h.id AS homework_id, h.homework, h.lesson_date, h.lesson_num, h.flow AS flow_id, h.lesson_name,"
-				+ " f.flow_lvl, f.course, f.flow, f.subgroup"
+				+ " f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit"
 				+ " FROM homework h JOIN flow f ON h.flow=f.id",
 				joinedRowMapper
 		);

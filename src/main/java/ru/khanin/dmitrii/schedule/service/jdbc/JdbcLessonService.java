@@ -29,7 +29,7 @@ public class JdbcLessonService implements LessonService {
 	
 	@Override
 	public Lesson findById(long id) {
-		return lessonRepo.findById(id).orElse(null);
+		return lessonRepo.findById(id).orElseThrow();
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class JdbcLessonService implements LessonService {
 	public Lesson deleteById(long id) {
 		scheduleRepo.deleteAllByLesson(id);
 		tempScheduleRepo.deleteAllByLesson(id);
-		return lessonRepo.deleteById(id).orElse(null);
+		return lessonRepo.deleteById(id).orElseThrow();
 	}
 
 	@Override

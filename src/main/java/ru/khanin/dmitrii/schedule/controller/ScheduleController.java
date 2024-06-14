@@ -61,7 +61,7 @@ public class ScheduleController {
 				
 				result.add(new ScheduleResponse(
 						flowResponse, lessonResponse, schedule.getDayOfWeek(),
-						schedule.getLessonNum(), schedule.isNumerator()
+						schedule.getLessonNum(), schedule.isIsNumerator()
 				));
 			} else {
 				Flow flow = flowService.findById(e.getFlow());
@@ -76,7 +76,7 @@ public class ScheduleController {
 				);
 						
 				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
+						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isIsNumerator()
 				));
 			}
 		});
@@ -105,7 +105,7 @@ public class ScheduleController {
 				
 				result.add(new ScheduleResponse(
 						flowResponse, lessonResponse, schedule.getDayOfWeek(),
-						schedule.getLessonNum(), schedule.isNumerator()
+						schedule.getLessonNum(), schedule.isIsNumerator()
 				));
 			} else {
 				Flow foundflow = flowService.findById(e.getFlow());
@@ -120,7 +120,7 @@ public class ScheduleController {
 				);
 						
 				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
+						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isIsNumerator()
 				));
 			}
 		});
@@ -149,7 +149,7 @@ public class ScheduleController {
 				
 				result.add(new ScheduleResponse(
 						flowResponse, lessonResponse, schedule.getDayOfWeek(),
-						schedule.getLessonNum(), schedule.isNumerator()
+						schedule.getLessonNum(), schedule.isIsNumerator()
 				));
 			} else {
 				Flow foundflow = flowService.findById(e.getFlow());
@@ -164,7 +164,7 @@ public class ScheduleController {
 				);
 						
 				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
+						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isIsNumerator()
 				));
 			}
 		});

@@ -18,6 +18,7 @@ public class HomeworkJoinedRowMapper implements RowMapper<HomeworkJoined> {
 		flow.setCourse(rs.getInt("course"));
 		flow.setFlow(rs.getInt("flow"));
 		flow.setSubgroup(rs.getInt("subgroup"));
+		flow.setLastEdit(rs.getTimestamp("last_edit").toLocalDateTime());
 		
 		HomeworkJoined result = new HomeworkJoined();
 		result.setId(rs.getLong("homework_id"));

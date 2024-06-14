@@ -19,6 +19,7 @@ public class ScheduleJoinedRowMapper implements RowMapper<ScheduleJoined> {
 		flow.setCourse(rs.getInt("course"));
 		flow.setFlow(rs.getInt("flow"));
 		flow.setSubgroup(rs.getInt("subgroup"));
+		flow.setLastEdit(rs.getTimestamp("last_edit").toLocalDateTime());
 		
 		Lesson lesson = new Lesson();
 		lesson.setId(rs.getLong("lesson_id"));
@@ -30,7 +31,7 @@ public class ScheduleJoinedRowMapper implements RowMapper<ScheduleJoined> {
 		result.setId(rs.getLong("schedule_id"));
 		result.setFlow(rs.getLong("flow_id"));
 		result.setFlowJoined(flow);
-		result.setLesson(rs.getLong("leson_id"));
+		result.setLesson(rs.getLong("lesson_id"));
 		result.setLessonJoined(lesson);
 		result.setDayOfWeek(rs.getInt("day_of_week"));
 		result.setLessonNum(rs.getInt("lesson_num"));

@@ -39,6 +39,17 @@ public class FlowController {
 		return ResponseEntity.ok(result);
 	}
 	
+	@GetMapping("/flow")
+	public ResponseEntity<FlowResponse> getFlow(@RequestBody FlowRequest flow) {
+		Flow found = flowService.findByFlowLvlAndCourseAndFlowAndSubgroup(
+				flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup()
+		);
+		FlowResponse response = new FlowResponse(
+				found.getFlowLvl(), found.getCourse(), found.getFlow(), found.getSubgroup(), found.getLastEdit()
+		);
+		return ResponseEntity.ok(response);
+	}
+	
 	@PostMapping("/flow")
 	public ResponseEntity<?> addSingleFlow(@RequestHeader("api_key") String apiKey, @RequestBody FlowRequest flow) {
 		if (!userService.checkAdminAccessByApiKey(apiKey))

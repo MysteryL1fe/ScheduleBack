@@ -132,7 +132,7 @@ public class JdbcTempScheduleService implements TempScheduleService {
 	public TempSchedule findByFlowAndLessonDateAndLessonNum(long flowId, LocalDate lessonDate, int lessonNum) {
 		return tempScheduleRepo
 				.findByFlowAndLessonDateAndLessonNum(flowId, lessonDate, lessonNum)
-				.orElse(null);
+				.orElseThrow();
 	}
 
 	@Override
@@ -155,8 +155,7 @@ public class JdbcTempScheduleService implements TempScheduleService {
 	public Collection<TempSchedule> findAllByFlow(int flowLvl, int course, int flow, int subgroup) {
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) return null;
+				.orElseThrow();
 		
 		return findAllByFlow(foundFlow.getId());
 	}
@@ -174,8 +173,7 @@ public class JdbcTempScheduleService implements TempScheduleService {
 			LocalDate lessonDate) {
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) return null;
+				.orElseThrow();
 		
 		return findAllByFlowAndLessonDate(foundFlow.getId(), lessonDate);
 	}
@@ -184,20 +182,18 @@ public class JdbcTempScheduleService implements TempScheduleService {
 	public TempSchedule delete(int flowLvl, int course, int flow, int subgroup, LocalDate lessonDate, int lessonNum) {
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) return null;
+				.orElseThrow();
 		
 		TempSchedule foundSchedule = tempScheduleRepo
 				.findByFlowAndLessonDateAndLessonNum(foundFlow.getId(), lessonDate, lessonNum)
-				.orElse(null);
-		if (foundSchedule == null) return null;
+				.orElseThrow();
 		
 		return deleteById(foundSchedule.getId());
 	}
 
 	@Override
 	public TempSchedule deleteById(long id) {
-		return tempScheduleRepo.deleteById(id).orElse(null);
+		return tempScheduleRepo.deleteById(id).orElseThrow();
 	}
 
 	@Override

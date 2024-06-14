@@ -77,8 +77,7 @@ public class JdbcHomeworkService implements HomeworkService {
 	public Collection<Homework> findAllByFlow(int flowLvl, int course, int flow, int subgroup) {
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) return null;
+				.orElseThrow();
 		
 		return findAllByFlow(foundFlow.getId());
 	}
@@ -95,12 +94,11 @@ public class JdbcHomeworkService implements HomeworkService {
 	public Homework delete(int flowLvl, int course, int flow, int subgroup, LocalDate lessonDate, int lessonNum) {
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) return null;
+				.orElseThrow();
 		
 		Homework foundHomework = homeworkRepo
 				.findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, foundFlow.getId())
-				.orElse(null);
+				.orElseThrow();
 		if (foundHomework == null) return null;
 		
 		return deleteById(foundHomework.getId());
@@ -108,7 +106,7 @@ public class JdbcHomeworkService implements HomeworkService {
 
 	@Override
 	public Homework deleteById(long id) {
-		return homeworkRepo.deleteById(id).orElse(null);
+		return homeworkRepo.deleteById(id).orElseThrow();
 	}
 
 	@Override

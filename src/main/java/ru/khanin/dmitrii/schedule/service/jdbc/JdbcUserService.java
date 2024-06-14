@@ -49,17 +49,16 @@ public class JdbcUserService implements UserService {
 		
 		Flow foundFlow = flowRepo
 				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
-				.orElse(null);
-		if (foundFlow == null) {
-			Flow flowToAdd = new Flow();
-			flowToAdd.setFlowLvl(flowLvl);
-			flowToAdd.setCourse(course);
-			flowToAdd.setFlow(flow);
-			flowToAdd.setSubgroup(subgroup);
-			Flow addedFlow = flowRepo.add(flowToAdd);
-			
-			return add(apiKey, name, access, addedFlow.getId());
-		}
+				.orElseGet(() -> {
+					Flow flowToAdd = new Flow();
+					flowToAdd.setFlowLvl(flowLvl);
+					flowToAdd.setCourse(course);
+					flowToAdd.setFlow(flow);
+					flowToAdd.setSubgroup(subgroup);
+					Flow addedFlow = flowRepo.add(flowToAdd);
+					
+					return addedFlow;
+				});
 		
 		return add(apiKey, name, access, foundFlow.getId());
 	}

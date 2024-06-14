@@ -40,7 +40,14 @@ public class JdbcFlowService implements FlowService {
 	
 	@Override
 	public Flow findById(long id) {
-		return flowRepo.findById(id).orElse(null);
+		return flowRepo.findById(id).orElseThrow();
+	}
+	
+	@Override
+	public Flow findByFlowLvlAndCourseAndFlowAndSubgroup(int flowLvl, int course, int flow, int subgroup) {
+		return flowRepo
+				.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup)
+				.orElseThrow();
 	}
 
 	@Override
@@ -82,7 +89,7 @@ public class JdbcFlowService implements FlowService {
 		scheduleRepo.deleteAllByFlow(id);
 		tempScheduleRepo.deleteAllByFlow(id);
 		userRepo.deleteAllByFlow(id);
-		return flowRepo.deleteById(id).orElse(null);
+		return flowRepo.deleteById(id).orElseThrow();
 	}
 
 	@Override
