@@ -36,35 +36,67 @@ public class BrsScheduler {
 		Collection<Flow> flows = flowService.findAll();
 		
 		if (flows.size() != brsFlows.size())  {
-			updateFlows(brsFlows);
+			clearAndUpdateFlows(brsFlows);
 			return;
 		}
 		
 		for (Flow flow : flows) {
+			boolean exists = false;
 			for (Flow brsFlow : brsFlows) {
-				if (!flow.equalsByFlowData(brsFlow)) {
-					updateFlows(brsFlows);
-					return;
+				if (flow.equalsByFlowData(brsFlow)) {
+					exists = true;
+					break;
 				}
+			}
+			if (!exists) {
+				clearAndUpdateFlows(brsFlows);
+				return;				
 			}
 		}
 		
 		for (Flow brsFlow : brsFlows) {
+			boolean exists = false;
 			for (Flow flow : flows) {
-				if (!flow.equalsByFlowData(brsFlow)) {
-					updateFlows(brsFlows);
-					return;
+				if (flow.equalsByFlowData(brsFlow)) {
+					exists = true;
+					break;
 				}
+			}
+			if (!exists) {
+				clearAndUpdateFlows(brsFlows);
+				return;				
+			}
+		}
+		
+		for (Flow flow : flows) {
+			boolean equals = false;
+			for (Flow brsFlow : brsFlows) {
+				if (flow.equalsByFlowData(brsFlow) && flow.equalsByDates(brsFlow)) {
+					equals = true;
+					break;
+				}
+			}
+			if (!equals) {
+				updateFlows(brsFlows);
+				return;				
 			}
 		}
 	}
 	
 	@Transactional
-	private void updateFlows(List<Flow> newFlows) {
-		flowService.deleteAll();
-		for (Flow flow : newFlows) {
-			flowService.addOrUpdate(flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup());
+	private void updateFlows(List<Flow> flows) {
+		for (Flow flow : flows) {
+			flowService.addOrUpdate(
+					flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
+					flow.getLessonsStartDate(), flow.getSessionStartDate(), flow.getSessionEndDate()
+			);
 		}
+	}
+	
+	@Transactional
+	private void clearAndUpdateFlows(List<Flow> newFlows) {
+		flowService.deleteAll();
+		updateFlows(newFlows);
 	}
 	
 	private List<Flow> convertStudGroupsToFlows(StudGroupResponse studGroupResponse) {
@@ -75,6 +107,9 @@ public class BrsScheduler {
 			flow.setCourse(studGroupResponse.course());
 			flow.setFlow(studGroupResponse.num());
 			flow.setSubgroup(1);
+			flow.setLessonsStartDate(studGroupResponse.lessons_start_date());
+			flow.setSessionStartDate(studGroupResponse.session_start_date());
+			flow.setSessionEndDate(studGroupResponse.session_end_date());
 			result.add(flow);
 			
 			return result;
@@ -86,6 +121,9 @@ public class BrsScheduler {
 			flow.setCourse(studGroupResponse.course());
 			flow.setFlow(studGroupResponse.num());
 			flow.setSubgroup(i);
+			flow.setLessonsStartDate(studGroupResponse.lessons_start_date());
+			flow.setSessionStartDate(studGroupResponse.session_start_date());
+			flow.setSessionEndDate(studGroupResponse.session_end_date());
 			result.add(flow);
 		}
 		

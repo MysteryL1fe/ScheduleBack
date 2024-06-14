@@ -20,6 +20,9 @@ public class ScheduleJoinedRowMapper implements RowMapper<ScheduleJoined> {
 		flow.setFlow(rs.getInt("flow"));
 		flow.setSubgroup(rs.getInt("subgroup"));
 		flow.setLastEdit(rs.getTimestamp("last_edit").toLocalDateTime());
+		flow.setLessonsStartDate(rs.getDate("lessons_start_date").toLocalDate());
+		flow.setSessionStartDate(rs.getDate("session_start_date").toLocalDate());
+		flow.setSessionEndDate(rs.getDate("session_end_date").toLocalDate());
 		
 		Lesson lesson = new Lesson();
 		lesson.setId(rs.getLong("lesson_id"));

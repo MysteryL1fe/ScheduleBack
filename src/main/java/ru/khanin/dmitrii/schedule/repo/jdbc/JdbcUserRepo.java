@@ -68,9 +68,9 @@ public class JdbcUserRepo implements UserRepo {
 	}
 	
 	@Override
-	public Iterable<? extends User> deleteAllWhereApiKeyIsNotNull() {
+	public Iterable<? extends User> deleteAllWhereFlowIsNotNull() {
 		return jdbcTemplate.query(
-				"DELETE FROM flow WHERE users IS NOT NULL RETURNING *",
+				"DELETE FROM users WHERE flow IS NOT NULL RETURNING *",
 				rowMapper
 		);
 	}

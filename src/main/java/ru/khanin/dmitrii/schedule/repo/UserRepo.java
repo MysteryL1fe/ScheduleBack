@@ -10,7 +10,7 @@ public interface UserRepo {
 	Iterable<? extends User> findAllByApiKey(String apiKey);
 	Optional<User> deleteById(long id);
 	Iterable<? extends User> deleteAll();
-	Iterable<? extends User> deleteAllWhereApiKeyIsNotNull();
+	Iterable<? extends User> deleteAllWhereFlowIsNotNull();
 	Iterable<? extends User> deleteAllByApiKey(String apiKey);
 	Iterable<? extends User> deleteAllByFlow(long flow);
 }

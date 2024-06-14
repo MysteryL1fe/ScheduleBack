@@ -23,8 +23,15 @@ public class JdbcFlowRepo implements FlowRepo {
 	@Override
 	public Flow add(Flow flow) {
 		return jdbcTemplate.queryForObject(
-				"INSERT INTO flow(flow_lvl, course, flow, subgroup, last_edit)"
-				+ " VALUES (:flowLvl, :course, :flow, :subgroup, :lastEdit) RETURNING *",
+				"INSERT INTO flow(flow_lvl, course, flow, subgroup, last_edit"
+				+ (flow.getLessonsStartDate() != null ? ", lessons_start_date" : "")
+				+ (flow.getSessionStartDate() != null ? ", session_start_date" : "")
+				+ (flow.getSessionEndDate() != null ? ", session_end_date" : "")
+				+ ") VALUES (:flowLvl, :course, :flow, :subgroup, :lastEdit"
+				+ (flow.getLessonsStartDate() != null ? ", :lessonsStartDate" : "")
+				+ (flow.getSessionStartDate() != null ? ", :sessionStartDate" : "")
+				+ (flow.getSessionEndDate() != null ? ", :sessionEndDate" : "")
+				+ ") RETURNING *",
 				new BeanPropertySqlParameterSource(flow),
 				rowMapper
 		);
@@ -33,7 +40,8 @@ public class JdbcFlowRepo implements FlowRepo {
 	@Override
 	public Flow update(Flow flow) {
 		return jdbcTemplate.queryForObject(
-				"UPDATE flow SET last_edit = :lastEdit"
+				"UPDATE flow SET last_edit = :lastEdit, lessons_start_date = :lessonsStartDate,"
+				+ " session_start_date = :sessionStartDate, session_end_date = :sessionEndDate"
 				+ " WHERE flow_lvl=:flowLvl AND course=:course AND flow=:flow AND subgroup=:subgroup RETURNING *",
 				new BeanPropertySqlParameterSource(flow),
 				rowMapper

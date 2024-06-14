@@ -51,7 +51,8 @@ public class TempScheduleController {
 				FlowResponse flowResponse = new FlowResponse(
 						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
 						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
-						schedule.getFlowJoined().getLastEdit()
+						schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
+						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate()
 				);
 				
 				LessonResponse lessonResponse = new LessonResponse(
@@ -67,7 +68,8 @@ public class TempScheduleController {
 				Flow flow = flowService.findById(e.getFlow());
 				FlowResponse flowResponse = new FlowResponse(
 						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
-						flow.getLastEdit()
+						flow.getLastEdit(), flow.getLessonsStartDate(), flow.getSessionStartDate(),
+						flow.getSessionEndDate()
 				);
 						
 				Lesson lesson = lessonService.findById(e.getLesson());
@@ -96,7 +98,8 @@ public class TempScheduleController {
 				FlowResponse flowResponse = new FlowResponse(
 						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
 						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
-						schedule.getFlowJoined().getLastEdit()
+						schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
+						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate()
 				);
 				
 				LessonResponse lessonResponse = new LessonResponse(
@@ -112,7 +115,8 @@ public class TempScheduleController {
 				Flow foundFlow = flowService.findById(e.getFlow());
 				FlowResponse flowResponse = new FlowResponse(
 						foundFlow.getFlowLvl(), foundFlow.getCourse(), foundFlow.getFlow(), foundFlow.getSubgroup(),
-						foundFlow.getLastEdit()
+						foundFlow.getLastEdit(), foundFlow.getLessonsStartDate(), foundFlow.getSessionStartDate(),
+						foundFlow.getSessionEndDate()
 				);
 	
 				Lesson lesson = lessonService.findById(e.getLesson());
