@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowRequest;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowResponse;
 import ru.khanin.dmitrii.schedule.dto.lesson.LessonResponse;
@@ -34,6 +35,7 @@ import ru.khanin.dmitrii.schedule.service.UserService;
 @RestController
 @RequestMapping("/schedule")
 @RequiredArgsConstructor
+@Slf4j
 public class ScheduleController {
 	private final ScheduleService scheduleService;
 	private final FlowService flowService;
@@ -42,6 +44,8 @@ public class ScheduleController {
 	
 	@GetMapping("/all")
 	public ResponseEntity<List<ScheduleResponse>> getAllSchedules() {
+		log.info("Received request to get all schedules");
+		
 		Collection<Schedule> found = scheduleService.findAll();
 		List<ScheduleResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
@@ -83,11 +87,16 @@ public class ScheduleController {
 				));
 			}
 		});
+		
+		log.info(String.format("Found all (%s) schedules: %s", found.size(), found));
+		
 		return ResponseEntity.ok(result);
 	}
 	
 	@GetMapping("/flow")
 	public ResponseEntity<List<ScheduleResponse>> getAllSchedulesByFlow(@RequestBody FlowRequest flow) {
+		log.info(String.format("Received request to get all schedules by flow %s", flow));
+		
 		Collection<Schedule> found = scheduleService
 				.findAllByFlow(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
 		List<ScheduleResponse> result = new ArrayList<>();
@@ -131,11 +140,15 @@ public class ScheduleController {
 			}
 		});
 		
+		log.info(String.format("Found all (%s) schedules by flow %s: %s", found.size(), flow, found));
+		
 		return ResponseEntity.ok(result);
 	}
 	
 	@GetMapping("/teacher")
 	public ResponseEntity<List<ScheduleResponse>> getAllSchedulesWhereTeacherStartsWith(@RequestBody String teacher) {
+		log.info(String.format("Received request to get all schedules by teacher %s", teacher));
+		
 		Collection<Schedule> found = scheduleService.findAllWhereTeacherStartsWith(teacher);
 		List<ScheduleResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
@@ -178,6 +191,8 @@ public class ScheduleController {
 			}
 		});
 		
+		log.info(String.format("Found all (%s) schedules by teacher %s: %s", found.size(), teacher, found));
+		
 		return ResponseEntity.ok(result);
 	}
 	
@@ -185,17 +200,24 @@ public class ScheduleController {
 	public ResponseEntity<?> addSchedule(
 			@RequestHeader("api_key") String apiKey, @RequestBody ScheduleRequest schedule
 	) {
+		log.info(String.format("Received request from \"%s\" to add schedule %s", apiKey, schedule));
+		
 		if (!userService.checkFlowAccessByApiKey(
 				apiKey, schedule.flow().flow_lvl(), schedule.flow().course(),
 				schedule.flow().flow(), schedule.flow().subgroup()
 		)) throw new NoAccessException("Нет доступа для добавления занятия");
+
+		log.info(String.format("User \"%s\" is trying to add schedule %s", apiKey, schedule));
 		
-		scheduleService.addOrUpdate(
+		Schedule addedSchedule = scheduleService.addOrUpdate(
 				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
 				schedule.flow().subgroup(), schedule.lesson().name(), schedule.lesson().teacher(),
 				schedule.lesson().cabinet(), schedule.day_of_week(),
 				schedule.lesson_num(), schedule.is_numerator()
 		);
+		
+		log.info(String.format("User \"%s\" has successfully added schedule %s", apiKey, addedSchedule));
+		
 		return ResponseEntity.ok().build();
 	}
 	
@@ -204,6 +226,10 @@ public class ScheduleController {
 	public ResponseEntity<?> addSchedules(
 			@RequestHeader("api_key") String apiKey, @RequestBody List<ScheduleRequest> schedules
 	) {
+		log.info(String.format(
+				"Received request from \"%s\" to add %s schedules %s", apiKey, schedules.size(), schedules
+		));
+		
 		List<Flow> flows = new ArrayList<>();
 		schedules.forEach((e) -> {
 			Flow flow = new Flow();
@@ -216,15 +242,24 @@ public class ScheduleController {
 		});
 		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
 			throw new NoAccessException("Нет доступа для добавления занятий");
+
+		log.info(String.format("User \"%s\" is trying to add %s schedules: %s", apiKey, schedules.size(), schedules));
 		
+		List<Schedule> addedSchedules = new ArrayList<>();
 		for (ScheduleRequest schedule : schedules) {
-			scheduleService.addOrUpdate(
+			Schedule addedSchedule = scheduleService.addOrUpdate(
 					schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
 					schedule.flow().subgroup(), schedule.lesson().name(), schedule.lesson().teacher(),
 					schedule.lesson().cabinet(), schedule.day_of_week(),
 					schedule.lesson_num(), schedule.is_numerator()
 			);
+			addedSchedules.add(addedSchedule);
 		}
+		
+		log.info(String.format(
+				"User \"%s\" has successfully added %s schedules: %s", apiKey, addedSchedules.size(), addedSchedules
+		));
+		
 		return ResponseEntity.ok().build();
 	}
 	
@@ -232,15 +267,22 @@ public class ScheduleController {
 	public ResponseEntity<?> deleteSchedule(
 			@RequestHeader("api_key") String apiKey, @RequestBody DeleteScheduleRequest schedule
 	) {
+		log.info(String.format("Received request from \"%s\" to delete schedule %s", apiKey, schedule));
+		
 		if (!userService.checkFlowAccessByApiKey(
 				apiKey, schedule.flow().flow_lvl(), schedule.flow().course(),
 				schedule.flow().flow(), schedule.flow().subgroup()
 		)) throw new NoAccessException("Нет доступа для удаления занятия");
+
+		log.info(String.format("User \"%s\" is trying to delete schedule %s", apiKey, schedule));
 		
-		scheduleService.delete(
+		Schedule deletedSchedule = scheduleService.delete(
 				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
 				schedule.flow().subgroup(), schedule.day_of_week(), schedule.lesson_num(), schedule.is_numerator()
 		);
+		
+		log.info(String.format("User \"%s\" has successfully deleted schedule %s", apiKey, deletedSchedule));
+		
 		return ResponseEntity.ok().build();
 	}
 	
@@ -249,6 +291,10 @@ public class ScheduleController {
 	public ResponseEntity<?> deleteSchedules(
 			@RequestHeader("api_key") String apiKey, @RequestBody List<DeleteScheduleRequest> schedules
 	) {
+		log.info(String.format(
+				"Received request from \"%s\" to delete %s schedules: %s", apiKey, schedules.size(), schedules
+		));
+		
 		List<Flow> flows = new ArrayList<>();
 		schedules.forEach((e) -> {
 			Flow flow = new Flow();
@@ -261,22 +307,44 @@ public class ScheduleController {
 		});
 		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
 			throw new NoAccessException("Нет доступа для удаления занятий");
+
+		log.info(String.format(
+				"User \"%s\" is trying to delete %s schedules: %s", apiKey, schedules.size(), schedules
+		));
 		
+		List<Schedule> deletedSchedules = new ArrayList<>();
 		for (DeleteScheduleRequest schedule : schedules) {
-			scheduleService.delete(
+			Schedule deletedSchedule = scheduleService.delete(
 					schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
 					schedule.flow().subgroup(), schedule.day_of_week(), schedule.lesson_num(), schedule.is_numerator()
-					);
+			);
+			deletedSchedules.add(deletedSchedule);
 		}
+		
+		log.info(String.format(
+				"User \"%s\" has successfully deleted %s schedules: %s",
+				apiKey, deletedSchedules.size(), deletedSchedules
+		));
+		
 		return ResponseEntity.ok().build();
 	}
 	
 	@DeleteMapping("/all")
 	public ResponseEntity<?> deleteAllSchedules(@RequestHeader("api_key") String apiKey) {
+		log.info(String.format("Received request from \"%s\" to delete all schedules", apiKey));
+		
 		if (!userService.checkAdminAccessByApiKey(apiKey))
 			throw new NoAccessException("Нет доступа для удаления занятий");
 		
-		scheduleService.deleteAll();
+		log.info(String.format("User \"%s\" is trying to delete all schedules", apiKey));
+		
+		Collection<Schedule> deletedSchedules = scheduleService.deleteAll();
+
+		log.info(String.format(
+				"User \"%s\" has successfully deleted all (%s) schedules: %s",
+				apiKey, deletedSchedules.size(), deletedSchedules
+		));
+		
 		return ResponseEntity.ok().build();
 	}
 }

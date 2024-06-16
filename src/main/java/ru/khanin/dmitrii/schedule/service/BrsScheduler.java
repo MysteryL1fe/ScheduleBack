@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.khanin.dmitrii.schedule.client.BrsClient;
 import ru.khanin.dmitrii.schedule.dto.brs.StudGroupResponse;
 import ru.khanin.dmitrii.schedule.entity.Flow;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BrsScheduler {
 	private final FlowService flowService;
 	private final BrsClient brsClient;
@@ -23,10 +25,13 @@ public class BrsScheduler {
 	@Scheduled(cron = "${app.cron}")
 	@Transactional
 	public void checkStudGroups() {
+		log.info("Stud groups update has started");
+		
 		List<StudGroupResponse> studGroups = null;
 		try {
 			studGroups = brsClient.getStudGroups();
 		} catch (Exception e) {
+			log.info("Exception catched");
 			return;
 		}
 		
@@ -57,8 +62,9 @@ public class BrsScheduler {
 			}
 		}
 		
-		Collection<Flow> activeFlows = flowService.findAllActive();
+		log.info("Active flows are set, check active flows");
 		
+		Collection<Flow> activeFlows = flowService.findAllActive();
 		for (Flow flow : activeFlows) {
 			boolean exists = false;
 			for (Flow brsFlow : brsFlows) {
@@ -73,6 +79,8 @@ public class BrsScheduler {
 				);			
 			}
 		}
+		
+		log.info("Stud groups update has ended");
 	}
 	
 	private List<Flow> convertStudGroupToFlows(StudGroupResponse studGroupResponse) {

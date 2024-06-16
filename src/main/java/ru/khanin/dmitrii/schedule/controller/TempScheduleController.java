@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowRequest;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowResponse;
 import ru.khanin.dmitrii.schedule.dto.lesson.LessonResponse;
@@ -34,6 +35,7 @@ import ru.khanin.dmitrii.schedule.service.UserService;
 @RestController
 @RequestMapping("temp")
 @RequiredArgsConstructor
+@Slf4j
 public class TempScheduleController {
 	private final TempScheduleService tempScheduleService;
 	private final FlowService flowService;
@@ -42,6 +44,8 @@ public class TempScheduleController {
 	
 	@GetMapping("/all")
 	public ResponseEntity<List<TempScheduleResponse>> getAllTempSchedules() {
+		log.info("Received request to get all temp schedules");
+		
 		Collection<TempSchedule> found = tempScheduleService.findAll();
 		List<TempScheduleResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
@@ -84,11 +88,15 @@ public class TempScheduleController {
 			}
 		});
 		
+		log.info(String.format("Found all (%s) temp schedules: %s", found.size(), found));
+		
 		return ResponseEntity.ok(result);
 	}
 	
 	@GetMapping("/flow")
 	public ResponseEntity<List<TempScheduleResponse>> getAllTempSchedulesByFlow(@RequestBody FlowRequest flow) {
+		log.info(String.format("Received request to get all temp schedules by flow %s", flow));
+		
 		Collection<TempSchedule> found = tempScheduleService
 				.findAllByFlow(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
 		List<TempScheduleResponse> result = new ArrayList<>();
@@ -132,6 +140,8 @@ public class TempScheduleController {
 			}
 		});
 		
+		log.info(String.format("Found all (%s) temp schedules by flow %s: %s", found.size(), flow, found));
+		
 		return ResponseEntity.ok(result);
 	}
 	
@@ -139,17 +149,24 @@ public class TempScheduleController {
 	public ResponseEntity<?> addTempSchedule(
 			@RequestHeader("api_key") String apiKey, @RequestBody TempScheduleRequest tempSchedule
 	) {
+		log.info(String.format("Received request from \"%s\" to add temp schedule %s", apiKey, tempSchedule));
+		
 		if (!userService.checkFlowAccessByApiKey(
 				apiKey, tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(),
 				tempSchedule.flow().flow(), tempSchedule.flow().subgroup()
 		)) throw new NoAccessException("Нет доступа для добавления временного занятия");
+
+		log.info(String.format("User \"%s\" is trying to add temp schedule %s", apiKey, tempSchedule));
 		
-		tempScheduleService.addOrUpdate(
+		TempSchedule addedSchedule = tempScheduleService.addOrUpdate(
 				tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
 				tempSchedule.flow().subgroup(), tempSchedule.lesson().name(), tempSchedule.lesson().teacher(),
 				tempSchedule.lesson().cabinet(), tempSchedule.lesson_date(), tempSchedule.lesson_num(),
 				tempSchedule.will_lesson_be()
 		);
+		
+		log.info(String.format("User \"%s\" has successfully added temp schedule %s", apiKey, addedSchedule));
+		
 		return ResponseEntity.ok().build();
 	}
 	
@@ -158,6 +175,10 @@ public class TempScheduleController {
 	public ResponseEntity<?> addTempSchedules(
 			@RequestHeader("api_key") String apiKey, @RequestBody List<TempScheduleRequest> tempSchedules
 	) {
+		log.info(String.format(
+				"Received request from \"%s\" to add %s temp schedules %s", apiKey, tempSchedules.size(), tempSchedules
+		));
+		
 		List<Flow> flows = new ArrayList<>();
 		tempSchedules.forEach((e) -> {
 			Flow flow = new Flow();
@@ -170,15 +191,27 @@ public class TempScheduleController {
 		});
 		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
 			throw new NoAccessException("Нет доступа для добавления временных занятий");
+
+		log.info(String.format(
+				"User \"%s\" is trying to add %s temp schedules: %s", apiKey, tempSchedules.size(), tempSchedules
+		));
 		
+		List<TempSchedule> addedSchedules = new ArrayList<>();
 		for (TempScheduleRequest tempSchedule : tempSchedules) {
-			tempScheduleService.addOrUpdate(
+			TempSchedule addedSchedule = tempScheduleService.addOrUpdate(
 					tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
 					tempSchedule.flow().subgroup(), tempSchedule.lesson().name(), tempSchedule.lesson().teacher(),
 					tempSchedule.lesson().cabinet(), tempSchedule.lesson_date(), tempSchedule.lesson_num(),
 					tempSchedule.will_lesson_be()
 			);
+			addedSchedules.add(addedSchedule);
 		}
+		
+		log.info(String.format(
+				"User \"%s\" has successfully added %s temp schedules: %s",
+				apiKey, addedSchedules.size(), addedSchedules
+		));
+		
 		return ResponseEntity.ok().build();
 	}
 	
@@ -186,23 +219,35 @@ public class TempScheduleController {
 	public ResponseEntity<?> deleteTempSchedule(
 			@RequestHeader("api_key") String apiKey, @RequestBody DeleteTempScheduleRequest tempSchedule
 	) {
+		log.info(String.format("Received request from \"%s\" to delete temp schedule %s", apiKey, tempSchedule));
+		
 		if (!userService.checkFlowAccessByApiKey(
 				apiKey, tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(),
 				tempSchedule.flow().flow(), tempSchedule.flow().subgroup()
 		)) throw new NoAccessException("Нет доступа для удаления временного занятия");
+
+		log.info(String.format("User \"%s\" is trying to delete temp schedule %s", apiKey, tempSchedule));
 		
-		tempScheduleService.delete(
+		TempSchedule deletedSchedule = tempScheduleService.delete(
 				tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
 				tempSchedule.flow().subgroup(), tempSchedule.lesson_date(), tempSchedule.lesson_num()
 		);
+		
+		log.info(String.format("User \"%s\" has successfully deleted temp schedule %s", apiKey, deletedSchedule));
+		
 		return ResponseEntity.ok().build();
 	}
 	
 	@DeleteMapping("/schedules")
 	@Transactional
-	public ResponseEntity<?> deleteSchedules(
+	public ResponseEntity<?> deleteTempSchedules(
 			@RequestHeader("api_key") String apiKey, @RequestBody List<DeleteTempScheduleRequest> tempSchedules
 	) {
+		log.info(String.format(
+				"Received request from \"%s\" to delete %s temp schedules: %s",
+				apiKey, tempSchedules.size(), tempSchedules
+		));
+		
 		List<Flow> flows = new ArrayList<>();
 		tempSchedules.forEach((e) -> {
 			Flow flow = new Flow();
@@ -215,22 +260,44 @@ public class TempScheduleController {
 		});
 		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
 			throw new NoAccessException("Нет доступа для удаления временных занятий");
+
+		log.info(String.format(
+				"User \"%s\" is trying to delete %s temp schedules: %s", apiKey, tempSchedules.size(), tempSchedules
+		));
 		
+		List<TempSchedule> deletedSchedules = new ArrayList<>();
 		for (DeleteTempScheduleRequest tempSchedule : tempSchedules) {
-			tempScheduleService.delete(
+			TempSchedule deletedSchedule = tempScheduleService.delete(
 					tempSchedule.flow().flow_lvl(), tempSchedule.flow().course(), tempSchedule.flow().flow(),
 					tempSchedule.flow().subgroup(), tempSchedule.lesson_date(), tempSchedule.lesson_num()
-					);
+			);
+			deletedSchedules.add(deletedSchedule);
 		}
+		
+		log.info(String.format(
+				"User \"%s\" has successfully deleted %s temp schedules: %s",
+				apiKey, deletedSchedules.size(), deletedSchedules
+		));
+		
 		return ResponseEntity.ok().build();
 	}
 	
 	@DeleteMapping("/all")
 	public ResponseEntity<?> deleteAllTempSchedules(@RequestHeader("api_key") String apiKey) {
+		log.info(String.format("Received request from \"%s\" to delete all temp schedules", apiKey));
+		
 		if (!userService.checkAdminAccessByApiKey(apiKey))
 			throw new NoAccessException("Нет доступа для удаления временных занятий");
 		
-		tempScheduleService.deleteAll();
+		log.info(String.format("User \"%s\" is trying to delete all temp schedules", apiKey));
+		
+		Collection<TempSchedule> deletedSchedules = tempScheduleService.deleteAll();
+
+		log.info(String.format(
+				"User \"%s\" has successfully deleted all (%s) temp schedules: %s",
+				apiKey, deletedSchedules.size(), deletedSchedules
+		));
+		
 		return ResponseEntity.ok().build();
 	}
 }
