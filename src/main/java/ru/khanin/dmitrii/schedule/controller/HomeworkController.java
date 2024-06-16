@@ -48,7 +48,8 @@ public class HomeworkController {
 						homework.getJoinedFlow().getFlowLvl(), homework.getJoinedFlow().getCourse(),
 						homework.getJoinedFlow().getFlow(), homework.getJoinedFlow().getSubgroup(),
 						homework.getJoinedFlow().getLastEdit(), homework.getJoinedFlow().getLessonsStartDate(),
-						homework.getJoinedFlow().getSessionStartDate(), homework.getJoinedFlow().getSessionEndDate()
+						homework.getJoinedFlow().getSessionStartDate(), homework.getJoinedFlow().getSessionEndDate(),
+						homework.getJoinedFlow().isActive()
 				);
 				
 				result.add(new HomeworkResponse(
@@ -60,7 +61,7 @@ public class HomeworkController {
 				FlowResponse flowResponse = new FlowResponse(
 						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
 						flow.getLastEdit(), flow.getLessonsStartDate(), flow.getSessionStartDate(),
-						flow.getSessionEndDate()
+						flow.getSessionEndDate(), flow.isActive()
 				);
 						
 				result.add(new HomeworkResponse(
@@ -85,7 +86,8 @@ public class HomeworkController {
 						homework.getJoinedFlow().getFlowLvl(), homework.getJoinedFlow().getCourse(),
 						homework.getJoinedFlow().getFlow(), homework.getJoinedFlow().getSubgroup(),
 						homework.getJoinedFlow().getLastEdit(), homework.getJoinedFlow().getLessonsStartDate(),
-						homework.getJoinedFlow().getSessionStartDate(), homework.getJoinedFlow().getSessionEndDate()
+						homework.getJoinedFlow().getSessionStartDate(), homework.getJoinedFlow().getSessionEndDate(),
+						homework.getJoinedFlow().isActive()
 				);
 				
 				result.add(new HomeworkResponse(
@@ -97,7 +99,7 @@ public class HomeworkController {
 				FlowResponse flowResponse = new FlowResponse(
 						foundFlow.getFlowLvl(), foundFlow.getCourse(), foundFlow.getFlow(), foundFlow.getSubgroup(),
 						foundFlow.getLastEdit(), foundFlow.getLessonsStartDate(), foundFlow.getSessionStartDate(),
-						foundFlow.getSessionEndDate()
+						foundFlow.getSessionEndDate(), foundFlow.isActive()
 				);
 						
 				result.add(new HomeworkResponse(

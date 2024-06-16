@@ -22,6 +22,7 @@ public class HomeworkJoinedRowMapper implements RowMapper<HomeworkJoined> {
 		flow.setLessonsStartDate(rs.getDate("lessons_start_date").toLocalDate());
 		flow.setSessionStartDate(rs.getDate("session_start_date").toLocalDate());
 		flow.setSessionEndDate(rs.getDate("session_end_date").toLocalDate());
+		flow.setActive(rs.getBoolean("active"));
 		
 		HomeworkJoined result = new HomeworkJoined();
 		result.setId(rs.getLong("homework_id"));

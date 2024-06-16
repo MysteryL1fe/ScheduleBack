@@ -19,4 +19,8 @@
     <include file="changelog-11-06-2024/create-users-table.sql"/>
     
     <include file="changelog-13-06-2024/add-last-edit-column-to-flow"/>
+    
+    <include file="changelog-14-06-2024/add-session-date-column-to-flow"/>
+    
+    <include file="changelog-15-06-2024/add-active-column-to-flow"/>
 </databaseChangeLog>

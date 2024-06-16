@@ -84,7 +84,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 		return jdbcTemplate.query(
 				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
 				+ " s.is_numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, l.name, l.teacher, l.cabinet"
+				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
 				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id",
 				joinedRowMapper
 		);
@@ -95,7 +95,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 		return jdbcTemplate.query(
 				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
 				+ " s.is_numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, l.name, l.teacher, l.cabinet"
+				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
 				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id"
 				+ " WHERE flow=:flow",
 				Map.of("flow", flow),
@@ -121,7 +121,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 		return jdbcTemplate.query(
 				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
 				+ " s.is_numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, l.name, l.teacher, l.cabinet"
+				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
 				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id"
 				+ " WHERE istarts_with(l.teacher, :teacher)",
 				Map.of("teacher", teacher),

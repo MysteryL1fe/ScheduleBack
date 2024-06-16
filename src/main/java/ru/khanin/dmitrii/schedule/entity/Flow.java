@@ -18,6 +18,7 @@ public class Flow {
 	protected LocalDate lessonsStartDate;
 	protected LocalDate sessionStartDate;
 	protected LocalDate sessionEndDate;
+	protected boolean active;
 	
 	public boolean equalsByFlowData(Flow other) {
 		return this.flowLvl == other.flowLvl && this.course == other.course

@@ -37,7 +37,22 @@ public class FlowController {
 		found.forEach((e) -> {
 			result.add(new FlowResponse(
 					e.getFlowLvl(), e.getCourse(), e.getFlow(), e.getSubgroup(), e.getLastEdit(),
-					e.getLessonsStartDate(), e.getSessionStartDate(), e.getSessionEndDate()
+					e.getLessonsStartDate(), e.getSessionStartDate(), e.getSessionEndDate(),
+					e.isActive()
+			));
+		});
+		return ResponseEntity.ok(result);
+	}
+	
+	@GetMapping("/active")
+	public ResponseEntity<List<FlowResponse>> getAllActiveFlows() {
+		Collection<Flow> found = flowService.findAllActive();
+		List<FlowResponse> result = new ArrayList<>();
+		found.forEach((e) -> {
+			result.add(new FlowResponse(
+					e.getFlowLvl(), e.getCourse(), e.getFlow(), e.getSubgroup(), e.getLastEdit(),
+					e.getLessonsStartDate(), e.getSessionStartDate(), e.getSessionEndDate(),
+					e.isActive()
 			));
 		});
 		return ResponseEntity.ok(result);
@@ -50,7 +65,8 @@ public class FlowController {
 		);
 		FlowResponse response = new FlowResponse(
 				found.getFlowLvl(), found.getCourse(), found.getFlow(), found.getSubgroup(), found.getLastEdit(),
-				found.getLessonsStartDate(), found.getSessionStartDate(), found.getSessionEndDate()
+				found.getLessonsStartDate(), found.getSessionStartDate(), found.getSessionEndDate(),
+				found.isActive()
 		);
 		return ResponseEntity.ok(response);
 	}
@@ -62,7 +78,8 @@ public class FlowController {
 		
 		flowService.addOrUpdate(
 				flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup(),
-				flow.lessons_start_date(), flow.session_start_date(), flow.session_end_date()
+				flow.lessons_start_date(), flow.session_start_date(), flow.session_end_date(),
+				flow.active()
 		);
 		return ResponseEntity.ok().build();
 	}
@@ -76,7 +93,8 @@ public class FlowController {
 		for (AddFlowRequest flow : flows) {
 			flowService.addOrUpdate(
 					flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup(),
-					flow.lessons_start_date(), flow.session_start_date(), flow.session_end_date()
+					flow.lessons_start_date(), flow.session_start_date(), flow.session_end_date(),
+					flow.active()
 			);
 		}
 		return ResponseEntity.ok().build();

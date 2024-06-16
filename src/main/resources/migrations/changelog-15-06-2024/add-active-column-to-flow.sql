@@ -1,0 +1,1 @@
+ALTER TABLE flow ADD COLUMN active boolean NOT NULL DEFAULT true;

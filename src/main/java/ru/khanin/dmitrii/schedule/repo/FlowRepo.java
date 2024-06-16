@@ -10,6 +10,7 @@ public interface FlowRepo {
 	Optional<Flow> findById(long id);
 	Optional<Flow> findByFlowLvlAndCourseAndFlowAndSubgroup(int flowLvl, int course, int flow, int subgroup);
 	Iterable<Flow> findAll();
+	Iterable<Flow> findAllActive();
 	Iterable<Flow> findAllByFlowLvl(int flowLvl);
 	Iterable<Flow> findAllByFlowLvlAndCourse(int flowLvl, int course);
 	Iterable<Flow> findAllByFlowLvlAndCourseAndFlow(int flowLvl, int course, int flow);

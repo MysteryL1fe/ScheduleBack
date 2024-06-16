@@ -27,11 +27,13 @@ public class JdbcFlowRepo implements FlowRepo {
 				+ (flow.getLessonsStartDate() != null ? ", lessons_start_date" : "")
 				+ (flow.getSessionStartDate() != null ? ", session_start_date" : "")
 				+ (flow.getSessionEndDate() != null ? ", session_end_date" : "")
-				+ ") VALUES (:flowLvl, :course, :flow, :subgroup, :lastEdit"
+				+ ", active)"
+				+ " VALUES (:flowLvl, :course, :flow, :subgroup, :lastEdit"
 				+ (flow.getLessonsStartDate() != null ? ", :lessonsStartDate" : "")
 				+ (flow.getSessionStartDate() != null ? ", :sessionStartDate" : "")
 				+ (flow.getSessionEndDate() != null ? ", :sessionEndDate" : "")
-				+ ") RETURNING *",
+				+ ", :active)"
+				+ " RETURNING *",
 				new BeanPropertySqlParameterSource(flow),
 				rowMapper
 		);
@@ -41,7 +43,8 @@ public class JdbcFlowRepo implements FlowRepo {
 	public Flow update(Flow flow) {
 		return jdbcTemplate.queryForObject(
 				"UPDATE flow SET last_edit = :lastEdit, lessons_start_date = :lessonsStartDate,"
-				+ " session_start_date = :sessionStartDate, session_end_date = :sessionEndDate"
+				+ " session_start_date = :sessionStartDate, session_end_date = :sessionEndDate,"
+				+ " active = :active"
 				+ " WHERE flow_lvl=:flowLvl AND course=:course AND flow=:flow AND subgroup=:subgroup RETURNING *",
 				new BeanPropertySqlParameterSource(flow),
 				rowMapper
@@ -84,6 +87,14 @@ public class JdbcFlowRepo implements FlowRepo {
 	public Iterable<Flow> findAll() {
 		return jdbcTemplate.query(
 				"SELECT * FROM flow",
+				rowMapper
+		);
+	}
+	
+	@Override
+	public Iterable<Flow> findAllActive() {
+		return jdbcTemplate.query(
+				"SELECT * FROM flow WHERE active=true",
 				rowMapper
 		);
 	}

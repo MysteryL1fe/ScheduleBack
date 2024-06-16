@@ -3,6 +3,7 @@ package ru.khanin.dmitrii.schedule.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class BrsScheduler {
 	private final BrsClient brsClient;
 	
 	@Scheduled(cron = "${app.cron}")
+	@Transactional
 	public void checkStudGroups() {
 		List<StudGroupResponse> studGroups = null;
 		try {
@@ -32,74 +34,48 @@ public class BrsScheduler {
 		
 		List<Flow> brsFlows = new ArrayList<>();
 		for (StudGroupResponse studGroup : studGroups)
-			brsFlows.addAll(convertStudGroupsToFlows(studGroup));
-		Collection<Flow> flows = flowService.findAll();
-		
-		if (flows.size() != brsFlows.size())  {
-			clearAndUpdateFlows(brsFlows);
-			return;
-		}
-		
-		for (Flow flow : flows) {
-			boolean exists = false;
-			for (Flow brsFlow : brsFlows) {
-				if (flow.equalsByFlowData(brsFlow)) {
-					exists = true;
-					break;
-				}
-			}
-			if (!exists) {
-				clearAndUpdateFlows(brsFlows);
-				return;				
-			}
-		}
+			brsFlows.addAll(convertStudGroupToFlows(studGroup));
 		
 		for (Flow brsFlow : brsFlows) {
+			try {
+				Flow flow = flowService.findByFlowLvlAndCourseAndFlowAndSubgroup(
+						brsFlow.getFlowLvl(), brsFlow.getCourse(), brsFlow.getFlow(), brsFlow.getSubgroup()
+				);
+				if (!(flow.equalsByFlowData(brsFlow) && flow.equalsByDates(brsFlow) && flow.isActive())) {
+					flowService.addOrUpdate(
+							brsFlow.getFlowLvl(), brsFlow.getCourse(), brsFlow.getFlow(), brsFlow.getSubgroup(),
+							brsFlow.getLessonsStartDate(), brsFlow.getSessionStartDate(),
+							brsFlow.getSessionEndDate(), true
+					);	
+				}
+			} catch (NoSuchElementException e) {
+				flowService.addOrUpdate(
+						brsFlow.getFlowLvl(), brsFlow.getCourse(), brsFlow.getFlow(), brsFlow.getSubgroup(),
+						brsFlow.getLessonsStartDate(), brsFlow.getSessionStartDate(),
+						brsFlow.getSessionEndDate(), true
+				);
+			}
+		}
+		
+		Collection<Flow> activeFlows = flowService.findAllActive();
+		
+		for (Flow flow : activeFlows) {
 			boolean exists = false;
-			for (Flow flow : flows) {
+			for (Flow brsFlow : brsFlows) {
 				if (flow.equalsByFlowData(brsFlow)) {
 					exists = true;
 					break;
 				}
 			}
 			if (!exists) {
-				clearAndUpdateFlows(brsFlows);
-				return;				
-			}
-		}
-		
-		for (Flow flow : flows) {
-			boolean equals = false;
-			for (Flow brsFlow : brsFlows) {
-				if (flow.equalsByFlowData(brsFlow) && flow.equalsByDates(brsFlow)) {
-					equals = true;
-					break;
-				}
-			}
-			if (!equals) {
-				updateFlows(brsFlows);
-				return;				
+				flowService.addOrUpdate(
+						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(), false
+				);			
 			}
 		}
 	}
 	
-	@Transactional
-	private void updateFlows(List<Flow> flows) {
-		for (Flow flow : flows) {
-			flowService.addOrUpdate(
-					flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
-					flow.getLessonsStartDate(), flow.getSessionStartDate(), flow.getSessionEndDate()
-			);
-		}
-	}
-	
-	@Transactional
-	private void clearAndUpdateFlows(List<Flow> newFlows) {
-		flowService.deleteAll();
-		updateFlows(newFlows);
-	}
-	
-	private List<Flow> convertStudGroupsToFlows(StudGroupResponse studGroupResponse) {
+	private List<Flow> convertStudGroupToFlows(StudGroupResponse studGroupResponse) {
 		List<Flow> result = new ArrayList<>();
 		if (studGroupResponse.sub_count() == 0) {
 			Flow flow = new Flow();

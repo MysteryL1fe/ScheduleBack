@@ -23,6 +23,7 @@ public class TempScheduleJoinedRowMapper implements RowMapper<TempScheduleJoined
 		flow.setLessonsStartDate(rs.getDate("lessons_start_date").toLocalDate());
 		flow.setSessionStartDate(rs.getDate("session_start_date").toLocalDate());
 		flow.setSessionEndDate(rs.getDate("session_end_date").toLocalDate());
+		flow.setActive(rs.getBoolean("active"));
 		
 		Lesson lesson = new Lesson();
 		lesson.setId(rs.getLong("lesson_id"));

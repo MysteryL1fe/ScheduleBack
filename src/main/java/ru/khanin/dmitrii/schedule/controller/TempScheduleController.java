@@ -52,7 +52,8 @@ public class TempScheduleController {
 						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
 						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
 						schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
-						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate()
+						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate(),
+						schedule.getFlowJoined().isActive()
 				);
 				
 				LessonResponse lessonResponse = new LessonResponse(
@@ -69,7 +70,7 @@ public class TempScheduleController {
 				FlowResponse flowResponse = new FlowResponse(
 						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
 						flow.getLastEdit(), flow.getLessonsStartDate(), flow.getSessionStartDate(),
-						flow.getSessionEndDate()
+						flow.getSessionEndDate(), flow.isActive()
 				);
 						
 				Lesson lesson = lessonService.findById(e.getLesson());
@@ -99,7 +100,8 @@ public class TempScheduleController {
 						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
 						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
 						schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
-						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate()
+						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate(),
+						schedule.getFlowJoined().isActive()
 				);
 				
 				LessonResponse lessonResponse = new LessonResponse(
@@ -116,7 +118,7 @@ public class TempScheduleController {
 				FlowResponse flowResponse = new FlowResponse(
 						foundFlow.getFlowLvl(), foundFlow.getCourse(), foundFlow.getFlow(), foundFlow.getSubgroup(),
 						foundFlow.getLastEdit(), foundFlow.getLessonsStartDate(), foundFlow.getSessionStartDate(),
-						foundFlow.getSessionEndDate()
+						foundFlow.getSessionEndDate(), foundFlow.isActive()
 				);
 	
 				Lesson lesson = lessonService.findById(e.getLesson());

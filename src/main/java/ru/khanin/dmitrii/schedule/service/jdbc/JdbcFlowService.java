@@ -33,12 +33,14 @@ public class JdbcFlowService implements FlowService {
 		flowToAdd.setFlow(flow);
 		flowToAdd.setSubgroup(subgroup);
 		flowToAdd.setLastEdit(LocalDateTime.now());
+		flowToAdd.setActive(true);
 		
 		Optional<Flow> foundFlow = flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup);
 		if (foundFlow.isPresent()) {
 			flowToAdd.setLessonsStartDate(foundFlow.get().getLessonsStartDate());
 			flowToAdd.setSessionStartDate(foundFlow.get().getSessionStartDate());
 			flowToAdd.setSessionEndDate(foundFlow.get().getSessionEndDate());
+			flowToAdd.setActive(foundFlow.get().isActive());
 			return flowRepo.update(flowToAdd);
 		}
 		
@@ -57,9 +59,56 @@ public class JdbcFlowService implements FlowService {
 		flowToAdd.setLessonsStartDate(lessonsStartDate);
 		flowToAdd.setSessionStartDate(sessionStartDate);
 		flowToAdd.setSessionEndDate(sessionEndDate);
+		flowToAdd.setActive(true);
 		
-		if (flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup).isPresent())
+		Optional<Flow> foundFlow = flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup);
+		if (foundFlow.isPresent()) {
+			flowToAdd.setActive(foundFlow.get().isActive());
 			return flowRepo.update(flowToAdd);
+		}
+		
+		return flowRepo.add(flowToAdd);
+	}
+	
+	@Override
+	public Flow addOrUpdate(int flowLvl, int course, int flow, int subgroup, boolean active) {
+		Flow flowToAdd = new Flow();
+		flowToAdd.setFlowLvl(flowLvl);
+		flowToAdd.setCourse(course);
+		flowToAdd.setFlow(flow);
+		flowToAdd.setSubgroup(subgroup);
+		flowToAdd.setLastEdit(LocalDateTime.now());
+		flowToAdd.setActive(active);
+		
+		Optional<Flow> foundFlow = flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup);
+		if (foundFlow.isPresent()) {
+			flowToAdd.setLessonsStartDate(foundFlow.get().getLessonsStartDate());
+			flowToAdd.setSessionStartDate(foundFlow.get().getSessionStartDate());
+			flowToAdd.setSessionEndDate(foundFlow.get().getSessionEndDate());
+			return flowRepo.update(flowToAdd);
+		}
+		
+		return flowRepo.add(flowToAdd);
+	}
+	
+	@Override
+	public Flow addOrUpdate(int flowLvl, int course, int flow, int subgroup, LocalDate lessonsStartDate,
+			LocalDate sessionStartDate, LocalDate sessionEndDate, boolean active) {
+		Flow flowToAdd = new Flow();
+		flowToAdd.setFlowLvl(flowLvl);
+		flowToAdd.setCourse(course);
+		flowToAdd.setFlow(flow);
+		flowToAdd.setSubgroup(subgroup);
+		flowToAdd.setLastEdit(LocalDateTime.now());
+		flowToAdd.setLessonsStartDate(lessonsStartDate);
+		flowToAdd.setSessionStartDate(sessionStartDate);
+		flowToAdd.setSessionEndDate(sessionEndDate);
+		flowToAdd.setActive(active);
+		
+		Optional<Flow> foundFlow = flowRepo.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup);
+		if (foundFlow.isPresent()) {
+			return flowRepo.update(flowToAdd);
+		}
 		
 		return flowRepo.add(flowToAdd);
 	}
@@ -79,6 +128,14 @@ public class JdbcFlowService implements FlowService {
 	@Override
 	public Collection<Flow> findAll() {
 		Iterable<Flow> found = flowRepo.findAll();
+		Collection<Flow> result = new ArrayList<>();
+		found.forEach(result::add);
+		return result;
+	}
+	
+	@Override
+	public Collection<Flow> findAllActive() {
+		Iterable<Flow> found = flowRepo.findAllActive();
 		Collection<Flow> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;

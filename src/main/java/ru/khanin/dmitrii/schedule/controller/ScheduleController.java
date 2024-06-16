@@ -52,7 +52,8 @@ public class ScheduleController {
 						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
 						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
 						schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
-						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate()
+						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate(),
+						schedule.getFlowJoined().isActive()
 				);
 				
 				LessonResponse lessonResponse = new LessonResponse(
@@ -69,7 +70,7 @@ public class ScheduleController {
 				FlowResponse flowResponse = new FlowResponse(
 						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
 						flow.getLastEdit(), flow.getLessonsStartDate(), flow.getSessionStartDate(),
-						flow.getSessionEndDate()
+						flow.getSessionEndDate(), flow.isActive()
 				);
 						
 				Lesson lesson = lessonService.findById(e.getLesson());
@@ -98,7 +99,8 @@ public class ScheduleController {
 						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
 						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
 						schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
-						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate()
+						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate(),
+						schedule.getFlowJoined().isActive()
 				);
 				
 				LessonResponse lessonResponse = new LessonResponse(
@@ -115,7 +117,7 @@ public class ScheduleController {
 				FlowResponse flowResponse = new FlowResponse(
 						foundflow.getFlowLvl(), foundflow.getCourse(), foundflow.getFlow(), foundflow.getSubgroup(),
 						foundflow.getLastEdit(), foundflow.getLessonsStartDate(), foundflow.getSessionStartDate(),
-						foundflow.getSessionEndDate()
+						foundflow.getSessionEndDate(), foundflow.isActive()
 				);
 						
 				Lesson lesson = lessonService.findById(e.getLesson());
@@ -144,7 +146,8 @@ public class ScheduleController {
 						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
 						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
 						schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
-						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate()
+						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate(),
+						schedule.getFlowJoined().isActive()
 				);
 				
 				LessonResponse lessonResponse = new LessonResponse(
@@ -161,7 +164,7 @@ public class ScheduleController {
 				FlowResponse flowResponse = new FlowResponse(
 						foundflow.getFlowLvl(), foundflow.getCourse(), foundflow.getFlow(), foundflow.getSubgroup(),
 						foundflow.getLastEdit(), foundflow.getLessonsStartDate(), foundflow.getSessionStartDate(),
-						foundflow.getSessionEndDate()
+						foundflow.getSessionEndDate(), foundflow.isActive()
 				);
 						
 				Lesson lesson = lessonService.findById(e.getLesson());

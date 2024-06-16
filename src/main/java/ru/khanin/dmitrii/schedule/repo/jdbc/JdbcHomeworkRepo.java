@@ -81,7 +81,7 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 		return jdbcTemplate.query(
 				"SELECT h.id AS homework_id, h.homework, h.lesson_date, h.lesson_num, h.flow AS flow_id,"
 				+ " h.lesson_name, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date"
+				+ " f.session_start_date, f.session_end_date, f.active"
 				+ " FROM homework h JOIN flow f ON h.flow=f.id",
 				joinedRowMapper
 		);

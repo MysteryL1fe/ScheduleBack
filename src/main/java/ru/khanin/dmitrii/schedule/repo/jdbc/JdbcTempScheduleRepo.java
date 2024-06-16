@@ -81,7 +81,7 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 		return jdbcTemplate.query(
 				"SELECT ts.id AS temp_schedule_id, ts.flow AS flow_id, ts.lesson AS lesson_id, ts.lesson_date, ts.lesson_num,"
 				+ " ts.will_lesson_be, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, l.name, l.teacher, l.cabinet"
+				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
 				+ " FROM temp_schedule ts JOIN flow f ON ts.flow=f.id JOIN lesson l ON ts.lesson=l.id",
 				joinedRowMapper
 		);
@@ -92,7 +92,7 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 		return jdbcTemplate.query(
 				"SELECT ts.id AS temp_schedule_id, ts.flow AS flow_id, ts.lesson AS lesson_id, ts.lesson_date, ts.lesson_num,"
 				+ " ts.will_lesson_be, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, l.name, l.teacher, l.cabinet"
+				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
 				+ " FROM temp_schedule ts JOIN flow f ON ts.flow=f.id JOIN lesson l ON ts.lesson=l.id"
 				+ " WHERE flow=:flow",
 				Map.of("flow", flow),
