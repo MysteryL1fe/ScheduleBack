@@ -39,7 +39,7 @@ public class ScheduleJoinedRowMapper implements RowMapper<ScheduleJoined> {
 		result.setLessonJoined(lesson);
 		result.setDayOfWeek(rs.getInt("day_of_week"));
 		result.setLessonNum(rs.getInt("lesson_num"));
-		result.setNumerator(rs.getBoolean("is_numerator"));
+		result.setNumerator(rs.getBoolean("numerator"));
 		
 		return result;
 	}

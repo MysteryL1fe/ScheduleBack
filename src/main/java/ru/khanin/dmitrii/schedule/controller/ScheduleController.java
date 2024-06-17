@@ -67,7 +67,7 @@ public class ScheduleController {
 				
 				result.add(new ScheduleResponse(
 						flowResponse, lessonResponse, schedule.getDayOfWeek(),
-						schedule.getLessonNum(), schedule.isIsNumerator()
+						schedule.getLessonNum(), schedule.isNumerator()
 				));
 			} else {
 				Flow flow = flowService.findById(e.getFlow());
@@ -83,7 +83,7 @@ public class ScheduleController {
 				);
 						
 				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isIsNumerator()
+						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
 				));
 			}
 		});
@@ -119,7 +119,7 @@ public class ScheduleController {
 				
 				result.add(new ScheduleResponse(
 						flowResponse, lessonResponse, schedule.getDayOfWeek(),
-						schedule.getLessonNum(), schedule.isIsNumerator()
+						schedule.getLessonNum(), schedule.isNumerator()
 				));
 			} else {
 				Flow foundflow = flowService.findById(e.getFlow());
@@ -135,7 +135,7 @@ public class ScheduleController {
 				);
 						
 				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isIsNumerator()
+						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
 				));
 			}
 		});
@@ -170,7 +170,7 @@ public class ScheduleController {
 				
 				result.add(new ScheduleResponse(
 						flowResponse, lessonResponse, schedule.getDayOfWeek(),
-						schedule.getLessonNum(), schedule.isIsNumerator()
+						schedule.getLessonNum(), schedule.isNumerator()
 				));
 			} else {
 				Flow foundflow = flowService.findById(e.getFlow());
@@ -186,7 +186,7 @@ public class ScheduleController {
 				);
 						
 				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isIsNumerator()
+						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
 				));
 			}
 		});
@@ -213,7 +213,7 @@ public class ScheduleController {
 				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
 				schedule.flow().subgroup(), schedule.lesson().name(), schedule.lesson().teacher(),
 				schedule.lesson().cabinet(), schedule.day_of_week(),
-				schedule.lesson_num(), schedule.is_numerator()
+				schedule.lesson_num(), schedule.numerator()
 		);
 		
 		log.info(String.format("User \"%s\" has successfully added schedule %s", apiKey, addedSchedule));
@@ -251,7 +251,7 @@ public class ScheduleController {
 					schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
 					schedule.flow().subgroup(), schedule.lesson().name(), schedule.lesson().teacher(),
 					schedule.lesson().cabinet(), schedule.day_of_week(),
-					schedule.lesson_num(), schedule.is_numerator()
+					schedule.lesson_num(), schedule.numerator()
 			);
 			addedSchedules.add(addedSchedule);
 		}
@@ -278,7 +278,7 @@ public class ScheduleController {
 		
 		Schedule deletedSchedule = scheduleService.delete(
 				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
-				schedule.flow().subgroup(), schedule.day_of_week(), schedule.lesson_num(), schedule.is_numerator()
+				schedule.flow().subgroup(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
 		);
 		
 		log.info(String.format("User \"%s\" has successfully deleted schedule %s", apiKey, deletedSchedule));
@@ -316,7 +316,7 @@ public class ScheduleController {
 		for (DeleteScheduleRequest schedule : schedules) {
 			Schedule deletedSchedule = scheduleService.delete(
 					schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
-					schedule.flow().subgroup(), schedule.day_of_week(), schedule.lesson_num(), schedule.is_numerator()
+					schedule.flow().subgroup(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
 			);
 			deletedSchedules.add(deletedSchedule);
 		}

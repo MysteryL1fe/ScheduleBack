@@ -26,8 +26,8 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	@Override
 	public Schedule add(Schedule schedule) {
 		return jdbcTemplate.queryForObject(
-				"INSERT INTO schedule(flow, day_of_week, lesson, lesson_num, is_numerator)"
-				+ " VALUES (:flow, :dayOfWeek, :lesson, :lessonNum, :isNumerator) RETURNING *",
+				"INSERT INTO schedule(flow, day_of_week, lesson, lesson_num, numerator)"
+				+ " VALUES (:flow, :dayOfWeek, :lesson, :lessonNum, :numerator) RETURNING *",
 				new BeanPropertySqlParameterSource(schedule),
 				rowMapper
 		);
@@ -38,7 +38,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 		return jdbcTemplate.queryForObject(
 				"UPDATE schedule SET lesson = :lesson"
 				+ " WHERE flow=:flow AND day_of_week=:dayOfWeek AND lesson_num=:lessonNum"
-				+ " AND is_numerator=:isNumerator RETURNING *",
+				+ " AND numerator=:numerator RETURNING *",
 				new BeanPropertySqlParameterSource(schedule),
 				rowMapper
 		);
@@ -58,20 +58,20 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	}
 	
 	@Override
-	public Optional<Schedule> findByFlowAndDayOfWeekAndLessonNumAndIsNumerator(
-			long flow, int dayOfWeek, int lessonNum, boolean isNumerator
+	public Optional<Schedule> findByFlowAndDayOfWeekAndLessonNumAndNumerator(
+			long flow, int dayOfWeek, int lessonNum, boolean numerator
 	) {
 		return Optional.ofNullable(
 				DataAccessUtils.singleResult(
 						jdbcTemplate.query(
 								"SELECT * FROM schedule"
 								+ " WHERE flow=:flow AND day_of_week=:dayOfWeek AND lesson_num=:lessonNum"
-								+ " AND is_numerator=:isNumerator",
+								+ " AND numerator=:numerator",
 								Map.of(
 										"flow", flow,
 										"dayOfWeek", dayOfWeek,
 										"lessonNum", lessonNum,
-										"isNumerator", isNumerator
+										"numerator", numerator
 								),
 								rowMapper
 						)
@@ -83,7 +83,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	public Iterable<? extends Schedule> findAll() {
 		return jdbcTemplate.query(
 				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
-				+ " s.is_numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
+				+ " s.numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
 				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
 				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id",
 				joinedRowMapper
@@ -94,7 +94,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	public Iterable<? extends Schedule> findAllByFlow(long flow) {
 		return jdbcTemplate.query(
 				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
-				+ " s.is_numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
+				+ " s.numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
 				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
 				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id"
 				+ " WHERE flow=:flow",
@@ -104,13 +104,13 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	}
 	
 	@Override
-	public Iterable<Schedule> findAllByFlowAndDayOfWeekAndIsNumerator(long flow, int dayOfWeek, boolean isNumerator) {
+	public Iterable<Schedule> findAllByFlowAndDayOfWeekAndNumerator(long flow, int dayOfWeek, boolean numerator) {
 		return jdbcTemplate.query(
-				"SELECT * FROM schedule WHERE flow=:flow AND day_of_week=:dayOfWeek AND is_numerator=:isNumerator",
+				"SELECT * FROM schedule WHERE flow=:flow AND day_of_week=:dayOfWeek AND numerator=:numerator",
 				Map.of(
 						"flow", flow,
 						"dayOfWeek", dayOfWeek,
-						"isNumerator", isNumerator
+						"numerator", numerator
 				),
 				rowMapper
 		);
@@ -120,7 +120,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	public Iterable<? extends Schedule> findAllWhereTeacherStartsWith(String teacher) {
 		return jdbcTemplate.query(
 				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
-				+ " s.is_numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
+				+ " s.numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
 				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
 				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id"
 				+ " WHERE istarts_with(l.teacher, :teacher)",

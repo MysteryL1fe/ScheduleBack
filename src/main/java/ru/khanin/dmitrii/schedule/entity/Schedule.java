@@ -11,9 +11,5 @@ public class Schedule {
 	protected long lesson;
 	protected int dayOfWeek;
 	protected int lessonNum;
-	protected boolean isNumerator;
-	
-	public boolean isIsNumerator() {
-		return isNumerator;
-	}
+	protected boolean numerator;
 }
