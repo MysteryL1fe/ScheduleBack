@@ -97,7 +97,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 				+ " s.numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
 				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
 				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id"
-				+ " WHERE flow=:flow",
+				+ " WHERE s.flow=:flow",
 				Map.of("flow", flow),
 				joinedRowMapper
 		);
@@ -123,7 +123,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 				+ " s.numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
 				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
 				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id"
-				+ " WHERE istarts_with(l.teacher, :teacher)",
+				+ " WHERE starts_with(LOWER(l.teacher), LOWER(:teacher))",
 				Map.of("teacher", teacher),
 				joinedRowMapper
 		);

@@ -84,7 +84,9 @@ public class HomeworkController {
 			@RequestParam(name = "flow_lvl") int flowLvl, @RequestParam int course,
 			@RequestParam int flow, @RequestParam int subgroup
 	) {
-		log.info("Received request to get all homeworks by flow %s.%s.%s.%s", flowLvl, course, flow, subgroup);
+		log.info(String.format(
+				"Received request to get all homeworks by flow %s.%s.%s.%s", flowLvl, course, flow, subgroup
+		));
 		
 		Collection<Homework> found = homeworkService.findAllByFlow(flowLvl, course, flow, subgroup);
 		List<HomeworkResponse> result = new ArrayList<>();

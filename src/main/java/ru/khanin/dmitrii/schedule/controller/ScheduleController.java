@@ -144,7 +144,10 @@ public class ScheduleController {
 			}
 		});
 		
-		log.info(String.format("Found all (%s) schedules by flow %s: %s", found.size(), flow, found));
+		log.info(String.format(
+				"Found all (%s) schedules by flow %s.%s.%s.%s: %s", found.size(), flowLvl, course, flow, subgroup,
+				found
+		));
 		
 		return ResponseEntity.ok(result);
 	}

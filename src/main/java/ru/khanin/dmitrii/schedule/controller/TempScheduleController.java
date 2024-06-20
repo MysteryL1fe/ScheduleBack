@@ -144,7 +144,10 @@ public class TempScheduleController {
 			}
 		});
 		
-		log.info(String.format("Found all (%s) temp schedules by flow %s: %s", found.size(), flow, found));
+		log.info(String.format(
+				"Found all (%s) temp schedules by flow %s.%s.%s.%s: %s", found.size(), flowLvl, course, flow, subgroup,
+				found
+		));
 		
 		return ResponseEntity.ok(result);
 	}
