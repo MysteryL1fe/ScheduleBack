@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.khanin.dmitrii.schedule.dto.flow.AddFlowRequest;
-import ru.khanin.dmitrii.schedule.dto.flow.FlowRequest;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowResponse;
 import ru.khanin.dmitrii.schedule.entity.Flow;
 import ru.khanin.dmitrii.schedule.exception.NoAccessException;
@@ -71,12 +71,13 @@ public class FlowController {
 	}
 	
 	@GetMapping("/flow")
-	public ResponseEntity<FlowResponse> getFlow(@RequestBody FlowRequest flow) {
-		log.info(String.format("Received request to get flow %s", flow));
+	public ResponseEntity<FlowResponse> getFlow(
+			@RequestParam(name = "flow_lvl") int flowLvl, @RequestParam int course,
+			@RequestParam int flow, @RequestParam int subgroup
+	) {
+		log.info(String.format("Received request to get flow %s.%s.%s.%s", flowLvl, course, flow, subgroup));
 		
-		Flow found = flowService.findByFlowLvlAndCourseAndFlowAndSubgroup(
-				flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup()
-		);
+		Flow found = flowService.findByFlowLvlAndCourseAndFlowAndSubgroup(flowLvl, course, flow, subgroup);
 		FlowResponse response = new FlowResponse(
 				found.getFlowLvl(), found.getCourse(), found.getFlow(), found.getSubgroup(), found.getLastEdit(),
 				found.getLessonsStartDate(), found.getSessionStartDate(), found.getSessionEndDate(),

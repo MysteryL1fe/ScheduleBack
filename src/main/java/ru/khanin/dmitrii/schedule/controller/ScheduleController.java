@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ru.khanin.dmitrii.schedule.dto.flow.FlowRequest;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowResponse;
 import ru.khanin.dmitrii.schedule.dto.lesson.LessonResponse;
 import ru.khanin.dmitrii.schedule.dto.schedule.DeleteScheduleRequest;
@@ -94,11 +94,15 @@ public class ScheduleController {
 	}
 	
 	@GetMapping("/flow")
-	public ResponseEntity<List<ScheduleResponse>> getAllSchedulesByFlow(@RequestBody FlowRequest flow) {
-		log.info(String.format("Received request to get all schedules by flow %s", flow));
+	public ResponseEntity<List<ScheduleResponse>> getAllSchedulesByFlow(
+			@RequestParam(name = "flow_lvl") int flowLvl, @RequestParam int course,
+			@RequestParam int flow, @RequestParam int subgroup
+	) {
+		log.info(String.format(
+				"Received request to get all schedules by flow %s.%s.%s.%s", flowLvl, course, flow, subgroup
+		));
 		
-		Collection<Schedule> found = scheduleService
-				.findAllByFlow(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
+		Collection<Schedule> found = scheduleService.findAllByFlow(flowLvl, course, flow, subgroup);
 		List<ScheduleResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
 			if (e instanceof ScheduleJoined) {
@@ -146,7 +150,7 @@ public class ScheduleController {
 	}
 	
 	@GetMapping("/teacher")
-	public ResponseEntity<List<ScheduleResponse>> getAllSchedulesWhereTeacherStartsWith(@RequestBody String teacher) {
+	public ResponseEntity<List<ScheduleResponse>> getAllSchedulesWhereTeacherStartsWith(@RequestParam String teacher) {
 		log.info(String.format("Received request to get all schedules by teacher %s", teacher));
 		
 		Collection<Schedule> found = scheduleService.findAllWhereTeacherStartsWith(teacher);

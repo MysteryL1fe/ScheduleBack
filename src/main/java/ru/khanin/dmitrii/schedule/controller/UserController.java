@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -52,7 +53,7 @@ public class UserController {
 	
 	@GetMapping("api_key")
 	public ResponseEntity<List<UserResponse>> getAllUsersByApiKey(
-			@RequestHeader("api_key") String apiKey, @RequestBody String api_key
+			@RequestHeader("api_key") String apiKey, @RequestParam String api_key
 	) {
 		log.info(String.format("Received request from \"%s\" to get all users by api key %s", apiKey, api_key));
 		

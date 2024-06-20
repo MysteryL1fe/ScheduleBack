@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ru.khanin.dmitrii.schedule.dto.flow.FlowRequest;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowResponse;
 import ru.khanin.dmitrii.schedule.dto.lesson.LessonResponse;
 import ru.khanin.dmitrii.schedule.dto.temp.DeleteTempScheduleRequest;
@@ -94,11 +94,15 @@ public class TempScheduleController {
 	}
 	
 	@GetMapping("/flow")
-	public ResponseEntity<List<TempScheduleResponse>> getAllTempSchedulesByFlow(@RequestBody FlowRequest flow) {
-		log.info(String.format("Received request to get all temp schedules by flow %s", flow));
+	public ResponseEntity<List<TempScheduleResponse>> getAllTempSchedulesByFlow(
+			@RequestParam(name = "flow_lvl") int flowLvl, @RequestParam int course,
+			@RequestParam int flow, @RequestParam int subgroup
+	) {
+		log.info(String.format(
+				"Received request to get all temp schedules by flow %s.%s.%s.%s", flowLvl, course, flow, subgroup
+		));
 		
-		Collection<TempSchedule> found = tempScheduleService
-				.findAllByFlow(flow.flow_lvl(), flow.course(), flow.flow(), flow.subgroup());
+		Collection<TempSchedule> found = tempScheduleService.findAllByFlow(flowLvl, course, flow, subgroup);
 		List<TempScheduleResponse> result = new ArrayList<>();
 		found.forEach((e) -> {
 			if (e instanceof TempScheduleJoined) {
