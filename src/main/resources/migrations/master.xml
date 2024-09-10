@@ -18,9 +18,24 @@
     
     <include file="changelog-11-06-2024/create-users-table.sql"/>
     
-    <include file="changelog-13-06-2024/add-last-edit-column-to-flow"/>
+    <include file="changelog-13-06-2024/add-last-edit-column-to-flow.sql"/>
     
-    <include file="changelog-14-06-2024/add-session-date-column-to-flow"/>
+    <include file="changelog-14-06-2024/add-session-date-columns-to-flow.sql"/>
     
-    <include file="changelog-15-06-2024/add-active-column-to-flow"/>
+    <include file="changelog-15-06-2024/add-active-column-to-flow.sql"/>
+    
+    <include file="changelog-08-09-2024/alter-users-table.sql"/>
+    <include file="changelog-08-09-2024/drop-access-type.sql"/>
+    <include file="changelog-08-09-2024/create-user-flow-table.sql"/>
+    
+    <include file="changelog-08-09-2024/create-cabinet-table.sql"/>
+    <include file="changelog-08-09-2024/create-subject-table.sql"/>
+    <include file="changelog-08-09-2024/create-teacher-table.sql"/>
+    <include file="changelog-08-09-2024/alter-lesson-column-in-homework.sql"/>
+    <include file="changelog-08-09-2024/alter-lesson-columns-in-schedule.sql"/>
+    <include file="changelog-08-09-2024/alter-lesson-columns-in-temp-schedule.sql"/>
+    <include file="changelog-08-09-2024/drop-lesson-table.sql"/>
+    
+    
+    <include file="changelog-08-09-2024/alter-flow-table.sql"/>
 </databaseChangeLog>
