@@ -8,7 +8,9 @@ import lombok.EqualsAndHashCode;
 public class Schedule {
 	protected long id;
 	protected long flow;
-	protected long lesson;
+	protected long subject;
+	protected long teacher;
+	protected long cabinet;
 	protected int dayOfWeek;
 	protected int lessonNum;
 	protected boolean numerator;

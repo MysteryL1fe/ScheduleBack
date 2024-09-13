@@ -5,9 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(of = "id", callSuper = false)
-public class Lesson {
-	protected long id;
-	protected String name;
-	protected String teacher;
-	protected String cabinet;
+public class Subject {
+	private long id;
+	private String subject;
 }

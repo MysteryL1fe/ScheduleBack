@@ -5,10 +5,11 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import ru.khanin.dmitrii.schedule.entity.Flow;
 import ru.khanin.dmitrii.schedule.entity.User;
+import ru.khanin.dmitrii.schedule.entity.UserFlow;
 
 @Data
 @ToString(callSuper = true)
-@EqualsAndHashCode(of = "id", callSuper = false)
-public class UserJoined extends User {
+public class UserFlowJoined extends UserFlow {
+	private User userJoined;
 	private Flow flowJoined;
 }

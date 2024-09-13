@@ -5,9 +5,9 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(of = "id", callSuper = false)
-public class User {
-	protected long id;
-	protected String login;
-	protected String password;
-	protected boolean admin;
+public class Teacher {
+	private long id;
+	private String surname;
+	private String name;
+	private String patronymic;
 }

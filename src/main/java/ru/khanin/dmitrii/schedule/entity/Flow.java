@@ -2,6 +2,7 @@ package ru.khanin.dmitrii.schedule.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,9 +11,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Flow {
 	protected long id;
-	protected int flowLvl;
+	protected int educationLevel;
 	protected int course;
-	protected int flow;
+	protected int group;
 	protected int subgroup;
 	protected LocalDateTime lastEdit;
 	protected LocalDate lessonsStartDate;
@@ -21,13 +22,13 @@ public class Flow {
 	protected boolean active;
 	
 	public boolean equalsByFlowData(Flow other) {
-		return this.flowLvl == other.flowLvl && this.course == other.course
-				&& this.flow == other.flow && this.subgroup == other.subgroup;
+		return !(other == null) && this.educationLevel == other.educationLevel && this.course == other.course
+				&& this.group == other.group && this.subgroup == other.subgroup;
 	}
 	
 	public boolean equalsByDates(Flow other) {
-		return this.lessonsStartDate.equals(other.lessonsStartDate)
-				&& this.sessionStartDate.equals(other.sessionStartDate)
-				&& this.sessionEndDate.equals(other.sessionEndDate);
+		return !(other == null) && Objects.equals(lessonsStartDate, other.lessonsStartDate)
+				&& Objects.equals(sessionStartDate, other.sessionStartDate)
+				&& Objects.equals(sessionEndDate, other.sessionEndDate);
 	}
 }

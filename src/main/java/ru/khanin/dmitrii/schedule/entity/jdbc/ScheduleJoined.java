@@ -3,14 +3,18 @@ package ru.khanin.dmitrii.schedule.entity.jdbc;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import ru.khanin.dmitrii.schedule.entity.Cabinet;
 import ru.khanin.dmitrii.schedule.entity.Flow;
-import ru.khanin.dmitrii.schedule.entity.Lesson;
 import ru.khanin.dmitrii.schedule.entity.Schedule;
+import ru.khanin.dmitrii.schedule.entity.Subject;
+import ru.khanin.dmitrii.schedule.entity.Teacher;
 
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class ScheduleJoined extends Schedule {
 	private Flow flowJoined;
-	private Lesson lessonJoined;
+	private Subject subjectJoined;
+	private Teacher teacherJoined;
+	private Cabinet cabinetJoined;
 }

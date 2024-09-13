@@ -10,7 +10,9 @@ import lombok.EqualsAndHashCode;
 public class TempSchedule {
 	protected long id;
 	protected long flow;
-	protected long lesson;
+	protected long subject;
+	protected long teacher;
+	protected long cabinet;
 	protected LocalDate lessonDate;
 	protected int lessonNum;
 	protected boolean willLessonBe;

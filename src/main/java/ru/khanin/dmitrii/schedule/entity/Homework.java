@@ -13,5 +13,5 @@ public class Homework {
 	protected LocalDate lessonDate;
 	protected int lessonNum;
 	protected long flow;
-	protected String lessonName;
+	protected long subject;
 }
