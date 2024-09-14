@@ -17,5 +17,10 @@ public interface TempScheduleRepo {
 	Iterable<TempSchedule> deleteAll();
 	Iterable<TempSchedule> deleteAllBeforeDate(LocalDate date);
 	Iterable<TempSchedule> deleteAllByFlow(long flow);
-	Iterable<TempSchedule> deleteAllByLesson(long lesson);
+	Iterable<TempSchedule> deleteAllBySubject(long subject);
+	Iterable<TempSchedule> deleteAllByTeacher(long teacher);
+	Iterable<TempSchedule> deleteAllByCabinet(long cabinet);
+	Iterable<TempSchedule> deleteAllWhereSubjectIsNotNull();
+	Iterable<TempSchedule> deleteAllWhereTeacherIsNotNull();
+	Iterable<TempSchedule> deleteAllWhereCabinetIsNotNull();
 }

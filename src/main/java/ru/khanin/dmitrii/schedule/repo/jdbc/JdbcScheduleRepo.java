@@ -26,8 +26,8 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	@Override
 	public Schedule add(Schedule schedule) {
 		return jdbcTemplate.queryForObject(
-				"INSERT INTO schedule(flow, day_of_week, lesson, lesson_num, numerator)"
-				+ " VALUES (:flow, :dayOfWeek, :lesson, :lessonNum, :numerator) RETURNING *",
+				"INSERT INTO schedule(flow, day_of_week, lesson_num, numerator, subject, teacher, cabinet)"
+				+ " VALUES (:flow, :dayOfWeek, :lessonNum, :numerator, :subject, :teacher, :cabinet) RETURNING *",
 				new BeanPropertySqlParameterSource(schedule),
 				rowMapper
 		);
@@ -36,7 +36,7 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	@Override
 	public Schedule update(Schedule schedule) {
 		return jdbcTemplate.queryForObject(
-				"UPDATE schedule SET lesson = :lesson"
+				"UPDATE schedule SET subject=:subject, teacher=:teacher, cabinet=:cabinet"
 				+ " WHERE flow=:flow AND day_of_week=:dayOfWeek AND lesson_num=:lessonNum"
 				+ " AND numerator=:numerator RETURNING *",
 				new BeanPropertySqlParameterSource(schedule),
@@ -82,10 +82,13 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	@Override
 	public Iterable<? extends Schedule> findAll() {
 		return jdbcTemplate.query(
-				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
-				+ " s.numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
-				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id",
+				"SELECT sch.id AS schedule_id, sch.flow AS flow_id, sch.subject AS subject_id,"
+				+ " sch.teacher AS teacher_id, sch.cabinet AS cabinet_id, sch.day_of_week, sch.lesson_num,"
+				+ " sch.numerator, f.education_level, f.course, f._group, f.subgroup, f.last_edit, f.lessons_start_date,"
+				+ " f.session_start_date, f.session_end_date, f.active, sub.subject, t.surname, t.name, t.patronymic,"
+				+ " c.cabinet, c.building, c.address"
+				+ " FROM schedule sch JOIN flow f ON sch.flow=f.id JOIN subject sub ON sch.subject=sub.id"
+				+ " JOIN teacher t ON sch.teacher=t.id JOIN cabinet c ON sch.cabinet=c.id",
 				joinedRowMapper
 		);
 	}
@@ -93,10 +96,13 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 	@Override
 	public Iterable<? extends Schedule> findAllByFlow(long flow) {
 		return jdbcTemplate.query(
-				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
-				+ " s.numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
-				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id"
+				"SELECT sch.id AS schedule_id, sch.flow AS flow_id, sch.subject AS subject_id,"
+				+ " sch.teacher AS teacher_id, sch.cabinet AS cabinet_id, sch.day_of_week, sch.lesson_num,"
+				+ " sch.numerator, f.education_level, f.course, f._group, f.subgroup, f.last_edit, f.lessons_start_date,"
+				+ " f.session_start_date, f.session_end_date, f.active, sub.subject, t.surname, t.name, t.patronymic,"
+				+ " c.cabinet, c.building, c.address"
+				+ " FROM schedule sch JOIN flow f ON sch.flow=f.id JOIN subject sub ON sch.subject=sub.id"
+				+ " JOIN teacher t ON sch.teacher=t.id JOIN cabinet c ON sch.cabinet=c.id"
 				+ " WHERE s.flow=:flow",
 				Map.of("flow", flow),
 				joinedRowMapper
@@ -113,19 +119,6 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 						"numerator", numerator
 				),
 				rowMapper
-		);
-	}
-	
-	@Override
-	public Iterable<? extends Schedule> findAllWhereTeacherStartsWith(String teacher) {
-		return jdbcTemplate.query(
-				"SELECT s.id AS schedule_id, s.flow AS flow_id, s.lesson AS lesson_id, s.day_of_week, s.lesson_num,"
-				+ " s.numerator, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
-				+ " FROM schedule s JOIN flow f ON s.flow=f.id JOIN lesson l ON s.lesson=l.id"
-				+ " WHERE starts_with(LOWER(l.teacher), LOWER(:teacher))",
-				Map.of("teacher", teacher),
-				joinedRowMapper
 		);
 	}
 
@@ -158,12 +151,83 @@ public class JdbcScheduleRepo implements ScheduleRepo {
 				rowMapper
 		);
 	}
-	
+
 	@Override
-	public Iterable<Schedule> deleteAllByLesson(long lesson) {
+	public Iterable<? extends Schedule> findAllByTeacher(long teacher) {
 		return jdbcTemplate.query(
-				"DELETE FROM schedule WHERE lesson=:lesson RETURNING *",
-				Map.of("lesson", lesson),
+				"SELECT sch.id AS schedule_id, sch.flow AS flow_id, sch.subject AS subject_id,"
+				+ " sch.teacher AS teacher_id, sch.cabinet AS cabinet_id, sch.day_of_week, sch.lesson_num,"
+				+ " sch.numerator, f.education_level, f.course, f._group, f.subgroup, f.last_edit, f.lessons_start_date,"
+				+ " f.session_start_date, f.session_end_date, f.active, sub.subject, t.surname, t.name, t.patronymic,"
+				+ " c.cabinet, c.building, c.address"
+				+ " FROM schedule sch JOIN flow f ON sch.flow=f.id JOIN subject sub ON sch.subject=sub.id"
+				+ " JOIN teacher t ON sch.teacher=t.id JOIN cabinet c ON sch.cabinet=c.id"
+				+ " WHERE s.teacher=:teacher",
+				Map.of("teacher", teacher),
+				joinedRowMapper
+		);
+	}
+
+	@Override
+	public Iterable<Schedule> deleteAllBySubject(long subject) {
+		return jdbcTemplate.query(
+				"DELETE FROM schedule WHERE subject=:subject RETURNING *",
+				Map.of("subject", subject),
+				rowMapper
+		);
+	}
+
+	@Override
+	public Iterable<Schedule> deleteAllByTeacher(long teacher) {
+		return jdbcTemplate.query(
+				"DELETE FROM schedule WHERE teacher=:teacher RETURNING *",
+				Map.of("teacher", teacher),
+				rowMapper
+		);
+	}
+
+	@Override
+	public Iterable<Schedule> deleteAllByCabinet(long cabinet) {
+		return jdbcTemplate.query(
+				"DELETE FROM schedule WHERE cabinet=:cabinet RETURNING *",
+				Map.of("cabinet", cabinet),
+				rowMapper
+		);
+	}
+
+	@Override
+	public Optional<Schedule> deleteByFlowAndDayOfWeekAndLessonNumAndNumerator(
+			long flow, int dayOfWeek, int lessonNum, boolean numerator
+	) {
+		return Optional.ofNullable(
+				DataAccessUtils.singleResult(
+						jdbcTemplate.query(
+								"DELETE FROM schedule WHERE flow=:flow AND day_of_week=:dayOfWeek"
+								+ " AND lesson_num=:lessonNum AND numerator=:numerator RETURNING *",
+								Map.of(
+										"flow", flow,
+										"dayOfWeek", dayOfWeek,
+										"lessonNum", lessonNum,
+										"numerator", numerator
+								),
+								rowMapper
+						)
+				)
+		);
+	}
+
+	@Override
+	public Iterable<Schedule> deleteAllWhereTeacherIsNotNull() {
+		return jdbcTemplate.query(
+				"DELETE FROM schedule WHERE teacher IS NOT NULL RETURNING *",
+				rowMapper
+		);
+	}
+
+	@Override
+	public Iterable<Schedule> deleteAllWhereCabinetIsNotNull() {
+		return jdbcTemplate.query(
+				"DELETE FROM schedule WHERE cabinet IS NOT NULL RETURNING *",
 				rowMapper
 		);
 	}

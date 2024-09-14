@@ -6,11 +6,10 @@ import ru.khanin.dmitrii.schedule.entity.User;
 
 public interface UserRepo {
 	User add(User user);
-	Iterable<? extends User> findAll();
-	Iterable<? extends User> findAllByApiKey(String apiKey);
+	User update(User user);
+	Optional<User> findById(long id);
+	Optional<User> findByLogin(String login);
+	Iterable<User> findAll();
 	Optional<User> deleteById(long id);
-	Iterable<? extends User> deleteAll();
-	Iterable<? extends User> deleteAllWhereFlowIsNotNull();
-	Iterable<? extends User> deleteAllByApiKey(String apiKey);
-	Iterable<? extends User> deleteAllByFlow(long flow);
+	Iterable<User> deleteAll();
 }

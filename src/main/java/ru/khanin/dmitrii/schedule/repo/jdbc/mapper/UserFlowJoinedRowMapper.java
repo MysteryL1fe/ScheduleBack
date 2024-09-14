@@ -6,13 +6,19 @@ import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
 
 import ru.khanin.dmitrii.schedule.entity.Flow;
-import ru.khanin.dmitrii.schedule.entity.Subject;
-import ru.khanin.dmitrii.schedule.entity.jdbc.HomeworkJoined;
+import ru.khanin.dmitrii.schedule.entity.User;
+import ru.khanin.dmitrii.schedule.entity.jdbc.UserFlowJoined;
 
-public class HomeworkJoinedRowMapper implements RowMapper<HomeworkJoined> {
+public class UserFlowJoinedRowMapper implements RowMapper<UserFlowJoined> {
 
 	@Override
-	public HomeworkJoined mapRow(ResultSet rs, int rowNum) throws SQLException {
+	public UserFlowJoined mapRow(ResultSet rs, int rowNum) throws SQLException {
+		User user = new User();
+		user.setId(rs.getLong("user_id"));
+		user.setLogin(rs.getString("login"));
+		user.setPassword(rs.getString("password"));
+		user.setAdmin(rs.getBoolean("admin"));
+		
 		Flow flow = new Flow();
 		flow.setId(rs.getLong("flow_id"));
 		flow.setEducationLevel(rs.getInt("education_level"));
@@ -25,19 +31,11 @@ public class HomeworkJoinedRowMapper implements RowMapper<HomeworkJoined> {
 		flow.setSessionEndDate(rs.getDate("session_end_date").toLocalDate());
 		flow.setActive(rs.getBoolean("active"));
 		
-		Subject subject = new Subject();
-		subject.setId(rs.getLong("subject_id"));
-		subject.setSubject(rs.getString("subject"));
-		
-		HomeworkJoined result = new HomeworkJoined();
-		result.setId(rs.getLong("homework_id"));
-		result.setHomework(rs.getString("homework"));
-		result.setLessonDate(rs.getDate("lesson_date").toLocalDate());
-		result.setLessonNum(rs.getInt("lesson_num"));
-		result.setFlow(rs.getInt("flow_id"));
+		UserFlowJoined result = new UserFlowJoined();
+		result.setUser(rs.getLong("user_id"));
+		result.setUserJoined(user);
+		result.setFlow(rs.getLong("flow_id"));
 		result.setFlowJoined(flow);
-		result.setSubject(rs.getInt("subject_id"));
-		result.setSubjectJoined(subject);
 		
 		return result;
 	}

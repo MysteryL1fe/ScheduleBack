@@ -27,8 +27,8 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 	@Override
 	public TempSchedule add(TempSchedule tempSchedule) {
 		return jdbcTemplate.queryForObject(
-				"INSERT INTO temp_schedule(flow, lesson, lesson_date, lesson_num, will_lesson_be)"
-				+ " VALUES (:flow, :lesson, :lessonDate, :lessonNum, :willLessonBe) RETURNING *",
+				"INSERT INTO temp_schedule(flow, subject, teacher, cabinet, lesson_date, lesson_num, will_lesson_be)"
+				+ " VALUES (:flow, :subject, :teacher, :cabinet, :lessonDate, :lessonNum, :willLessonBe) RETURNING *",
 				new BeanPropertySqlParameterSource(tempSchedule),
 				rowMapper
 		);
@@ -37,7 +37,8 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 	@Override
 	public TempSchedule update(TempSchedule tempSchedule) {
 		return jdbcTemplate.queryForObject(
-				"UPDATE temp_schedule SET lesson = :lesson, will_lesson_be = :willLessonBe"
+				"UPDATE temp_schedule SET subject=:subject, teacher=:teacher, cabinet=:cabinet,"
+				+ " will_lesson_be=:willLessonBe"
 				+ " WHERE flow=:flow AND lesson_date=:lessonDate AND lesson_num=:lessonNum"
 				+ " RETURNING *",
 				new BeanPropertySqlParameterSource(tempSchedule),
@@ -79,10 +80,13 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 	@Override
 	public Iterable<? extends TempSchedule> findAll() {
 		return jdbcTemplate.query(
-				"SELECT ts.id AS temp_schedule_id, ts.flow AS flow_id, ts.lesson AS lesson_id, ts.lesson_date, ts.lesson_num,"
-				+ " ts.will_lesson_be, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
-				+ " FROM temp_schedule ts JOIN flow f ON ts.flow=f.id JOIN lesson l ON ts.lesson=l.id",
+				"SELECT ts.id AS temp_schedule_id, ts.flow AS flow_id, ts.subject AS subject_id,"
+				+ " ts.teacher AS teacher_id, ts.cabinet AS cabinet_id, ts.lesson_date, ts.lesson_num,"
+				+ " ts.will_lesson_be, f.education_level, f.course, f._group, f.subgroup, f.last_edit, f.lessons_start_date,"
+				+ " f.session_start_date, f.session_end_date, f.active, s.subject, t.surname, t.name, t.patronymic,"
+				+ " c.cabinet, c.building, c.address"
+				+ " FROM temp_schedule ts JOIN flow f ON ts.flow=f.id JOIN subject s ON ts.subject=s.id"
+				+ " JOIN teacher t ON ts.teacher=t.id JOIN cabinet c ON ts.cabinet=c.id",
 				joinedRowMapper
 		);
 	}
@@ -90,10 +94,13 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 	@Override
 	public Iterable<? extends TempSchedule> findAllByFlow(long flow) {
 		return jdbcTemplate.query(
-				"SELECT ts.id AS temp_schedule_id, ts.flow AS flow_id, ts.lesson AS lesson_id, ts.lesson_date, ts.lesson_num,"
-				+ " ts.will_lesson_be, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, f.active, l.name, l.teacher, l.cabinet"
-				+ " FROM temp_schedule ts JOIN flow f ON ts.flow=f.id JOIN lesson l ON ts.lesson=l.id"
+				"SELECT ts.id AS temp_schedule_id, ts.flow AS flow_id, ts.subject AS subject_id,"
+				+ " ts.teacher AS teacher_id, ts.cabinet AS cabinet_id, ts.lesson_date, ts.lesson_num,"
+				+ " ts.will_lesson_be, f.education_level, f.course, f._group, f.subgroup, f.last_edit, f.lessons_start_date,"
+				+ " f.session_start_date, f.session_end_date, f.active, s.subject, t.surname, t.name, t.patronymic,"
+				+ " c.cabinet, c.building, c.address"
+				+ " FROM temp_schedule ts JOIN flow f ON ts.flow=f.id JOIN subject s ON ts.subject=s.id"
+				+ " JOIN teacher t ON ts.teacher=t.id JOIN cabinet c ON ts.cabinet=c.id"
 				+ " WHERE ts.flow=:flow",
 				Map.of("flow", flow),
 				joinedRowMapper
@@ -150,12 +157,54 @@ public class JdbcTempScheduleRepo implements TempScheduleRepo {
 				rowMapper
 		);
 	}
-	
+
 	@Override
-	public Iterable<TempSchedule> deleteAllByLesson(long lesson) {
+	public Iterable<TempSchedule> deleteAllBySubject(long subject) {
 		return jdbcTemplate.query(
-				"DELETE FROM temp_schedule WHERE lesson=:lesson RETURNING *",
-				Map.of("lesson", lesson),
+				"DELETE FROM temp_schedule WHERE subject=:subject RETURNING *",
+				Map.of("subject", subject),
+				rowMapper
+		);
+	}
+
+	@Override
+	public Iterable<TempSchedule> deleteAllByTeacher(long teacher) {
+		return jdbcTemplate.query(
+				"DELETE FROM temp_schedule WHERE teacher=:teacher RETURNING *",
+				Map.of("teacher", teacher),
+				rowMapper
+		);
+	}
+
+	@Override
+	public Iterable<TempSchedule> deleteAllByCabinet(long cabinet) {
+		return jdbcTemplate.query(
+				"DELETE FROM temp_schedule WHERE cabinet=:cabinet RETURNING *",
+				Map.of("cabinet", cabinet),
+				rowMapper
+		);
+	}
+
+	@Override
+	public Iterable<TempSchedule> deleteAllWhereTeacherIsNotNull() {
+		return jdbcTemplate.query(
+				"DELETE FROM temp_schedule WHERE teacher IS NOT NULL RETURNING *",
+				rowMapper
+		);
+	}
+
+	@Override
+	public Iterable<TempSchedule> deleteAllWhereCabinetIsNotNull() {
+		return jdbcTemplate.query(
+				"DELETE FROM temp_schedule WHERE cabinet IS NOT NULL RETURNING *",
+				rowMapper
+		);
+	}
+
+	@Override
+	public Iterable<TempSchedule> deleteAllWhereSubjectIsNotNull() {
+		return jdbcTemplate.query(
+				"DELETE FROM temp_schedule WHERE subject IS NOT NULL RETURNING *",
 				rowMapper
 		);
 	}

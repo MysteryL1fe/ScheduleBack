@@ -5,8 +5,10 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import ru.khanin.dmitrii.schedule.entity.Cabinet;
 import ru.khanin.dmitrii.schedule.entity.Flow;
-import ru.khanin.dmitrii.schedule.entity.Lesson;
+import ru.khanin.dmitrii.schedule.entity.Subject;
+import ru.khanin.dmitrii.schedule.entity.Teacher;
 import ru.khanin.dmitrii.schedule.entity.jdbc.TempScheduleJoined;
 
 public class TempScheduleJoinedRowMapper implements RowMapper<TempScheduleJoined> {
@@ -15,9 +17,9 @@ public class TempScheduleJoinedRowMapper implements RowMapper<TempScheduleJoined
 	public TempScheduleJoined mapRow(ResultSet rs, int rowNum) throws SQLException {
 		Flow flow = new Flow();
 		flow.setId(rs.getLong("flow_id"));
-		flow.setFlowLvl(rs.getInt("flow_lvl"));
+		flow.setEducationLevel(rs.getInt("education_level"));
 		flow.setCourse(rs.getInt("course"));
-		flow.setFlow(rs.getInt("flow"));
+		flow.setGroup(rs.getInt("_group"));
 		flow.setSubgroup(rs.getInt("subgroup"));
 		flow.setLastEdit(rs.getTimestamp("last_edit").toLocalDateTime());
 		flow.setLessonsStartDate(rs.getDate("lessons_start_date").toLocalDate());
@@ -25,18 +27,32 @@ public class TempScheduleJoinedRowMapper implements RowMapper<TempScheduleJoined
 		flow.setSessionEndDate(rs.getDate("session_end_date").toLocalDate());
 		flow.setActive(rs.getBoolean("active"));
 		
-		Lesson lesson = new Lesson();
-		lesson.setId(rs.getLong("lesson_id"));
-		lesson.setName(rs.getString("name"));
-		lesson.setTeacher(rs.getString("teacher"));
-		lesson.setCabinet(rs.getString("cabinet"));
+		Subject subject = new Subject();
+		subject.setId(rs.getLong("subject_id"));
+		subject.setSubject(rs.getString("subject"));
+		
+		Teacher teacher = new Teacher();
+		teacher.setId(rs.getLong("teacher_id"));
+		teacher.setSurname(rs.getString("surname"));
+		teacher.setName(rs.getString("name"));
+		teacher.setPatronymic(rs.getString("patronymic"));
+		
+		Cabinet cabinet = new Cabinet();
+		cabinet.setId(rs.getLong("cabinet_id"));
+		cabinet.setCabinet(rs.getString("cabinet"));
+		cabinet.setBuilding(rs.getString("building"));
+		cabinet.setAddress(rs.getString("address"));
 		
 		TempScheduleJoined result = new TempScheduleJoined();
 		result.setId(rs.getLong("temp_schedule_id"));
 		result.setFlow(rs.getLong("flow_id"));
 		result.setFlowJoined(flow);
-		result.setLesson(rs.getLong("lesson_id"));
-		result.setLessonJoined(lesson);
+		result.setSubject(rs.getLong("subject_id"));
+		result.setSubjectJoined(subject);
+		result.setTeacher(rs.getLong("teacher_id"));
+		result.setTeacherJoined(teacher);
+		result.setCabinet(rs.getLong("cabinet_id"));
+		result.setCabinetJoined(cabinet);
 		result.setLessonDate(rs.getDate("lesson_date").toLocalDate());
 		result.setLessonNum(rs.getInt("lesson_num"));
 		result.setWillLessonBe(rs.getBoolean("will_lesson_be"));

@@ -27,8 +27,8 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 	@Override
 	public Homework add(Homework homework) {
 		return jdbcTemplate.queryForObject(
-				"INSERT INTO homework(homework, lesson_date, lesson_num, flow, lesson_name)"
-				+ " VALUES (:homework, :lessonDate, :lessonNum, :flow, :lessonName) RETURNING *",
+				"INSERT INTO homework(homework, lesson_date, lesson_num, flow, subject)"
+				+ " VALUES (:homework, :lessonDate, :lessonNum, :flow, :subject) RETURNING *",
 				new BeanPropertySqlParameterSource(homework),
 				rowMapper
 		);
@@ -37,7 +37,7 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 	@Override
 	public Homework update(Homework homework) {
 		return jdbcTemplate.queryForObject(
-				"UPDATE homework SET homework = :homework, lesson_name = :lessonName"
+				"UPDATE homework SET homework=:homework, subject=:subject"
 				+ " WHERE lesson_date=:lessonDate AND lesson_num=:lessonNum AND flow=:flow"
 				+ " RETURNING *",
 				new BeanPropertySqlParameterSource(homework),
@@ -80,9 +80,9 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 	public Iterable<? extends Homework> findAll() {
 		return jdbcTemplate.query(
 				"SELECT h.id AS homework_id, h.homework, h.lesson_date, h.lesson_num, h.flow AS flow_id,"
-				+ " h.lesson_name, f.flow_lvl, f.course, f.flow, f.subgroup, f.last_edit, f.lessons_start_date,"
-				+ " f.session_start_date, f.session_end_date, f.active"
-				+ " FROM homework h JOIN flow f ON h.flow=f.id",
+				+ " h.subject AS subject_id, f.education_level, f.course, f._group, f.subgroup, f.last_edit,"
+				+ " f.lessons_start_date, f.session_start_date, f.session_end_date, f.active, s.subject"
+				+ " FROM homework h JOIN flow f ON h.flow=f.id JOIN subject s ON h.subject = s.id",
 				joinedRowMapper
 		);
 	}
@@ -143,6 +143,46 @@ public class JdbcHomeworkRepo implements HomeworkRepo {
 		return jdbcTemplate.query(
 				"DELETE FROM homework WHERE flow=:flow RETURNING *",
 				Map.of("flow", flow),
+				rowMapper
+		);
+	}
+
+	@Override
+	public Iterable<Homework> deleteAllBySubject(long subject) {
+		return jdbcTemplate.query(
+				"DELETE FROM homework WHERE subject=:subject RETURNING *",
+				Map.of("subject", subject),
+				rowMapper
+		);
+	}
+
+	@Override
+	public Optional<Homework> deleteByFlowAndLessonDateAndLessonNum(long flow, LocalDate lessonDate, int lessonNum) {
+		return Optional.ofNullable(
+				DataAccessUtils.singleResult(
+						jdbcTemplate.query(
+								"DELETE FROM homework"
+								+ " WHERE flow=:flow AND lesson_date=:lessonDate AND lesson_num=:lessonNum"
+								+ " RETURNING *",
+								Map.of(
+										"flow", flow,
+										"lessonDate", lessonDate,
+										"lessonNum", lessonNum
+								),
+								rowMapper
+						)
+				)
+		);
+	}
+
+	@Override
+	public Iterable<Homework> findAllByFlowAndSubject(long flow, long subject) {
+		return jdbcTemplate.query(
+				"SELECT * FROM homework WHERE flow=:flow AND subject=:subject",
+				Map.of(
+						"flow", flow,
+						"subject", subject
+				),
 				rowMapper
 		);
 	}
