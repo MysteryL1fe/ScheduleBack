@@ -6,30 +6,44 @@ import java.util.Collection;
 import ru.khanin.dmitrii.schedule.entity.TempSchedule;
 
 public interface TempScheduleService {
-	TempSchedule addOrUpdate(long flowId, long lessonId, LocalDate lessonDate, int lessonNum, boolean willLessonBe);
+	TempSchedule addOrUpdate(long flowId, LocalDate lessonDate, int lessonNum, boolean willLessonBe);
 	TempSchedule addOrUpdate(
-			int flowLvl, int course, int flow, int subgroup,
-			long lessonId, LocalDate lessonDate, int lessonNum, boolean willLessonBe
-	);
-	TempSchedule addOrUpdate(
-			long flowId, String name, String teacher, String cabinet,
+			int educationLevel, int course, int group, int subgroup,
 			LocalDate lessonDate, int lessonNum, boolean willLessonBe
 	);
 	TempSchedule addOrUpdate(
-			int flowLvl, int course, int flow, int subgroup,
-			String name, String teacher, String cabinet,
+			long flowId, long subjectId, LocalDate lessonDate, int lessonNum, boolean willLessonBe
+	);
+	TempSchedule addOrUpdate(
+			int educationLevel, int course, int group, int subgroup, String subject,
 			LocalDate lessonDate, int lessonNum, boolean willLessonBe
 	);
+	TempSchedule addOrUpdate(
+			long flowId, long subjectId, long teacherId, long cabinetId,
+			LocalDate lessonDate, int lessonNum, boolean willLessonBe
+	);
+	TempSchedule addOrUpdate(
+			int educationLevel, int course, int group, int subgroup, String subject,
+			String surname, String name, String patronymic, String cabinet, String building,
+			LocalDate lessonDate, int lessonNum, boolean willLessonBe
+	);
+	TempSchedule findById(long id);
 	TempSchedule findByFlowAndLessonDateAndLessonNum(long flowId, LocalDate lessonDate, int lessonNum);
+	TempSchedule findByFlowAndLessonDateAndLessonNum(
+			int educationLevel, int course, int group, int subgroup, LocalDate lessonDate, int lessonNum
+	);
 	Collection<TempSchedule> findAll();
 	Collection<TempSchedule> findAllByFlow(long flowId);
-	Collection<TempSchedule> findAllByFlow(int flowLvl, int course, int flow, int subgroup);
+	Collection<TempSchedule> findAllByFlow(int educationLevel, int course, int group, int subgroup);
 	Collection<TempSchedule> findAllByFlowAndLessonDate(long flowId, LocalDate lessonDate);
 	Collection<TempSchedule> findAllByFlowAndLessonDate(
-			int flowLvl, int course, int flow, int subgroup, LocalDate lessonDate
+			int educationLevel, int course, int group, int subgroup, LocalDate lessonDate
 	);
-	TempSchedule delete(
-			int flowLvl, int course, int flow, int subgroup, LocalDate lessonDate, int lessonNum
+	TempSchedule deleteByFlowAndLessonDateAndLessonNum(
+			long flowId, LocalDate lessonDate, int lessonNum
+	);
+	TempSchedule deleteByFlowAndLessonDateAndLessonNum(
+			int educationLevel, int course, int group, int subgroup, LocalDate lessonDate, int lessonNum
 	);
 	TempSchedule deleteById(long id);
 	Collection<TempSchedule> deleteAll();

@@ -3,7 +3,6 @@ package ru.khanin.dmitrii.schedule.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -31,51 +30,57 @@ public class BrsScheduler {
 		try {
 			studGroups = brsClient.getStudGroups();
 		} catch (Exception e) {
-			log.info("Exception catched");
+			log.error("Exception in getting brs flows: " + e.getMessage());
 			return;
 		}
 		
 		if (studGroups == null || studGroups.isEmpty()) return;
 		
 		List<Flow> brsFlows = new ArrayList<>();
-		for (StudGroupResponse studGroup : studGroups)
-			brsFlows.addAll(convertStudGroupToFlows(studGroup));
-		
-		for (Flow brsFlow : brsFlows) {
+		for (StudGroupResponse studGroup : studGroups) {
 			try {
-				Flow flow = flowService.findByFlowLvlAndCourseAndFlowAndSubgroup(
-						brsFlow.getFlowLvl(), brsFlow.getCourse(), brsFlow.getFlow(), brsFlow.getSubgroup()
-				);
-				if (!(flow.equalsByFlowData(brsFlow) && flow.equalsByDates(brsFlow) && flow.isActive())) {
-					flowService.addOrUpdate(
-							brsFlow.getFlowLvl(), brsFlow.getCourse(), brsFlow.getFlow(), brsFlow.getSubgroup(),
-							brsFlow.getLessonsStartDate(), brsFlow.getSessionStartDate(),
-							brsFlow.getSessionEndDate(), true
-					);	
+				brsFlows.addAll(convertStudGroupToFlows(studGroup));
+			} catch (Exception e) {
+				log.error("Exception in convert brs flow: " + e.getMessage());
+			}
+		}
+		
+		Collection<Flow> foundFlows = flowService.findAllActive();
+		
+		for (Flow brsFlow: brsFlows) {
+			boolean found = false;
+			
+			for (Flow foundFlow : foundFlows) {
+				if (foundFlow.equalsByFlowData(brsFlow) && foundFlow.equalsByDates(brsFlow)) {
+					found = true;
+					break;
 				}
-			} catch (NoSuchElementException e) {
+			}
+			
+			if (!found) {
 				flowService.addOrUpdate(
-						brsFlow.getFlowLvl(), brsFlow.getCourse(), brsFlow.getFlow(), brsFlow.getSubgroup(),
+						brsFlow.getEducationLevel(), brsFlow.getCourse(), brsFlow.getGroup(), brsFlow.getSubgroup(),
 						brsFlow.getLessonsStartDate(), brsFlow.getSessionStartDate(),
 						brsFlow.getSessionEndDate(), true
 				);
 			}
 		}
 		
-		log.info("Active flows are set, check active flows");
+		log.info("Flows from brs saved, check old active flows");
 		
-		Collection<Flow> activeFlows = flowService.findAllActive();
-		for (Flow flow : activeFlows) {
+		for (Flow flow : foundFlows) {
 			boolean exists = false;
+			
 			for (Flow brsFlow : brsFlows) {
 				if (flow.equalsByFlowData(brsFlow)) {
 					exists = true;
 					break;
 				}
 			}
+			
 			if (!exists) {
 				flowService.addOrUpdate(
-						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(), false
+						flow.getEducationLevel(), flow.getCourse(), flow.getGroup(), flow.getSubgroup(), false
 				);			
 			}
 		}
@@ -87,9 +92,9 @@ public class BrsScheduler {
 		List<Flow> result = new ArrayList<>();
 		if (studGroupResponse.sub_count() == 0) {
 			Flow flow = new Flow();
-			flow.setFlowLvl(1);
+			flow.setEducationLevel(convertEducationLevel(studGroupResponse.education_level()));
 			flow.setCourse(studGroupResponse.course());
-			flow.setFlow(studGroupResponse.num());
+			flow.setGroup(studGroupResponse.num());
 			flow.setSubgroup(1);
 			flow.setLessonsStartDate(studGroupResponse.lessons_start_date());
 			flow.setSessionStartDate(studGroupResponse.session_start_date());
@@ -101,9 +106,9 @@ public class BrsScheduler {
 		
 		for (int i = 1; i <= studGroupResponse.sub_count(); i++) {
 			Flow flow = new Flow();
-			flow.setFlowLvl(1);
+			flow.setEducationLevel(1);
 			flow.setCourse(studGroupResponse.course());
-			flow.setFlow(studGroupResponse.num());
+			flow.setGroup(studGroupResponse.num());
 			flow.setSubgroup(i);
 			flow.setLessonsStartDate(studGroupResponse.lessons_start_date());
 			flow.setSessionStartDate(studGroupResponse.session_start_date());
@@ -112,5 +117,14 @@ public class BrsScheduler {
 		}
 		
 		return result;
+	}
+	
+	private int convertEducationLevel(String educationLevel) {
+		return switch (educationLevel) {
+		case "bachelor", "specialist":
+			yield 1;
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + educationLevel);
+		};
 	}
 }
