@@ -6,8 +6,7 @@ import java.time.LocalDateTime;
 import lombok.NonNull;
 
 public record FlowResponse(
-		@NonNull Integer flow_lvl, @NonNull Integer course, @NonNull Integer flow, @NonNull Integer subgroup,
-		@NonNull LocalDateTime last_edit, @NonNull LocalDate lessons_start_date,
-		@NonNull LocalDate session_start_date, @NonNull LocalDate session_end_date,
-		@NonNull Boolean active
+		@NonNull Integer education_level, @NonNull Integer course, @NonNull Integer group, @NonNull Integer subgroup,
+		@NonNull LocalDateTime last_edit, LocalDate lessons_start_date, LocalDate session_start_date,
+		LocalDate session_end_date, @NonNull Boolean active
 ) {}

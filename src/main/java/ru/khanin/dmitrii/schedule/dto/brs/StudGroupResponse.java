@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import lombok.NonNull;
 
 public record StudGroupResponse(
-		@NonNull Integer course, @NonNull Integer num, @NonNull Integer sub_count,
-		@NonNull LocalDate lessons_start_date, @NonNull LocalDate session_start_date,
-		@NonNull LocalDate session_end_date
+		@NonNull String education_level, @NonNull Integer course, @NonNull Integer num, @NonNull Integer sub_count,
+		@NonNull LocalDate lessons_start_date, LocalDate session_start_date, LocalDate session_end_date
 ) {}

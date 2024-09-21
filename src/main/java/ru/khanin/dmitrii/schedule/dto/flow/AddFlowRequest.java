@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import lombok.NonNull;
 
 public record AddFlowRequest(
-		@NonNull Integer flow_lvl, @NonNull Integer course, @NonNull Integer flow, @NonNull Integer subgroup,
-		@NonNull LocalDate lessons_start_date, @NonNull LocalDate session_start_date,
-		@NonNull LocalDate session_end_date, @NonNull Boolean active
+		@NonNull Integer education_level, @NonNull Integer course, @NonNull Integer group, @NonNull Integer subgroup,
+		LocalDate lessons_start_date, LocalDate session_start_date, LocalDate session_end_date, @NonNull Boolean active
 ) {}
