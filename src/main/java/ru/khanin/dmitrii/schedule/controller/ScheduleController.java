@@ -10,27 +10,30 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ru.khanin.dmitrii.schedule.dto.cabinet.CabinetResponse;
 import ru.khanin.dmitrii.schedule.dto.flow.FlowResponse;
-import ru.khanin.dmitrii.schedule.dto.lesson.LessonResponse;
 import ru.khanin.dmitrii.schedule.dto.schedule.DeleteScheduleRequest;
 import ru.khanin.dmitrii.schedule.dto.schedule.ScheduleRequest;
 import ru.khanin.dmitrii.schedule.dto.schedule.ScheduleResponse;
+import ru.khanin.dmitrii.schedule.dto.subject.SubjectResponse;
+import ru.khanin.dmitrii.schedule.dto.teacher.TeacherResponse;
+import ru.khanin.dmitrii.schedule.entity.Cabinet;
 import ru.khanin.dmitrii.schedule.entity.Flow;
-import ru.khanin.dmitrii.schedule.entity.Lesson;
 import ru.khanin.dmitrii.schedule.entity.Schedule;
+import ru.khanin.dmitrii.schedule.entity.Subject;
+import ru.khanin.dmitrii.schedule.entity.Teacher;
 import ru.khanin.dmitrii.schedule.entity.jdbc.ScheduleJoined;
-import ru.khanin.dmitrii.schedule.exception.NoAccessException;
+import ru.khanin.dmitrii.schedule.service.CabinetService;
 import ru.khanin.dmitrii.schedule.service.FlowService;
-import ru.khanin.dmitrii.schedule.service.LessonService;
 import ru.khanin.dmitrii.schedule.service.ScheduleService;
-import ru.khanin.dmitrii.schedule.service.UserService;
+import ru.khanin.dmitrii.schedule.service.SubjectService;
+import ru.khanin.dmitrii.schedule.service.TeacherService;
 
 @RestController
 @RequestMapping("/schedule")
@@ -39,113 +42,58 @@ import ru.khanin.dmitrii.schedule.service.UserService;
 public class ScheduleController {
 	private final ScheduleService scheduleService;
 	private final FlowService flowService;
-	private final LessonService lessonService;
-	private final UserService userService;
+	private final SubjectService subjectService;
+	private final TeacherService teacherService;
+	private final CabinetService cabinetService;
+	
+	@GetMapping("/schedule")
+	public ResponseEntity<ScheduleResponse> getSchedule(
+			@RequestParam(name = "education_level") int educationLevel, @RequestParam int course,
+			@RequestParam int group, @RequestParam int subgroup, @RequestParam(name = "day_of_week") int dayOfWeek,
+			@RequestParam(name = "lesson_num") int lessonNum, @RequestParam boolean numerator
+	) {
+		log.trace(String.format(
+				"Received request to get temp schedule"
+				+ " (flow: %s.%s.%s.%s, day of week: %s, lesson num: %s, numerator: %s)",
+				educationLevel, course, group, subgroup, dayOfWeek, lessonNum, numerator
+		));
+		
+		Schedule found = scheduleService.findByFlowAndDayOfWeekAndLessonNumAndNumerator(
+				educationLevel, course, group, subgroup, dayOfWeek, lessonNum, numerator
+		);
+		ScheduleResponse response = convertScheduleToResponse(found);
+		
+		return ResponseEntity.ok(response);
+	}
 	
 	@GetMapping("/all")
 	public ResponseEntity<List<ScheduleResponse>> getAllSchedules() {
-		log.info("Received request to get all schedules");
+		log.trace("Received request to get all schedules");
 		
 		Collection<Schedule> found = scheduleService.findAll();
 		List<ScheduleResponse> result = new ArrayList<>();
-		found.forEach((e) -> {
-			if (e instanceof ScheduleJoined) {
-				ScheduleJoined schedule = (ScheduleJoined) e;
-				
-				FlowResponse flowResponse = new FlowResponse(
-						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
-						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
-						schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
-						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate(),
-						schedule.getFlowJoined().isActive()
-				);
-				
-				LessonResponse lessonResponse = new LessonResponse(
-						schedule.getLessonJoined().getName(), schedule.getLessonJoined().getTeacher(),
-						schedule.getLessonJoined().getCabinet()
-				);
-				
-				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, schedule.getDayOfWeek(),
-						schedule.getLessonNum(), schedule.isNumerator()
-				));
-			} else {
-				Flow flow = flowService.findById(e.getFlow());
-				FlowResponse flowResponse = new FlowResponse(
-						flow.getFlowLvl(), flow.getCourse(), flow.getFlow(), flow.getSubgroup(),
-						flow.getLastEdit(), flow.getLessonsStartDate(), flow.getSessionStartDate(),
-						flow.getSessionEndDate(), flow.isActive()
-				);
-						
-				Lesson lesson = lessonService.findById(e.getLesson());
-				LessonResponse lessonResponse = new LessonResponse(
-						lesson.getName(), lesson.getTeacher(), lesson.getCabinet()
-				);
-						
-				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
-				));
-			}
-		});
+		found.forEach(e -> result.add(convertScheduleToResponse(e)));
 		
-		log.info(String.format("Found all (%s) schedules: %s", found.size(), found));
+		log.trace(String.format("Found all (%s) schedules: %s", found.size(), found));
 		
 		return ResponseEntity.ok(result);
 	}
 	
 	@GetMapping("/flow")
 	public ResponseEntity<List<ScheduleResponse>> getAllSchedulesByFlow(
-			@RequestParam(name = "flow_lvl") int flowLvl, @RequestParam int course,
-			@RequestParam int flow, @RequestParam int subgroup
+			@RequestParam(name = "education_level") int educationLevel, @RequestParam int course,
+			@RequestParam int group, @RequestParam int subgroup
 	) {
-		log.info(String.format(
-				"Received request to get all schedules by flow %s.%s.%s.%s", flowLvl, course, flow, subgroup
+		log.trace(String.format(
+				"Received request to get all schedules by flow %s.%s.%s.%s", educationLevel, course, group, subgroup
 		));
 		
-		Collection<Schedule> found = scheduleService.findAllByFlow(flowLvl, course, flow, subgroup);
+		Collection<Schedule> found = scheduleService.findAllByFlow(educationLevel, course, group, subgroup);
 		List<ScheduleResponse> result = new ArrayList<>();
-		found.forEach((e) -> {
-			if (e instanceof ScheduleJoined) {
-				ScheduleJoined schedule = (ScheduleJoined) e;
-				
-				FlowResponse flowResponse = new FlowResponse(
-						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
-						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
-						schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
-						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate(),
-						schedule.getFlowJoined().isActive()
-				);
-				
-				LessonResponse lessonResponse = new LessonResponse(
-						schedule.getLessonJoined().getName(), schedule.getLessonJoined().getTeacher(),
-						schedule.getLessonJoined().getCabinet()
-				);
-				
-				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, schedule.getDayOfWeek(),
-						schedule.getLessonNum(), schedule.isNumerator()
-				));
-			} else {
-				Flow foundflow = flowService.findById(e.getFlow());
-				FlowResponse flowResponse = new FlowResponse(
-						foundflow.getFlowLvl(), foundflow.getCourse(), foundflow.getFlow(), foundflow.getSubgroup(),
-						foundflow.getLastEdit(), foundflow.getLessonsStartDate(), foundflow.getSessionStartDate(),
-						foundflow.getSessionEndDate(), foundflow.isActive()
-				);
-						
-				Lesson lesson = lessonService.findById(e.getLesson());
-				LessonResponse lessonResponse = new LessonResponse(
-						lesson.getName(), lesson.getTeacher(), lesson.getCabinet()
-				);
-						
-				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
-				));
-			}
-		});
+		found.forEach(e -> result.add(convertScheduleToResponse(e)));
 		
-		log.info(String.format(
-				"Found all (%s) schedules by flow %s.%s.%s.%s: %s", found.size(), flowLvl, course, flow, subgroup,
+		log.trace(String.format(
+				"Found all (%s) schedules by flow %s.%s.%s.%s: %s", found.size(), educationLevel, course, group, subgroup,
 				found
 		));
 		
@@ -153,205 +101,169 @@ public class ScheduleController {
 	}
 	
 	@GetMapping("/teacher")
-	public ResponseEntity<List<ScheduleResponse>> getAllSchedulesWhereTeacherStartsWith(@RequestParam String teacher) {
-		log.info(String.format("Received request to get all schedules by teacher %s", teacher));
+	public ResponseEntity<List<ScheduleResponse>> getAllScheduleByTeacher(
+			@RequestParam String surname, @RequestParam String name, @RequestParam String patronymic
+	) {
+		log.trace(String.format(
+				"Received request to get all schedules by teacher %s %s %s",
+				surname, name, patronymic
+		));
 		
-		Collection<Schedule> found = scheduleService.findAllWhereTeacherStartsWith(teacher);
+		Collection<Schedule> found = scheduleService.findAllByTeacher(surname, name, patronymic);
 		List<ScheduleResponse> result = new ArrayList<>();
-		found.forEach((e) -> {
-			if (e instanceof ScheduleJoined) {
-				ScheduleJoined schedule = (ScheduleJoined) e;
-				
-				FlowResponse flowResponse = new FlowResponse(
-						schedule.getFlowJoined().getFlowLvl(), schedule.getFlowJoined().getCourse(),
-						schedule.getFlowJoined().getFlow(), schedule.getFlowJoined().getSubgroup(),
-						schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
-						schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate(),
-						schedule.getFlowJoined().isActive()
-				);
-				
-				LessonResponse lessonResponse = new LessonResponse(
-						schedule.getLessonJoined().getName(), schedule.getLessonJoined().getTeacher(),
-						schedule.getLessonJoined().getCabinet()
-				);
-				
-				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, schedule.getDayOfWeek(),
-						schedule.getLessonNum(), schedule.isNumerator()
-				));
-			} else {
-				Flow foundflow = flowService.findById(e.getFlow());
-				FlowResponse flowResponse = new FlowResponse(
-						foundflow.getFlowLvl(), foundflow.getCourse(), foundflow.getFlow(), foundflow.getSubgroup(),
-						foundflow.getLastEdit(), foundflow.getLessonsStartDate(), foundflow.getSessionStartDate(),
-						foundflow.getSessionEndDate(), foundflow.isActive()
-				);
-						
-				Lesson lesson = lessonService.findById(e.getLesson());
-				LessonResponse lessonResponse = new LessonResponse(
-						lesson.getName(), lesson.getTeacher(), lesson.getCabinet()
-				);
-						
-				result.add(new ScheduleResponse(
-						flowResponse, lessonResponse, e.getDayOfWeek(), e.getLessonNum(), e.isNumerator()
-				));
-			}
-		});
+		found.forEach(e -> result.add(convertScheduleToResponse(e)));
 		
-		log.info(String.format("Found all (%s) schedules by teacher %s: %s", found.size(), teacher, found));
+		log.trace(String.format(
+				"Found all (%s) schedules by teacher %s %s %s: %s",
+				found.size(), surname, name, patronymic, found
+		));
 		
 		return ResponseEntity.ok(result);
 	}
 	
 	@PostMapping("/schedule")
-	public ResponseEntity<?> addSchedule(
-			@RequestHeader("api_key") String apiKey, @RequestBody ScheduleRequest schedule
-	) {
-		log.info(String.format("Received request from \"%s\" to add schedule %s", apiKey, schedule));
-		
-		if (!userService.checkFlowAccessByApiKey(
-				apiKey, schedule.flow().flow_lvl(), schedule.flow().course(),
-				schedule.flow().flow(), schedule.flow().subgroup()
-		)) throw new NoAccessException("Нет доступа для добавления занятия");
-
-		log.info(String.format("User \"%s\" is trying to add schedule %s", apiKey, schedule));
+	public ResponseEntity<?> addSchedule(@RequestBody ScheduleRequest schedule) {
+		log.trace(String.format("Received request to add schedule %s", schedule));
 		
 		Schedule addedSchedule = scheduleService.addOrUpdate(
-				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
-				schedule.flow().subgroup(), schedule.lesson().name(), schedule.lesson().teacher(),
-				schedule.lesson().cabinet(), schedule.day_of_week(),
-				schedule.lesson_num(), schedule.numerator()
+				schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
+				schedule.flow().subgroup(), schedule.subject().subject(), schedule.teacher().surname(),
+				schedule.teacher().name(), schedule.teacher().patronymic(), schedule.cabinet().cabinet(),
+				schedule.cabinet().building(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
 		);
 		
-		log.info(String.format("User \"%s\" has successfully added schedule %s", apiKey, addedSchedule));
+		log.trace(String.format("Successfully added schedule %s", addedSchedule));
 		
 		return ResponseEntity.ok().build();
 	}
 	
 	@PostMapping("/schedules")
 	@Transactional
-	public ResponseEntity<?> addSchedules(
-			@RequestHeader("api_key") String apiKey, @RequestBody List<ScheduleRequest> schedules
-	) {
-		log.info(String.format(
-				"Received request from \"%s\" to add %s schedules %s", apiKey, schedules.size(), schedules
+	public ResponseEntity<?> addSchedules(@RequestBody List<ScheduleRequest> schedules) {
+		log.trace(String.format(
+				"Received request to add %s schedules %s", schedules.size(), schedules
 		));
-		
-		List<Flow> flows = new ArrayList<>();
-		schedules.forEach((e) -> {
-			Flow flow = new Flow();
-			flow.setFlowLvl(e.flow().flow_lvl());
-			flow.setCourse(e.flow().course());
-			flow.setFlow(e.flow().flow());
-			flow.setSubgroup(e.flow().subgroup());
-			
-			flows.add(flow);
-		});
-		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
-			throw new NoAccessException("Нет доступа для добавления занятий");
-
-		log.info(String.format("User \"%s\" is trying to add %s schedules: %s", apiKey, schedules.size(), schedules));
 		
 		List<Schedule> addedSchedules = new ArrayList<>();
 		for (ScheduleRequest schedule : schedules) {
 			Schedule addedSchedule = scheduleService.addOrUpdate(
-					schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
-					schedule.flow().subgroup(), schedule.lesson().name(), schedule.lesson().teacher(),
-					schedule.lesson().cabinet(), schedule.day_of_week(),
-					schedule.lesson_num(), schedule.numerator()
+					schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
+					schedule.flow().subgroup(), schedule.subject().subject(), schedule.teacher().surname(),
+					schedule.teacher().name(), schedule.teacher().patronymic(), schedule.cabinet().cabinet(),
+					schedule.cabinet().building(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
 			);
 			addedSchedules.add(addedSchedule);
 		}
 		
-		log.info(String.format(
-				"User \"%s\" has successfully added %s schedules: %s", apiKey, addedSchedules.size(), addedSchedules
-		));
+		log.trace(String.format("Successfully added %s schedules: %s", addedSchedules.size(), addedSchedules));
 		
 		return ResponseEntity.ok().build();
 	}
 	
 	@DeleteMapping("/schedule")
-	public ResponseEntity<?> deleteSchedule(
-			@RequestHeader("api_key") String apiKey, @RequestBody DeleteScheduleRequest schedule
-	) {
-		log.info(String.format("Received request from \"%s\" to delete schedule %s", apiKey, schedule));
+	public ResponseEntity<?> deleteSchedule(@RequestBody DeleteScheduleRequest schedule) {
+		log.trace(String.format("Received request to delete schedule %s", schedule));
 		
-		if (!userService.checkFlowAccessByApiKey(
-				apiKey, schedule.flow().flow_lvl(), schedule.flow().course(),
-				schedule.flow().flow(), schedule.flow().subgroup()
-		)) throw new NoAccessException("Нет доступа для удаления занятия");
-
-		log.info(String.format("User \"%s\" is trying to delete schedule %s", apiKey, schedule));
-		
-		Schedule deletedSchedule = scheduleService.delete(
-				schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
+		Schedule deletedSchedule = scheduleService.deleteByFlowAndDayOfWeekAndLessonNumAndNumerator(
+				schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
 				schedule.flow().subgroup(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
 		);
 		
-		log.info(String.format("User \"%s\" has successfully deleted schedule %s", apiKey, deletedSchedule));
+		log.trace(String.format("Successfully deleted schedule %s", deletedSchedule));
 		
 		return ResponseEntity.ok().build();
 	}
 	
 	@DeleteMapping("/schedules")
 	@Transactional
-	public ResponseEntity<?> deleteSchedules(
-			@RequestHeader("api_key") String apiKey, @RequestBody List<DeleteScheduleRequest> schedules
+	public ResponseEntity<?> deleteSchedules(@RequestBody List<DeleteScheduleRequest> schedules
 	) {
-		log.info(String.format(
-				"Received request from \"%s\" to delete %s schedules: %s", apiKey, schedules.size(), schedules
-		));
-		
-		List<Flow> flows = new ArrayList<>();
-		schedules.forEach((e) -> {
-			Flow flow = new Flow();
-			flow.setFlowLvl(e.flow().flow_lvl());
-			flow.setCourse(e.flow().course());
-			flow.setFlow(e.flow().flow());
-			flow.setSubgroup(e.flow().subgroup());
-			
-			flows.add(flow);
-		});
-		if (!userService.checkFlowsAccessByApiKey(apiKey, flows))
-			throw new NoAccessException("Нет доступа для удаления занятий");
-
-		log.info(String.format(
-				"User \"%s\" is trying to delete %s schedules: %s", apiKey, schedules.size(), schedules
+		log.trace(String.format(
+				"Received request to delete %s schedules: %s", schedules.size(), schedules
 		));
 		
 		List<Schedule> deletedSchedules = new ArrayList<>();
 		for (DeleteScheduleRequest schedule : schedules) {
-			Schedule deletedSchedule = scheduleService.delete(
-					schedule.flow().flow_lvl(), schedule.flow().course(), schedule.flow().flow(),
+			Schedule deletedSchedule = scheduleService.deleteByFlowAndDayOfWeekAndLessonNumAndNumerator(
+					schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
 					schedule.flow().subgroup(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
 			);
 			deletedSchedules.add(deletedSchedule);
 		}
 		
-		log.info(String.format(
-				"User \"%s\" has successfully deleted %s schedules: %s",
-				apiKey, deletedSchedules.size(), deletedSchedules
-		));
+		log.trace(String.format("Successfully deleted %s schedules: %s", deletedSchedules.size(), deletedSchedules));
 		
 		return ResponseEntity.ok().build();
 	}
 	
 	@DeleteMapping("/all")
-	public ResponseEntity<?> deleteAllSchedules(@RequestHeader("api_key") String apiKey) {
-		log.info(String.format("Received request from \"%s\" to delete all schedules", apiKey));
-		
-		if (!userService.checkAdminAccessByApiKey(apiKey))
-			throw new NoAccessException("Нет доступа для удаления занятий");
-		
-		log.info(String.format("User \"%s\" is trying to delete all schedules", apiKey));
+	public ResponseEntity<?> deleteAllSchedules() {
+		log.trace(String.format("Received request to delete all schedules"));
 		
 		Collection<Schedule> deletedSchedules = scheduleService.deleteAll();
 
-		log.info(String.format(
-				"User \"%s\" has successfully deleted all (%s) schedules: %s",
-				apiKey, deletedSchedules.size(), deletedSchedules
+		log.trace(String.format(
+				"Successfully deleted all (%s) schedules: %s", deletedSchedules.size(), deletedSchedules
 		));
 		
 		return ResponseEntity.ok().build();
+	}
+	
+	private ScheduleResponse convertScheduleToResponse(Schedule schedule) {
+		if (schedule instanceof ScheduleJoined) {
+			ScheduleJoined scheduleJoined = (ScheduleJoined) schedule;
+			
+			FlowResponse flowResponse = new FlowResponse(
+					scheduleJoined.getFlowJoined().getEducationLevel(), scheduleJoined.getFlowJoined().getCourse(),
+					scheduleJoined.getFlowJoined().getGroup(), scheduleJoined.getFlowJoined().getSubgroup(),
+					scheduleJoined.getFlowJoined().getLastEdit(), scheduleJoined.getFlowJoined().getLessonsStartDate(),
+					scheduleJoined.getFlowJoined().getSessionStartDate(),
+					scheduleJoined.getFlowJoined().getSessionEndDate(), scheduleJoined.getFlowJoined().isActive()
+			);
+			
+			SubjectResponse subjectResponse = new SubjectResponse(scheduleJoined.getSubjectJoined().getSubject());
+			
+			TeacherResponse teacherResponse = new TeacherResponse(
+					scheduleJoined.getTeacherJoined().getSurname(), scheduleJoined.getTeacherJoined().getName(),
+					scheduleJoined.getTeacherJoined().getPatronymic()
+			);
+			
+			CabinetResponse cabinetResponse = new CabinetResponse(
+					scheduleJoined.getCabinetJoined().getCabinet(), scheduleJoined.getCabinetJoined().getBuilding(),
+					scheduleJoined.getCabinetJoined().getAddress()
+			);
+			
+			return new ScheduleResponse(
+					flowResponse, schedule.getDayOfWeek(), schedule.getLessonNum(), schedule.isNumerator(),
+					subjectResponse, teacherResponse, cabinetResponse
+			);
+		} else {
+			Flow foundflow = flowService.findById(schedule.getFlow());
+			FlowResponse flowResponse = new FlowResponse(
+					foundflow.getEducationLevel(), foundflow.getCourse(), foundflow.getGroup(),
+					foundflow.getSubgroup(), foundflow.getLastEdit(), foundflow.getLessonsStartDate(),
+					foundflow.getSessionStartDate(), foundflow.getSessionEndDate(), foundflow.isActive()
+			);
+			
+			Subject subject = subjectService.findById(schedule.getSubject());
+			SubjectResponse subjectResponse = new SubjectResponse(subject.getSubject());
+			
+			Teacher teacher = teacherService.findById(schedule.getTeacher());
+			TeacherResponse teacherResponse = new TeacherResponse(
+					teacher.getSurname(), teacher.getName(),
+					teacher.getPatronymic()
+			);
+			
+			Cabinet cabinet = cabinetService.findById(schedule.getCabinet());
+			CabinetResponse cabinetResponse = new CabinetResponse(
+					cabinet.getCabinet(), cabinet.getBuilding(),
+					cabinet.getAddress()
+			);
+					
+			return new ScheduleResponse(
+					flowResponse, schedule.getDayOfWeek(), schedule.getLessonNum(), schedule.isNumerator(),
+					subjectResponse, teacherResponse, cabinetResponse
+			);
+		}
 	}
 }
