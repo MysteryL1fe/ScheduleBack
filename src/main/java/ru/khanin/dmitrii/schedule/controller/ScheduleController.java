@@ -125,12 +125,34 @@ public class ScheduleController {
 	public ResponseEntity<?> addSchedule(@RequestBody ScheduleRequest schedule) {
 		log.trace(String.format("Received request to add schedule %s", schedule));
 		
-		Schedule addedSchedule = scheduleService.addOrUpdate(
-				schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
-				schedule.flow().subgroup(), schedule.subject().subject(), schedule.teacher().surname(),
-				schedule.teacher().name(), schedule.teacher().patronymic(), schedule.cabinet().cabinet(),
-				schedule.cabinet().building(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
-		);
+		Schedule addedSchedule;
+		if (schedule.teacher() == null && schedule.cabinet() == null) {
+			addedSchedule = scheduleService.addOrUpdate(
+					schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
+					schedule.flow().subgroup(), schedule.subject().subject(), schedule.day_of_week(),
+					schedule.lesson_num(), schedule.numerator()
+			);
+		} else if (schedule.teacher() == null) {
+			addedSchedule = scheduleService.addOrUpdate(
+					schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
+					schedule.flow().subgroup(), schedule.subject().subject(), schedule.cabinet().cabinet(),
+					schedule.cabinet().building(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
+			);
+		} else if (schedule.cabinet() == null) {
+			addedSchedule = scheduleService.addOrUpdate(
+					schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
+					schedule.flow().subgroup(), schedule.subject().subject(), schedule.teacher().surname(),
+					schedule.teacher().name(), schedule.teacher().patronymic(), schedule.day_of_week(),
+					schedule.lesson_num(), schedule.numerator()
+			);
+		} else {
+			addedSchedule = scheduleService.addOrUpdate(
+					schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
+					schedule.flow().subgroup(), schedule.subject().subject(), schedule.teacher().surname(),
+					schedule.teacher().name(), schedule.teacher().patronymic(), schedule.cabinet().cabinet(),
+					schedule.cabinet().building(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
+			);
+		}
 		
 		log.trace(String.format("Successfully added schedule %s", addedSchedule));
 		
@@ -146,12 +168,34 @@ public class ScheduleController {
 		
 		List<Schedule> addedSchedules = new ArrayList<>();
 		for (ScheduleRequest schedule : schedules) {
-			Schedule addedSchedule = scheduleService.addOrUpdate(
-					schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
-					schedule.flow().subgroup(), schedule.subject().subject(), schedule.teacher().surname(),
-					schedule.teacher().name(), schedule.teacher().patronymic(), schedule.cabinet().cabinet(),
-					schedule.cabinet().building(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
-			);
+			Schedule addedSchedule;
+			if (schedule.teacher() == null && schedule.cabinet() == null) {
+				addedSchedule = scheduleService.addOrUpdate(
+						schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
+						schedule.flow().subgroup(), schedule.subject().subject(), schedule.day_of_week(),
+						schedule.lesson_num(), schedule.numerator()
+				);
+			} else if (schedule.teacher() == null) {
+				addedSchedule = scheduleService.addOrUpdate(
+						schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
+						schedule.flow().subgroup(), schedule.subject().subject(), schedule.cabinet().cabinet(),
+						schedule.cabinet().building(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
+				);
+			} else if (schedule.cabinet() == null) {
+				addedSchedule = scheduleService.addOrUpdate(
+						schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
+						schedule.flow().subgroup(), schedule.subject().subject(), schedule.teacher().surname(),
+						schedule.teacher().name(), schedule.teacher().patronymic(), schedule.day_of_week(),
+						schedule.lesson_num(), schedule.numerator()
+				);
+			} else {
+				addedSchedule = scheduleService.addOrUpdate(
+						schedule.flow().education_level(), schedule.flow().course(), schedule.flow().group(),
+						schedule.flow().subgroup(), schedule.subject().subject(), schedule.teacher().surname(),
+						schedule.teacher().name(), schedule.teacher().patronymic(), schedule.cabinet().cabinet(),
+						schedule.cabinet().building(), schedule.day_of_week(), schedule.lesson_num(), schedule.numerator()
+				);
+			}
 			addedSchedules.add(addedSchedule);
 		}
 		
@@ -218,7 +262,7 @@ public class ScheduleController {
 					scheduleJoined.getFlowJoined().getGroup(), scheduleJoined.getFlowJoined().getSubgroup(),
 					scheduleJoined.getFlowJoined().getLastEdit(), scheduleJoined.getFlowJoined().getLessonsStartDate(),
 					scheduleJoined.getFlowJoined().getSessionStartDate(),
-					scheduleJoined.getFlowJoined().getSessionEndDate(), scheduleJoined.getFlowJoined().isActive()
+					scheduleJoined.getFlowJoined().getSessionEndDate(), scheduleJoined.getFlowJoined().getActive()
 			);
 			
 			SubjectResponse subjectResponse = new SubjectResponse(scheduleJoined.getSubjectJoined().getSubject());
@@ -234,7 +278,7 @@ public class ScheduleController {
 			);
 			
 			return new ScheduleResponse(
-					flowResponse, schedule.getDayOfWeek(), schedule.getLessonNum(), schedule.isNumerator(),
+					flowResponse, schedule.getDayOfWeek(), schedule.getLessonNum(), schedule.getNumerator(),
 					subjectResponse, teacherResponse, cabinetResponse
 			);
 		} else {
@@ -242,7 +286,7 @@ public class ScheduleController {
 			FlowResponse flowResponse = new FlowResponse(
 					foundflow.getEducationLevel(), foundflow.getCourse(), foundflow.getGroup(),
 					foundflow.getSubgroup(), foundflow.getLastEdit(), foundflow.getLessonsStartDate(),
-					foundflow.getSessionStartDate(), foundflow.getSessionEndDate(), foundflow.isActive()
+					foundflow.getSessionStartDate(), foundflow.getSessionEndDate(), foundflow.getActive()
 			);
 			
 			Subject subject = subjectService.findById(schedule.getSubject());
@@ -261,7 +305,7 @@ public class ScheduleController {
 			);
 					
 			return new ScheduleResponse(
-					flowResponse, schedule.getDayOfWeek(), schedule.getLessonNum(), schedule.isNumerator(),
+					flowResponse, schedule.getDayOfWeek(), schedule.getLessonNum(), schedule.getNumerator(),
 					subjectResponse, teacherResponse, cabinetResponse
 			);
 		}

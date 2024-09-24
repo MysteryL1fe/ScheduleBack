@@ -42,7 +42,7 @@ public class JdbcFlowService implements FlowService {
 			flowToAdd.setLessonsStartDate(foundFlow.get().getLessonsStartDate());
 			flowToAdd.setSessionStartDate(foundFlow.get().getSessionStartDate());
 			flowToAdd.setSessionEndDate(foundFlow.get().getSessionEndDate());
-			flowToAdd.setActive(foundFlow.get().isActive());
+			flowToAdd.setActive(foundFlow.get().getActive());
 			return flowRepo.update(flowToAdd);
 		}
 		
@@ -69,7 +69,7 @@ public class JdbcFlowService implements FlowService {
 				findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup);
 		
 		if (foundFlow.isPresent()) {
-			flowToAdd.setActive(foundFlow.get().isActive());
+			flowToAdd.setActive(foundFlow.get().getActive());
 			return flowRepo.update(flowToAdd);
 		}
 		

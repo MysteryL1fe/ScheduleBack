@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class UserFlow {
-	protected long user;
-	protected long flow;
+	protected Long user;
+	protected Long flow;
 }

@@ -6,12 +6,12 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Schedule {
-	protected long id;
-	protected long flow;
-	protected long subject;
-	protected long teacher;
-	protected long cabinet;
-	protected int dayOfWeek;
-	protected int lessonNum;
-	protected boolean numerator;
+	protected Long id;
+	protected Long flow;
+	protected Long subject;
+	protected Long teacher;
+	protected Long cabinet;
+	protected Integer dayOfWeek;
+	protected Integer lessonNum;
+	protected Boolean numerator;
 }

@@ -63,7 +63,7 @@ public class JdbcUserService implements UserService {
 
 	@Override
 	public boolean isAdmin(String login) {
-		return userRepo.findByLogin(login).orElseThrow().isAdmin();
+		return userRepo.findByLogin(login).orElseThrow().getAdmin();
 	}
 	
 }

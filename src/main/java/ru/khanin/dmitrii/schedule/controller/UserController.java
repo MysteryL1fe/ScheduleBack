@@ -140,18 +140,18 @@ public class UserController {
 	}
 	
 	private UserResponse convertUserToResponse(User user) {
-		return new UserResponse(user.getLogin(), user.isAdmin());
+		return new UserResponse(user.getLogin(), user.getAdmin());
 	}
 	
 	private UserResponse convertUserFlowToUserResponse(UserFlow userFlow) {
 		if (userFlow instanceof UserFlowJoined) {
 			UserFlowJoined userFlowJoined = (UserFlowJoined) userFlow;
 			return new UserResponse(
-					userFlowJoined.getUserJoined().getLogin(), userFlowJoined.getUserJoined().isAdmin()
+					userFlowJoined.getUserJoined().getLogin(), userFlowJoined.getUserJoined().getAdmin()
 			);
 		} else {
 			User user = userService.findById(userFlow.getUser());
-			return new UserResponse(user.getLogin(), user.isAdmin());
+			return new UserResponse(user.getLogin(), user.getAdmin());
 		}
 	}
 }

@@ -105,13 +105,42 @@ public class TempScheduleController {
 	public ResponseEntity<?> addTempSchedule(@RequestBody TempScheduleRequest tempSchedule) {
 		log.trace(String.format("Received request to add temp schedule %s", tempSchedule));
 		
-		TempSchedule addedSchedule = tempScheduleService.addOrUpdate(
-				tempSchedule.flow().education_level(), tempSchedule.flow().course(), tempSchedule.flow().group(),
-				tempSchedule.flow().subgroup(), tempSchedule.subject().subject(), tempSchedule.teacher().surname(),
-				tempSchedule.teacher().name(), tempSchedule.teacher().patronymic(),
-				tempSchedule.cabinet().cabinet(), tempSchedule.cabinet().building(), tempSchedule.lesson_date(),
-				tempSchedule.lesson_num(), tempSchedule.will_lesson_be()
-		);
+		TempSchedule addedSchedule;
+		if (tempSchedule.subject() == null) {
+			addedSchedule = tempScheduleService.addOrUpdate(
+					tempSchedule.flow().education_level(), tempSchedule.flow().course(), tempSchedule.flow().group(),
+					tempSchedule.flow().subgroup(), tempSchedule.lesson_date(), tempSchedule.lesson_num(),
+					tempSchedule.will_lesson_be()
+			);
+		} else if (tempSchedule.teacher() == null && tempSchedule.cabinet() == null) {
+			addedSchedule = tempScheduleService.addOrUpdate(
+					tempSchedule.flow().education_level(), tempSchedule.flow().course(), tempSchedule.flow().group(),
+					tempSchedule.flow().subgroup(), tempSchedule.subject().subject(), tempSchedule.lesson_date(),
+					tempSchedule.lesson_num(), tempSchedule.will_lesson_be()
+			);
+		} else if (tempSchedule.teacher() == null) {
+			addedSchedule = tempScheduleService.addOrUpdate(
+					tempSchedule.flow().education_level(), tempSchedule.flow().course(), tempSchedule.flow().group(),
+					tempSchedule.flow().subgroup(), tempSchedule.subject().subject(),
+					tempSchedule.cabinet().cabinet(), tempSchedule.cabinet().building(), tempSchedule.lesson_date(),
+					tempSchedule.lesson_num(), tempSchedule.will_lesson_be()
+			);
+		} else if (tempSchedule.cabinet() == null) {
+			addedSchedule = tempScheduleService.addOrUpdate(
+					tempSchedule.flow().education_level(), tempSchedule.flow().course(), tempSchedule.flow().group(),
+					tempSchedule.flow().subgroup(), tempSchedule.subject().subject(), tempSchedule.teacher().surname(),
+					tempSchedule.teacher().name(), tempSchedule.teacher().patronymic(), tempSchedule.lesson_date(),
+					tempSchedule.lesson_num(), tempSchedule.will_lesson_be()
+			);
+		} else {
+			addedSchedule = tempScheduleService.addOrUpdate(
+					tempSchedule.flow().education_level(), tempSchedule.flow().course(), tempSchedule.flow().group(),
+					tempSchedule.flow().subgroup(), tempSchedule.subject().subject(), tempSchedule.teacher().surname(),
+					tempSchedule.teacher().name(), tempSchedule.teacher().patronymic(),
+					tempSchedule.cabinet().cabinet(), tempSchedule.cabinet().building(), tempSchedule.lesson_date(),
+					tempSchedule.lesson_num(), tempSchedule.will_lesson_be()
+			);
+		}
 		
 		log.trace(String.format("Successfully added temp schedule %s", addedSchedule));
 		
@@ -203,7 +232,7 @@ public class TempScheduleController {
 					schedule.getFlowJoined().getGroup(), schedule.getFlowJoined().getSubgroup(),
 					schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
 					schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate(),
-					schedule.getFlowJoined().isActive()
+					schedule.getFlowJoined().getActive()
 			);
 			
 			SubjectResponse subjectResponse = new SubjectResponse(schedule.getSubjectJoined().getSubject());
@@ -219,7 +248,7 @@ public class TempScheduleController {
 			);
 			
 			return new TempScheduleResponse(
-					flowResponse, schedule.getLessonDate(), schedule.getLessonNum(), schedule.isWillLessonBe(),
+					flowResponse, schedule.getLessonDate(), schedule.getLessonNum(), schedule.getWillLessonBe(),
 					subjectResponse, teacherResponse, cabinetResponse
 			);
 		} else {
@@ -227,7 +256,7 @@ public class TempScheduleController {
 			FlowResponse flowResponse = new FlowResponse(
 					flow.getEducationLevel(), flow.getCourse(), flow.getGroup(), flow.getSubgroup(),
 					flow.getLastEdit(), flow.getLessonsStartDate(), flow.getSessionStartDate(),
-					flow.getSessionEndDate(), flow.isActive()
+					flow.getSessionEndDate(), flow.getActive()
 			);
 			
 			Subject subject = subjectService.findById(tempSchedule.getSubject());
@@ -247,7 +276,7 @@ public class TempScheduleController {
 			
 			return new TempScheduleResponse(
 					flowResponse, tempSchedule.getLessonDate(), tempSchedule.getLessonNum(),
-					tempSchedule.isWillLessonBe(), subjectResponse, teacherResponse, cabinetResponse
+					tempSchedule.getWillLessonBe(), subjectResponse, teacherResponse, cabinetResponse
 			);
 		}
 	}

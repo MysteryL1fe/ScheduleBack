@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Teacher {
-	private long id;
+	private Long id;
 	private String surname;
 	private String name;
 	private String patronymic;

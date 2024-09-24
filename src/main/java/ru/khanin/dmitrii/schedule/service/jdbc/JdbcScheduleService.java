@@ -28,27 +28,8 @@ public class JdbcScheduleService implements ScheduleService {
 	private final JdbcCabinetRepo cabinetRepo;
 
 	@Override
-	public Schedule findByFlowAndDayOfWeekAndLessonNumAndNumerator(
-			long flowId, int dayOfWeek, int lessonNum, boolean numerator
-	) {
-		return scheduleRepo
-				.findByFlowAndDayOfWeekAndLessonNumAndNumerator(
-						flowId, dayOfWeek, lessonNum, numerator
-				)
-				.orElseThrow();
-	}
-
-	@Override
 	public Collection<Schedule> findAll() {
 		Iterable<? extends Schedule> found = scheduleRepo.findAll();
-		Collection<Schedule> result = new ArrayList<>();
-		found.forEach(result::add);
-		return result;
-	}
-
-	@Override
-	public Collection<Schedule> findAllByFlow(long flowId) {
-		Iterable<? extends Schedule> found = scheduleRepo.findAllByFlow(flowId);
 		Collection<Schedule> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;
@@ -59,19 +40,11 @@ public class JdbcScheduleService implements ScheduleService {
 		Flow foundFlow = flowRepo
 				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
 				.orElseThrow();
-		
-		return findAllByFlow(foundFlow.getId());
-	}
 
-	@Override
-	public Collection<Schedule> findAllByFlowAndDayOfWeekAndNumerator(
-			long flowId, int dayOfWeek, boolean numerator
-	) {
-		Iterable<Schedule> found = scheduleRepo.findAllByFlowAndDayOfWeekAndNumerator(
-				flowId, dayOfWeek, numerator
-		);
+		Iterable<? extends Schedule> found = scheduleRepo.findAllByFlow(foundFlow.getId());
 		Collection<Schedule> result = new ArrayList<>();
 		found.forEach(result::add);
+		
 		return result;
 	}
 
@@ -87,27 +60,6 @@ public class JdbcScheduleService implements ScheduleService {
 		Collection<Schedule> result = new ArrayList<>();
 		deleted.forEach(result::add);
 		return result;
-	}
-
-	@Override
-	public Schedule addOrUpdate(long flowId, long subjectId, int dayOfWeek, int lessonNum, boolean numerator) {
-		Schedule schedule = new Schedule();
-		schedule.setFlow(flowId);
-		schedule.setSubject(subjectId);
-		schedule.setDayOfWeek(dayOfWeek);
-		schedule.setLessonNum(lessonNum);
-		schedule.setNumerator(numerator);
-		
-		Flow flow = flowRepo.findById(flowId).orElseThrow();
-		flow.setLastEdit(LocalDateTime.now());
-		flowRepo.update(flow);
-		
-		if (scheduleRepo
-				.findByFlowAndDayOfWeekAndLessonNumAndNumerator(flowId, dayOfWeek, lessonNum, numerator)
-				.isPresent())
-			return scheduleRepo.update(schedule);
-		
-		return scheduleRepo.add(schedule);
 	}
 
 	@Override
@@ -136,32 +88,147 @@ public class JdbcScheduleService implements ScheduleService {
 					
 					return subjectRepo.add(subjectToAdd);
 				});
-		
-		return addOrUpdate(
-				foundFlow.getId(), foundSubject.getId(), dayOfWeek, lessonNum, numerator
-		);
-	}
 
-	@Override
-	public Schedule addOrUpdate(
-			long flowId, long subjectId, long teacherId, long cabinetId,
-			int dayOfWeek, int lessonNum, boolean numerator
-	) {
 		Schedule schedule = new Schedule();
-		schedule.setFlow(flowId);
-		schedule.setSubject(subjectId);
-		schedule.setTeacher(teacherId);
-		schedule.setCabinet(cabinetId);
+		schedule.setFlow(foundFlow.getId());
+		schedule.setSubject(foundSubject.getId());
 		schedule.setDayOfWeek(dayOfWeek);
 		schedule.setLessonNum(lessonNum);
 		schedule.setNumerator(numerator);
 		
-		Flow flow = flowRepo.findById(flowId).orElseThrow();
+		Flow flow = flowRepo.findById(foundFlow.getId()).orElseThrow();
 		flow.setLastEdit(LocalDateTime.now());
 		flowRepo.update(flow);
 		
 		if (scheduleRepo
-				.findByFlowAndDayOfWeekAndLessonNumAndNumerator(flowId, dayOfWeek, lessonNum, numerator)
+				.findByFlowAndDayOfWeekAndLessonNumAndNumerator(foundFlow.getId(), dayOfWeek, lessonNum, numerator)
+				.isPresent())
+			return scheduleRepo.update(schedule);
+		
+		return scheduleRepo.add(schedule);
+	}
+	
+	@Override
+	public Schedule addOrUpdate(
+			int educationLevel, int course, int group, int subgroup, String subject,
+			String surname, String name, String patronymic, int dayOfWeek, int lessonNum, boolean numerator
+	) {
+		if (isTeacherEmpty(surname, name, patronymic)) {
+			return addOrUpdate(
+					educationLevel, course, group, subgroup, subject, dayOfWeek, lessonNum, numerator
+			);
+		}
+		
+		Flow foundFlow = flowRepo
+				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
+				.orElseGet(() -> {
+					Flow flowToAdd = new Flow();
+					flowToAdd.setEducationLevel(educationLevel);
+					flowToAdd.setCourse(course);
+					flowToAdd.setGroup(group);
+					flowToAdd.setSubgroup(subgroup);
+					flowToAdd.setLastEdit(LocalDateTime.now());
+					
+					return flowRepo.add(flowToAdd);
+				});
+		
+		Subject foundSubject = subjectRepo
+				.findBySubject(subject)
+				.orElseGet(() -> {
+					Subject subjectToAdd = new Subject();
+					subjectToAdd.setSubject(subject);
+					
+					return subjectRepo.add(subjectToAdd);
+				});
+		
+		Teacher foundTeacher = teacherRepo
+				.findBySurnameAndNameAndPatronymic(surname, name, patronymic)
+				.orElseGet(() -> {
+					Teacher teacherToAdd = new Teacher();
+					teacherToAdd.setSurname(surname);
+					teacherToAdd.setName(name);
+					teacherToAdd.setPatronymic(patronymic);
+					
+					return teacherRepo.add(teacherToAdd);
+				});
+
+		Schedule schedule = new Schedule();
+		schedule.setFlow(foundFlow.getId());
+		schedule.setSubject(foundSubject.getId());
+		schedule.setTeacher(foundTeacher.getId());
+		schedule.setDayOfWeek(dayOfWeek);
+		schedule.setLessonNum(lessonNum);
+		schedule.setNumerator(numerator);
+		
+		Flow flow = flowRepo.findById(foundFlow.getId()).orElseThrow();
+		flow.setLastEdit(LocalDateTime.now());
+		flowRepo.update(flow);
+		
+		if (scheduleRepo
+				.findByFlowAndDayOfWeekAndLessonNumAndNumerator(foundFlow.getId(), dayOfWeek, lessonNum, numerator)
+				.isPresent())
+			return scheduleRepo.update(schedule);
+		
+		return scheduleRepo.add(schedule);
+	}
+	
+	@Override
+	public Schedule addOrUpdate(
+			int educationLevel, int course, int group, int subgroup, String subject,
+			String cabinet, String building, int dayOfWeek, int lessonNum, boolean numerator
+	) {
+		if (isCabinetEmpty(cabinet, building)) {
+			return addOrUpdate(
+					educationLevel, course, group, subgroup, subject, dayOfWeek, lessonNum, numerator
+			);
+		}
+		
+		Flow foundFlow = flowRepo
+				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
+				.orElseGet(() -> {
+					Flow flowToAdd = new Flow();
+					flowToAdd.setEducationLevel(educationLevel);
+					flowToAdd.setCourse(course);
+					flowToAdd.setGroup(group);
+					flowToAdd.setSubgroup(subgroup);
+					flowToAdd.setLastEdit(LocalDateTime.now());
+					
+					return flowRepo.add(flowToAdd);
+				});
+		
+		Subject foundSubject = subjectRepo
+				.findBySubject(subject)
+				.orElseGet(() -> {
+					Subject subjectToAdd = new Subject();
+					subjectToAdd.setSubject(subject);
+					
+					return subjectRepo.add(subjectToAdd);
+				});
+		
+		Cabinet foundCabinet = cabinetRepo
+				.findByCabinetAndBuilding(cabinet, building)
+				.orElseGet(() -> {
+					Cabinet cabinetToAdd = new Cabinet();
+					cabinetToAdd.setCabinet(cabinet);
+					cabinetToAdd.setBuilding(building);
+					
+					return cabinetRepo.add(cabinetToAdd);
+				});
+
+		Schedule schedule = new Schedule();
+		schedule.setFlow(foundFlow.getId());
+		schedule.setSubject(foundSubject.getId());
+		schedule.setCabinet(foundCabinet.getId());
+		schedule.setDayOfWeek(dayOfWeek);
+		schedule.setLessonNum(lessonNum);
+		schedule.setNumerator(numerator);
+		
+		Flow flow = flowRepo.findById(foundFlow.getId()).orElseThrow();
+		flow.setLastEdit(LocalDateTime.now());
+		flowRepo.update(flow);
+		
+		if (scheduleRepo
+				.findByFlowAndDayOfWeekAndLessonNumAndNumerator(foundFlow.getId(), dayOfWeek, lessonNum, numerator)
 				.isPresent())
 			return scheduleRepo.update(schedule);
 		
@@ -175,6 +242,22 @@ public class JdbcScheduleService implements ScheduleService {
 			String surname, String name, String patronymic, String cabinet, String building,
 			int dayOfWeek, int lessonNum, boolean numerator
 	) {
+		if (isTeacherEmpty(surname, name, patronymic) && isCabinetEmpty(cabinet, building)) {
+			return addOrUpdate(
+					educationLevel, course, group, subgroup, subject, dayOfWeek, lessonNum, numerator
+			);
+		} else if (isTeacherEmpty(surname, name, patronymic)) {
+			return addOrUpdate(
+					educationLevel, course, group, subgroup, subject, cabinet, building,
+					dayOfWeek, lessonNum, numerator
+			);
+		} else if (isCabinetEmpty(cabinet, building)) {
+			return addOrUpdate(
+					educationLevel, course, group, subgroup, subject, surname, name, patronymic,
+					dayOfWeek, lessonNum, numerator
+			);
+		}
+		
 		Flow foundFlow = flowRepo
 				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
 				.orElseGet(() -> {
@@ -217,11 +300,26 @@ public class JdbcScheduleService implements ScheduleService {
 					
 					return cabinetRepo.add(cabinetToAdd);
 				});
+
+		Schedule schedule = new Schedule();
+		schedule.setFlow(foundFlow.getId());
+		schedule.setSubject(foundSubject.getId());
+		schedule.setTeacher(foundTeacher.getId());
+		schedule.setCabinet(foundCabinet.getId());
+		schedule.setDayOfWeek(dayOfWeek);
+		schedule.setLessonNum(lessonNum);
+		schedule.setNumerator(numerator);
 		
-		return addOrUpdate(
-				foundFlow.getId(), foundSubject.getId(), foundTeacher.getId(), foundCabinet.getId(),
-				dayOfWeek, lessonNum, numerator
-		);
+		Flow flow = flowRepo.findById(foundFlow.getId()).orElseThrow();
+		flow.setLastEdit(LocalDateTime.now());
+		flowRepo.update(flow);
+		
+		if (scheduleRepo
+				.findByFlowAndDayOfWeekAndLessonNumAndNumerator(foundFlow.getId(), dayOfWeek, lessonNum, numerator)
+				.isPresent())
+			return scheduleRepo.update(schedule);
+		
+		return scheduleRepo.add(schedule);
 	}
 
 	@Override
@@ -236,41 +334,27 @@ public class JdbcScheduleService implements ScheduleService {
 		Flow foundFlow = flowRepo
 				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
 				.orElseThrow();
-		
-		return findAllByFlowAndDayOfWeekAndNumerator(foundFlow.getId(), dayOfWeek, numerator);
-	}
 
-	@Override
-	public Collection<Schedule> findAllByTeacher(long teacherId) {
-		Iterable<? extends Schedule> found = scheduleRepo.findAllByTeacher(teacherId);
+		Iterable<Schedule> found = scheduleRepo.findAllByFlowAndDayOfWeekAndNumerator(
+				foundFlow.getId(), dayOfWeek, numerator
+		);
 		Collection<Schedule> result = new ArrayList<>();
 		found.forEach(result::add);
+		
 		return result;
 	}
 
 	@Override
 	public Collection<Schedule> findAllByTeacher(String surname, String name, String patronymic) {
-		Teacher foundTeacher = teacherRepo.findBySurnameAndNameAndPatronymic(surname, name, patronymic).orElseThrow();
-		return findAllByTeacher(foundTeacher.getId());
-	}
-	
-	@Override
-	public Collection<Schedule> findAllWhereTeacherFullnameStartsWith(String fullname) {
-		Iterable<Teacher> foundTeacher = teacherRepo.findAllWhereFullnameStartsWith(fullname);
-		Collection<Schedule> result = new ArrayList<>();
-		foundTeacher.forEach((e) -> result.addAll(findAllByTeacher(e.getId())));
-		return result;
-	}
-
-	@Override
-	public Schedule deleteByFlowAndDayOfWeekAndLessonNumAndNumerator(
-			long flowId, int dayOfWeek, int lessonNum, boolean numerator
-	) {
-		Schedule foundSchedule = scheduleRepo
-				.findByFlowAndDayOfWeekAndLessonNumAndNumerator(flowId, dayOfWeek, lessonNum, numerator)
+		Teacher foundTeacher = teacherRepo
+				.findBySurnameAndNameAndPatronymic(surname, name, patronymic)
 				.orElseThrow();
 		
-		return deleteById(foundSchedule.getId());
+		Iterable<? extends Schedule> found = scheduleRepo.findAllByTeacher(foundTeacher.getId());
+		Collection<Schedule> result = new ArrayList<>();
+		found.forEach(result::add);
+		
+		return result;
 	}
 
 	@Override
@@ -280,10 +364,12 @@ public class JdbcScheduleService implements ScheduleService {
 		Flow foundFlow = flowRepo
 				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
 				.orElseThrow();
+
+		Schedule foundSchedule = scheduleRepo
+				.findByFlowAndDayOfWeekAndLessonNumAndNumerator(foundFlow.getId(), dayOfWeek, lessonNum, numerator)
+				.orElseThrow();
 		
-		return deleteByFlowAndDayOfWeekAndLessonNumAndNumerator(
-				foundFlow.getId(), dayOfWeek, lessonNum, numerator
-		);
+		return deleteById(foundSchedule.getId());
 	}
 
 	@Override
@@ -293,8 +379,21 @@ public class JdbcScheduleService implements ScheduleService {
 		Flow foundFlow = flowRepo
 				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
 				.orElseThrow();
-		
-		return findByFlowAndDayOfWeekAndLessonNumAndNumerator(foundFlow.getId(), dayOfWeek, lessonNum, numerator);
+
+		return scheduleRepo
+				.findByFlowAndDayOfWeekAndLessonNumAndNumerator(
+						foundFlow.getId(), dayOfWeek, lessonNum, numerator
+				)
+				.orElseThrow();
+	}
+	
+	private boolean isTeacherEmpty(String surname, String name, String patronymic) {
+		return (surname == null || surname.isBlank()) && (name == null || name.isBlank())
+				&& (patronymic == null || patronymic.isBlank());
+	}
+	
+	private boolean isCabinetEmpty(String cabinet, String building) {
+		return (cabinet == null || cabinet.isBlank()) && (building == null || building.isBlank());
 	}
 
 }

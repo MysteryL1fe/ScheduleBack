@@ -34,9 +34,9 @@ public class HomeworkJoinedRowMapper implements RowMapper<HomeworkJoined> {
 		result.setHomework(rs.getString("homework"));
 		result.setLessonDate(rs.getDate("lesson_date").toLocalDate());
 		result.setLessonNum(rs.getInt("lesson_num"));
-		result.setFlow(rs.getInt("flow_id"));
+		result.setFlow(rs.getLong("flow_id"));
 		result.setFlowJoined(flow);
-		result.setSubject(rs.getInt("subject_id"));
+		result.setSubject(rs.getLong("subject_id"));
 		result.setSubjectJoined(subject);
 		
 		return result;

@@ -162,7 +162,7 @@ public class HomeworkController {
 					homeworkJoined.getFlowJoined().getGroup(), homeworkJoined.getFlowJoined().getSubgroup(),
 					homeworkJoined.getFlowJoined().getLastEdit(), homeworkJoined.getFlowJoined().getLessonsStartDate(),
 					homeworkJoined.getFlowJoined().getSessionStartDate(), homeworkJoined.getFlowJoined().getSessionEndDate(),
-					homeworkJoined.getFlowJoined().isActive()
+					homeworkJoined.getFlowJoined().getActive()
 			);
 			
 			SubjectResponse subjectResponse = new SubjectResponse(
@@ -178,7 +178,7 @@ public class HomeworkController {
 			FlowResponse flowResponse = new FlowResponse(
 					flow.getEducationLevel(), flow.getCourse(), flow.getGroup(), flow.getSubgroup(),
 					flow.getLastEdit(), flow.getLessonsStartDate(), flow.getSessionStartDate(),
-					flow.getSessionEndDate(), flow.isActive()
+					flow.getSessionEndDate(), flow.getActive()
 			);
 			
 			Subject subject = subjectService.findById(homework.getSubject());

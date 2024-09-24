@@ -8,12 +8,12 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class TempSchedule {
-	protected long id;
-	protected long flow;
-	protected long subject;
-	protected long teacher;
-	protected long cabinet;
+	protected Long id;
+	protected Long flow;
+	protected Long subject;
+	protected Long teacher;
+	protected Long cabinet;
 	protected LocalDate lessonDate;
-	protected int lessonNum;
-	protected boolean willLessonBe;
+	protected Integer lessonNum;
+	protected Boolean willLessonBe;
 }

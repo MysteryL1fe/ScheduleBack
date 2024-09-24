@@ -10,20 +10,20 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Flow {
-	protected long id;
-	protected int educationLevel;
-	protected int course;
-	protected int group;
-	protected int subgroup;
+	protected Long id;
+	protected Integer educationLevel;
+	protected Integer course;
+	protected Integer group;
+	protected Integer subgroup;
 	protected LocalDateTime lastEdit;
 	protected LocalDate lessonsStartDate;
 	protected LocalDate sessionStartDate;
 	protected LocalDate sessionEndDate;
-	protected boolean active;
+	protected Boolean active;
 	
 	public boolean equalsByFlowData(Flow other) {
-		return !(other == null) && this.educationLevel == other.educationLevel && this.course == other.course
-				&& this.group == other.group && this.subgroup == other.subgroup;
+		return !(other == null) && educationLevel.equals(other.educationLevel) && course.equals(other.course)
+				&& group.equals(other.group) && subgroup.equals(other.subgroup);
 	}
 	
 	public boolean equalsByDates(Flow other) {

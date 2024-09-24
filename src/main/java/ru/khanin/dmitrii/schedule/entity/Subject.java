@@ -6,6 +6,6 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Subject {
-	private long id;
+	private Long id;
 	private String subject;
 }

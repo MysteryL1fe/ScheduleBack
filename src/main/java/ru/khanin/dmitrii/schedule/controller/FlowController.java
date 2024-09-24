@@ -135,7 +135,7 @@ public class FlowController {
 	private FlowResponse convertFlowToResponse(Flow flow) {
 		return new FlowResponse(
 				flow.getEducationLevel(), flow.getCourse(), flow.getGroup(), flow.getSubgroup(), flow.getLastEdit(),
-				flow.getLessonsStartDate(), flow.getSessionStartDate(), flow.getSessionEndDate(), flow.isActive()
+				flow.getLessonsStartDate(), flow.getSessionStartDate(), flow.getSessionEndDate(), flow.getActive()
 		);
 	}
 }

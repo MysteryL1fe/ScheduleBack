@@ -21,21 +21,6 @@ public class JdbcHomeworkService implements HomeworkService {
 	private final JdbcHomeworkRepo homeworkRepo;
 	private final JdbcFlowRepo flowRepo;
 	private final JdbcSubjectRepo subjectRepo;
-
-	@Override
-	public Homework addOrUpdate(String homework, LocalDate lessonDate, int lessonNum, long flowId, long subjectId) {
-		Homework homeworkToAdd = new Homework();
-		homeworkToAdd.setHomework(homework);
-		homeworkToAdd.setLessonDate(lessonDate);
-		homeworkToAdd.setLessonNum(lessonNum);
-		homeworkToAdd.setFlow(flowId);
-		homeworkToAdd.setSubject(subjectId);
-		
-		if (homeworkRepo.findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, flowId).isPresent())
-			return homeworkRepo.update(homeworkToAdd);
-		
-		return homeworkRepo.add(homeworkToAdd);
-	}
 	
 	@Override
 	@Transactional
@@ -65,20 +50,22 @@ public class JdbcHomeworkService implements HomeworkService {
 					return subjectRepo.add(subjectToAdd);
 				});
 		
-		return addOrUpdate(homework, lessonDate, lessonNum, foundFlow.getId(), foundSubject.getId());
+		Homework homeworkToAdd = new Homework();
+		homeworkToAdd.setHomework(homework);
+		homeworkToAdd.setLessonDate(lessonDate);
+		homeworkToAdd.setLessonNum(lessonNum);
+		homeworkToAdd.setFlow(foundFlow.getId());
+		homeworkToAdd.setSubject(foundSubject.getId());
+		
+		if (homeworkRepo.findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, foundFlow.getId()).isPresent())
+			return homeworkRepo.update(homeworkToAdd);
+		
+		return homeworkRepo.add(homeworkToAdd);
 	}
 
 	@Override
 	public Collection<Homework> findAll() {
 		Iterable<? extends Homework> found = homeworkRepo.findAll();
-		Collection<Homework> result = new ArrayList<>();
-		found.forEach(result::add);
-		return result;
-	}
-
-	@Override
-	public Collection<Homework> findAllByFlow(long flowId) {
-		Iterable<Homework> found = homeworkRepo.findAllByFlow(flowId);
 		Collection<Homework> result = new ArrayList<>();
 		found.forEach(result::add);
 		return result;
@@ -90,14 +77,10 @@ public class JdbcHomeworkService implements HomeworkService {
 				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
 				.orElseThrow();
 		
-		return findAllByFlow(foundFlow.getId());
-	}
-
-	@Override
-	public Collection<Homework> findAllByLessonDateAndFlow(LocalDate lessonDate, long flowId) {
-		Iterable<Homework> found = homeworkRepo.findAllByLessonDateAndFlow(lessonDate, flowId);
+		Iterable<Homework> found = homeworkRepo.findAllByFlow(foundFlow.getId());
 		Collection<Homework> result = new ArrayList<>();
 		found.forEach(result::add);
+		
 		return result;
 	}
 
@@ -130,19 +113,16 @@ public class JdbcHomeworkService implements HomeworkService {
 	}
 
 	@Override
-	public Homework findByLessonDateAndLessonNumAndFlow(LocalDate lessonDate, int lessonNum, long flowId) {
-		return homeworkRepo.findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, flowId).orElseThrow();
-	}
-
-	@Override
 	public Homework findByLessonDateAndLessonNumAndFlow(
 			LocalDate lessonDate, int lessonNum, int educationLevel, int course, int group, int subgroup
 	) {
 		Flow foundFlow = flowRepo
 				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
 				.orElseThrow();
-		
-		return findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, foundFlow.getId());
+
+		return homeworkRepo
+				.findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, foundFlow.getId())
+				.orElseThrow();
 	}
 
 	@Override
@@ -152,18 +132,12 @@ public class JdbcHomeworkService implements HomeworkService {
 		Flow foundFlow = flowRepo
 				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
 				.orElseThrow();
-		
-		return findAllByLessonDateAndFlow(lessonDate, foundFlow.getId());
-	}
 
-	@Override
-	public Homework deleteByFlowAndLessonDateAndLessonNum(long flowId, LocalDate lessonDate, int lessonNum) {
-		Homework foundHomework = homeworkRepo
-				.findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, flowId)
-				.orElseThrow();
-		if (foundHomework == null) return null;
+		Iterable<Homework> found = homeworkRepo.findAllByLessonDateAndFlow(lessonDate, foundFlow.getId());
+		Collection<Homework> result = new ArrayList<>();
+		found.forEach(result::add);
 		
-		return deleteById(foundHomework.getId());
+		return result;
 	}
 
 	@Override
@@ -174,15 +148,11 @@ public class JdbcHomeworkService implements HomeworkService {
 				.findByEducationLevelAndCourseAndGroupAndSubgroup(educationLevel, course, group, subgroup)
 				.orElseThrow();
 		
-		return deleteByFlowAndLessonDateAndLessonNum(foundFlow.getId(), lessonDate, lessonNum);
-	}
-
-	@Override
-	public Collection<Homework> findAllByFlowAndSubject(long flowId, long subjectId) {
-		Iterable<Homework> found = homeworkRepo.findAllByFlowAndSubject(flowId, subjectId);
-		Collection<Homework> result = new ArrayList<>();
-		found.forEach(result::add);
-		return result;
+		Homework foundHomework = homeworkRepo
+				.findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, foundFlow.getId())
+				.orElseThrow();
+		
+		return deleteById(foundHomework.getId());
 	}
 
 	@Override
@@ -196,8 +166,12 @@ public class JdbcHomeworkService implements HomeworkService {
 		Subject foundSubject = subjectRepo
 				.findBySubject(subject)
 				.orElseThrow();
+
+		Iterable<Homework> found = homeworkRepo.findAllByFlowAndSubject(foundFlow.getId(), foundSubject.getId());
+		Collection<Homework> result = new ArrayList<>();
+		found.forEach(result::add);
 		
-		return findAllByFlowAndSubject(foundFlow.getId(), foundSubject.getId());
+		return result;
 	}
 
 }
