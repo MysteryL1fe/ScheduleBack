@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
 import ru.khanin.dmitrii.schedule.entity.Flow;
 import ru.khanin.dmitrii.schedule.repo.FlowRepo;
-import ru.khanin.dmitrii.schedule.repo.mapper.FlowRowMapper;
+import ru.khanin.dmitrii.schedule.repo.jdbc.mapper.FlowRowMapper;
 
 @Repository
 @RequiredArgsConstructor

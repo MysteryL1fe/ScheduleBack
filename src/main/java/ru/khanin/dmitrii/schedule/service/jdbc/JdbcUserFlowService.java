@@ -47,8 +47,8 @@ public class JdbcUserFlowService implements UserFlowService {
 				});
 
 		UserFlow userFlow = new UserFlow();
-		userFlow.setUser(foundUser.getId());
-		userFlow.setFlow(foundFlow.getId());
+		userFlow.setUser(foundUser);
+		userFlow.setFlow(foundFlow);
 		
 		return userFlowRepo.add(userFlow);
 	}

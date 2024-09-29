@@ -22,13 +22,8 @@ import ru.khanin.dmitrii.schedule.dto.homework.DeleteHomeworkRequest;
 import ru.khanin.dmitrii.schedule.dto.homework.HomeworkRequest;
 import ru.khanin.dmitrii.schedule.dto.homework.HomeworkResponse;
 import ru.khanin.dmitrii.schedule.dto.subject.SubjectResponse;
-import ru.khanin.dmitrii.schedule.entity.Flow;
 import ru.khanin.dmitrii.schedule.entity.Homework;
-import ru.khanin.dmitrii.schedule.entity.Subject;
-import ru.khanin.dmitrii.schedule.entity.jdbc.HomeworkJoined;
-import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.HomeworkService;
-import ru.khanin.dmitrii.schedule.service.SubjectService;
 
 @RestController
 @RequestMapping("/homework")
@@ -36,8 +31,6 @@ import ru.khanin.dmitrii.schedule.service.SubjectService;
 @Slf4j
 public class HomeworkController {
 	private final HomeworkService homeworkService;
-	private final FlowService flowService;
-	private final SubjectService subjectService;
 	
 	@GetMapping("/homework")
 	public ResponseEntity<HomeworkResponse> getHomework(
@@ -154,40 +147,18 @@ public class HomeworkController {
 	}
 	
 	private HomeworkResponse convertHomeworkToResponse(Homework homework) {
-		if (homework instanceof HomeworkJoined) {
-			HomeworkJoined homeworkJoined = (HomeworkJoined) homework;
-			
-			FlowResponse flowResponse = new FlowResponse(
-					homeworkJoined.getFlowJoined().getEducationLevel(), homeworkJoined.getFlowJoined().getCourse(),
-					homeworkJoined.getFlowJoined().getGroup(), homeworkJoined.getFlowJoined().getSubgroup(),
-					homeworkJoined.getFlowJoined().getLastEdit(), homeworkJoined.getFlowJoined().getLessonsStartDate(),
-					homeworkJoined.getFlowJoined().getSessionStartDate(), homeworkJoined.getFlowJoined().getSessionEndDate(),
-					homeworkJoined.getFlowJoined().getActive()
-			);
-			
-			SubjectResponse subjectResponse = new SubjectResponse(
-					homeworkJoined.getSubjectJoined().getSubject()
-			);
-			
-			return new HomeworkResponse(
-					homework.getHomework(), homework.getLessonDate(), homework.getLessonNum(),
-					flowResponse, subjectResponse
-			);
-		} else {
-			Flow flow = flowService.findById(homework.getFlow());
-			FlowResponse flowResponse = new FlowResponse(
-					flow.getEducationLevel(), flow.getCourse(), flow.getGroup(), flow.getSubgroup(),
-					flow.getLastEdit(), flow.getLessonsStartDate(), flow.getSessionStartDate(),
-					flow.getSessionEndDate(), flow.getActive()
-			);
-			
-			Subject subject = subjectService.findById(homework.getSubject());
-			SubjectResponse subjectResponse = new SubjectResponse(subject.getSubject());
-					
-			return new HomeworkResponse(
-					homework.getHomework(), homework.getLessonDate(), homework.getLessonNum(),
-					flowResponse, subjectResponse
-			);
-		}
+		FlowResponse flowResponse = new FlowResponse(
+				homework.getFlow().getEducationLevel(), homework.getFlow().getCourse(), homework.getFlow().getGroup(),
+				homework.getFlow().getSubgroup(), homework.getFlow().getLastEdit(),
+				homework.getFlow().getLessonsStartDate(), homework.getFlow().getSessionStartDate(),
+				homework.getFlow().getSessionEndDate(), homework.getFlow().getActive()
+		);
+		
+		SubjectResponse subjectResponse = new SubjectResponse(homework.getSubject().getSubject());
+		
+		return new HomeworkResponse(
+				homework.getHomework(), homework.getLessonDate(), homework.getLessonNum(),
+				flowResponse, subjectResponse
+		);
 	}
 }

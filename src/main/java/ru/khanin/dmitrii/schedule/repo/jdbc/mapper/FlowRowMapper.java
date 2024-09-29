@@ -1,4 +1,4 @@
-package ru.khanin.dmitrii.schedule.repo.mapper;
+package ru.khanin.dmitrii.schedule.repo.jdbc.mapper;
 
 import java.sql.Date;
 import java.sql.ResultSet;

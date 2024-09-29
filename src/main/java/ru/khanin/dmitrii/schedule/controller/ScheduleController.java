@@ -23,17 +23,8 @@ import ru.khanin.dmitrii.schedule.dto.schedule.ScheduleRequest;
 import ru.khanin.dmitrii.schedule.dto.schedule.ScheduleResponse;
 import ru.khanin.dmitrii.schedule.dto.subject.SubjectResponse;
 import ru.khanin.dmitrii.schedule.dto.teacher.TeacherResponse;
-import ru.khanin.dmitrii.schedule.entity.Cabinet;
-import ru.khanin.dmitrii.schedule.entity.Flow;
 import ru.khanin.dmitrii.schedule.entity.Schedule;
-import ru.khanin.dmitrii.schedule.entity.Subject;
-import ru.khanin.dmitrii.schedule.entity.Teacher;
-import ru.khanin.dmitrii.schedule.entity.jdbc.ScheduleJoined;
-import ru.khanin.dmitrii.schedule.service.CabinetService;
-import ru.khanin.dmitrii.schedule.service.FlowService;
 import ru.khanin.dmitrii.schedule.service.ScheduleService;
-import ru.khanin.dmitrii.schedule.service.SubjectService;
-import ru.khanin.dmitrii.schedule.service.TeacherService;
 
 @RestController
 @RequestMapping("/schedule")
@@ -41,10 +32,6 @@ import ru.khanin.dmitrii.schedule.service.TeacherService;
 @Slf4j
 public class ScheduleController {
 	private final ScheduleService scheduleService;
-	private final FlowService flowService;
-	private final SubjectService subjectService;
-	private final TeacherService teacherService;
-	private final CabinetService cabinetService;
 	
 	@GetMapping("/schedule")
 	public ResponseEntity<ScheduleResponse> getSchedule(
@@ -254,60 +241,28 @@ public class ScheduleController {
 	}
 	
 	private ScheduleResponse convertScheduleToResponse(Schedule schedule) {
-		if (schedule instanceof ScheduleJoined) {
-			ScheduleJoined scheduleJoined = (ScheduleJoined) schedule;
-			
-			FlowResponse flowResponse = new FlowResponse(
-					scheduleJoined.getFlowJoined().getEducationLevel(), scheduleJoined.getFlowJoined().getCourse(),
-					scheduleJoined.getFlowJoined().getGroup(), scheduleJoined.getFlowJoined().getSubgroup(),
-					scheduleJoined.getFlowJoined().getLastEdit(), scheduleJoined.getFlowJoined().getLessonsStartDate(),
-					scheduleJoined.getFlowJoined().getSessionStartDate(),
-					scheduleJoined.getFlowJoined().getSessionEndDate(), scheduleJoined.getFlowJoined().getActive()
-			);
-			
-			SubjectResponse subjectResponse = new SubjectResponse(scheduleJoined.getSubjectJoined().getSubject());
-			
-			TeacherResponse teacherResponse = new TeacherResponse(
-					scheduleJoined.getTeacherJoined().getSurname(), scheduleJoined.getTeacherJoined().getName(),
-					scheduleJoined.getTeacherJoined().getPatronymic()
-			);
-			
-			CabinetResponse cabinetResponse = new CabinetResponse(
-					scheduleJoined.getCabinetJoined().getCabinet(), scheduleJoined.getCabinetJoined().getBuilding(),
-					scheduleJoined.getCabinetJoined().getAddress()
-			);
-			
-			return new ScheduleResponse(
-					flowResponse, schedule.getDayOfWeek(), schedule.getLessonNum(), schedule.getNumerator(),
-					subjectResponse, teacherResponse, cabinetResponse
-			);
-		} else {
-			Flow foundflow = flowService.findById(schedule.getFlow());
-			FlowResponse flowResponse = new FlowResponse(
-					foundflow.getEducationLevel(), foundflow.getCourse(), foundflow.getGroup(),
-					foundflow.getSubgroup(), foundflow.getLastEdit(), foundflow.getLessonsStartDate(),
-					foundflow.getSessionStartDate(), foundflow.getSessionEndDate(), foundflow.getActive()
-			);
-			
-			Subject subject = subjectService.findById(schedule.getSubject());
-			SubjectResponse subjectResponse = new SubjectResponse(subject.getSubject());
-			
-			Teacher teacher = teacherService.findById(schedule.getTeacher());
-			TeacherResponse teacherResponse = new TeacherResponse(
-					teacher.getSurname(), teacher.getName(),
-					teacher.getPatronymic()
-			);
-			
-			Cabinet cabinet = cabinetService.findById(schedule.getCabinet());
-			CabinetResponse cabinetResponse = new CabinetResponse(
-					cabinet.getCabinet(), cabinet.getBuilding(),
-					cabinet.getAddress()
-			);
-					
-			return new ScheduleResponse(
-					flowResponse, schedule.getDayOfWeek(), schedule.getLessonNum(), schedule.getNumerator(),
-					subjectResponse, teacherResponse, cabinetResponse
-			);
-		}
+		FlowResponse flowResponse = new FlowResponse(
+				schedule.getFlow().getEducationLevel(), schedule.getFlow().getCourse(), schedule.getFlow().getGroup(),
+				schedule.getFlow().getSubgroup(), schedule.getFlow().getLastEdit(),
+				schedule.getFlow().getLessonsStartDate(), schedule.getFlow().getSessionStartDate(),
+				schedule.getFlow().getSessionEndDate(), schedule.getFlow().getActive()
+		);
+		
+		SubjectResponse subjectResponse = new SubjectResponse(schedule.getSubject().getSubject());
+		
+		TeacherResponse teacherResponse = new TeacherResponse(
+				schedule.getTeacher().getSurname(), schedule.getTeacher().getName(),
+				schedule.getTeacher().getPatronymic()
+		);
+		
+		CabinetResponse cabinetResponse = new CabinetResponse(
+				schedule.getCabinet().getCabinet(), schedule.getCabinet().getBuilding(),
+				schedule.getCabinet().getAddress()
+		);
+		
+		return new ScheduleResponse(
+				flowResponse, schedule.getDayOfWeek(), schedule.getLessonNum(), schedule.getNumerator(),
+				subjectResponse, teacherResponse, cabinetResponse
+		);
 	}
 }

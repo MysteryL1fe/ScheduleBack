@@ -7,10 +7,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class Schedule {
 	protected Long id;
-	protected Long flow;
-	protected Long subject;
-	protected Long teacher;
-	protected Long cabinet;
+	protected Flow flow;
+	protected Subject subject;
+	protected Teacher teacher;
+	protected Cabinet cabinet;
 	protected Integer dayOfWeek;
 	protected Integer lessonNum;
 	protected Boolean numerator;

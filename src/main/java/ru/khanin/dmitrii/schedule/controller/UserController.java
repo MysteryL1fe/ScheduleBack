@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ru.khanin.dmitrii.schedule.dto.flow.FlowResponse;
 import ru.khanin.dmitrii.schedule.dto.user.AddUserRequest;
 import ru.khanin.dmitrii.schedule.dto.user.UserFlowRequest;
 import ru.khanin.dmitrii.schedule.dto.user.UserRequest;
 import ru.khanin.dmitrii.schedule.dto.user.UserResponse;
 import ru.khanin.dmitrii.schedule.entity.User;
 import ru.khanin.dmitrii.schedule.entity.UserFlow;
-import ru.khanin.dmitrii.schedule.entity.jdbc.UserFlowJoined;
 import ru.khanin.dmitrii.schedule.service.UserFlowService;
 import ru.khanin.dmitrii.schedule.service.UserService;
 
@@ -140,18 +140,34 @@ public class UserController {
 	}
 	
 	private UserResponse convertUserToResponse(User user) {
-		return new UserResponse(user.getLogin(), user.getAdmin());
+		List<FlowResponse> flows = new ArrayList<>();
+		user.getFlows().forEach(e -> flows.add(
+				new FlowResponse(
+					e.getEducationLevel(), e.getCourse(),
+					e.getGroup(), e.getSubgroup(),
+					e.getLastEdit(), e.getLessonsStartDate(),
+					e.getSessionStartDate(), e.getSessionEndDate(),
+					e.getActive()
+				)
+		));
+		
+		return new UserResponse(user.getLogin(), user.getAdmin(), flows);
 	}
 	
 	private UserResponse convertUserFlowToUserResponse(UserFlow userFlow) {
-		if (userFlow instanceof UserFlowJoined) {
-			UserFlowJoined userFlowJoined = (UserFlowJoined) userFlow;
-			return new UserResponse(
-					userFlowJoined.getUserJoined().getLogin(), userFlowJoined.getUserJoined().getAdmin()
-			);
-		} else {
-			User user = userService.findById(userFlow.getUser());
-			return new UserResponse(user.getLogin(), user.getAdmin());
-		}
+		List<FlowResponse> flows = new ArrayList<>();
+		userFlow.getUser().getFlows().forEach(e -> flows.add(
+				new FlowResponse(
+					e.getEducationLevel(), e.getCourse(),
+					e.getGroup(), e.getSubgroup(),
+					e.getLastEdit(), e.getLessonsStartDate(),
+					e.getSessionStartDate(), e.getSessionEndDate(),
+					e.getActive()
+				)
+		));
+		
+		return new UserResponse(
+				userFlow.getUser().getLogin(), userFlow.getUser().getAdmin(), flows
+		);
 	}
 }

@@ -54,8 +54,8 @@ public class JdbcHomeworkService implements HomeworkService {
 		homeworkToAdd.setHomework(homework);
 		homeworkToAdd.setLessonDate(lessonDate);
 		homeworkToAdd.setLessonNum(lessonNum);
-		homeworkToAdd.setFlow(foundFlow.getId());
-		homeworkToAdd.setSubject(foundSubject.getId());
+		homeworkToAdd.setFlow(foundFlow);
+		homeworkToAdd.setSubject(foundSubject);
 		
 		if (homeworkRepo.findByLessonDateAndLessonNumAndFlow(lessonDate, lessonNum, foundFlow.getId()).isPresent())
 			return homeworkRepo.update(homeworkToAdd);

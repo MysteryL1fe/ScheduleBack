@@ -24,16 +24,7 @@ import ru.khanin.dmitrii.schedule.dto.teacher.TeacherResponse;
 import ru.khanin.dmitrii.schedule.dto.temp.DeleteTempScheduleRequest;
 import ru.khanin.dmitrii.schedule.dto.temp.TempScheduleRequest;
 import ru.khanin.dmitrii.schedule.dto.temp.TempScheduleResponse;
-import ru.khanin.dmitrii.schedule.entity.Cabinet;
-import ru.khanin.dmitrii.schedule.entity.Flow;
-import ru.khanin.dmitrii.schedule.entity.Subject;
-import ru.khanin.dmitrii.schedule.entity.Teacher;
 import ru.khanin.dmitrii.schedule.entity.TempSchedule;
-import ru.khanin.dmitrii.schedule.entity.jdbc.TempScheduleJoined;
-import ru.khanin.dmitrii.schedule.service.CabinetService;
-import ru.khanin.dmitrii.schedule.service.FlowService;
-import ru.khanin.dmitrii.schedule.service.SubjectService;
-import ru.khanin.dmitrii.schedule.service.TeacherService;
 import ru.khanin.dmitrii.schedule.service.TempScheduleService;
 
 @RestController
@@ -42,10 +33,6 @@ import ru.khanin.dmitrii.schedule.service.TempScheduleService;
 @Slf4j
 public class TempScheduleController {
 	private final TempScheduleService tempScheduleService;
-	private final FlowService flowService;
-	private final SubjectService subjectService;
-	private final TeacherService teacherService;
-	private final CabinetService cabinetService;
 	
 	@GetMapping("/schedule")
 	public ResponseEntity<TempScheduleResponse> getTempSchedule(
@@ -224,60 +211,29 @@ public class TempScheduleController {
 	}
 	
 	private TempScheduleResponse convertTempScheduleToResponse(TempSchedule tempSchedule) {
-		if (tempSchedule instanceof TempScheduleJoined) {
-			TempScheduleJoined schedule = (TempScheduleJoined) tempSchedule;
-			
-			FlowResponse flowResponse = new FlowResponse(
-					schedule.getFlowJoined().getEducationLevel(), schedule.getFlowJoined().getCourse(),
-					schedule.getFlowJoined().getGroup(), schedule.getFlowJoined().getSubgroup(),
-					schedule.getFlowJoined().getLastEdit(), schedule.getFlowJoined().getLessonsStartDate(),
-					schedule.getFlowJoined().getSessionStartDate(), schedule.getFlowJoined().getSessionEndDate(),
-					schedule.getFlowJoined().getActive()
-			);
-			
-			SubjectResponse subjectResponse = new SubjectResponse(schedule.getSubjectJoined().getSubject());
-			
-			TeacherResponse teacherResponse = new TeacherResponse(
-					schedule.getTeacherJoined().getSurname(), schedule.getTeacherJoined().getName(),
-					schedule.getTeacherJoined().getPatronymic()
-			);
-			
-			CabinetResponse cabinetResponse = new CabinetResponse(
-					schedule.getCabinetJoined().getCabinet(), schedule.getCabinetJoined().getBuilding(),
-					schedule.getCabinetJoined().getAddress()
-			);
-			
-			return new TempScheduleResponse(
-					flowResponse, schedule.getLessonDate(), schedule.getLessonNum(), schedule.getWillLessonBe(),
-					subjectResponse, teacherResponse, cabinetResponse
-			);
-		} else {
-			Flow flow = flowService.findById(tempSchedule.getFlow());
-			FlowResponse flowResponse = new FlowResponse(
-					flow.getEducationLevel(), flow.getCourse(), flow.getGroup(), flow.getSubgroup(),
-					flow.getLastEdit(), flow.getLessonsStartDate(), flow.getSessionStartDate(),
-					flow.getSessionEndDate(), flow.getActive()
-			);
-			
-			Subject subject = subjectService.findById(tempSchedule.getSubject());
-			SubjectResponse subjectResponse = new SubjectResponse(subject.getSubject());
-			
-			Teacher teacher = teacherService.findById(tempSchedule.getTeacher());
-			TeacherResponse teacherResponse = new TeacherResponse(
-					teacher.getSurname(), teacher.getName(),
-					teacher.getPatronymic()
-			);
-			
-			Cabinet cabinet = cabinetService.findById(tempSchedule.getCabinet());
-			CabinetResponse cabinetResponse = new CabinetResponse(
-					cabinet.getCabinet(), cabinet.getBuilding(),
-					cabinet.getAddress()
-			);
-			
-			return new TempScheduleResponse(
-					flowResponse, tempSchedule.getLessonDate(), tempSchedule.getLessonNum(),
-					tempSchedule.getWillLessonBe(), subjectResponse, teacherResponse, cabinetResponse
-			);
-		}
+		FlowResponse flowResponse = new FlowResponse(
+				tempSchedule.getFlow().getEducationLevel(), tempSchedule.getFlow().getCourse(),
+				tempSchedule.getFlow().getGroup(), tempSchedule.getFlow().getSubgroup(),
+				tempSchedule.getFlow().getLastEdit(), tempSchedule.getFlow().getLessonsStartDate(),
+				tempSchedule.getFlow().getSessionStartDate(), tempSchedule.getFlow().getSessionEndDate(),
+				tempSchedule.getFlow().getActive()
+		);
+		
+		SubjectResponse subjectResponse = new SubjectResponse(tempSchedule.getSubject().getSubject());
+		
+		TeacherResponse teacherResponse = new TeacherResponse(
+				tempSchedule.getTeacher().getSurname(), tempSchedule.getTeacher().getName(),
+				tempSchedule.getTeacher().getPatronymic()
+		);
+		
+		CabinetResponse cabinetResponse = new CabinetResponse(
+				tempSchedule.getCabinet().getCabinet(), tempSchedule.getCabinet().getBuilding(),
+				tempSchedule.getCabinet().getAddress()
+		);
+		
+		return new TempScheduleResponse(
+				flowResponse, tempSchedule.getLessonDate(), tempSchedule.getLessonNum(),
+				tempSchedule.getWillLessonBe(), subjectResponse, teacherResponse, cabinetResponse
+		);
 	}
 }

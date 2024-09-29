@@ -105,7 +105,7 @@ public class JdbcTempScheduleService implements TempScheduleService {
 				});
 
 		TempSchedule tempSchedule = new TempSchedule();
-		tempSchedule.setFlow(foundFlow.getId());
+		tempSchedule.setFlow(foundFlow);
 		tempSchedule.setLessonDate(lessonDate);
 		tempSchedule.setLessonNum(lessonNum);
 		tempSchedule.setWillLessonBe(willLessonBe);
@@ -150,8 +150,8 @@ public class JdbcTempScheduleService implements TempScheduleService {
 				});
 
 		TempSchedule tempSchedule = new TempSchedule();
-		tempSchedule.setFlow(foundFlow.getId());
-		tempSchedule.setSubject(foundSubject.getId());
+		tempSchedule.setFlow(foundFlow);
+		tempSchedule.setSubject(foundSubject);
 		tempSchedule.setLessonDate(lessonDate);
 		tempSchedule.setLessonNum(lessonNum);
 		tempSchedule.setWillLessonBe(willLessonBe);
@@ -211,9 +211,9 @@ public class JdbcTempScheduleService implements TempScheduleService {
 				});
 
 		TempSchedule tempSchedule = new TempSchedule();
-		tempSchedule.setFlow(foundFlow.getId());
-		tempSchedule.setSubject(foundSubject.getId());
-		tempSchedule.setTeacher(foundTeacher.getId());
+		tempSchedule.setFlow(foundFlow);
+		tempSchedule.setSubject(foundSubject);
+		tempSchedule.setTeacher(foundTeacher);
 		tempSchedule.setLessonDate(lessonDate);
 		tempSchedule.setLessonNum(lessonNum);
 		tempSchedule.setWillLessonBe(willLessonBe);
@@ -272,9 +272,9 @@ public class JdbcTempScheduleService implements TempScheduleService {
 				});
 
 		TempSchedule tempSchedule = new TempSchedule();
-		tempSchedule.setFlow(foundFlow.getId());
-		tempSchedule.setSubject(foundSubject.getId());
-		tempSchedule.setCabinet(foundCabinet.getId());
+		tempSchedule.setFlow(foundFlow);
+		tempSchedule.setSubject(foundSubject);
+		tempSchedule.setCabinet(foundCabinet);
 		tempSchedule.setLessonDate(lessonDate);
 		tempSchedule.setLessonNum(lessonNum);
 		tempSchedule.setWillLessonBe(willLessonBe);
@@ -356,10 +356,10 @@ public class JdbcTempScheduleService implements TempScheduleService {
 				});
 
 		TempSchedule tempSchedule = new TempSchedule();
-		tempSchedule.setFlow(foundFlow.getId());
-		tempSchedule.setSubject(foundSubject.getId());
-		tempSchedule.setTeacher(foundTeacher.getId());
-		tempSchedule.setCabinet(foundCabinet.getId());
+		tempSchedule.setFlow(foundFlow);
+		tempSchedule.setSubject(foundSubject);
+		tempSchedule.setTeacher(foundTeacher);
+		tempSchedule.setCabinet(foundCabinet);
 		tempSchedule.setLessonDate(lessonDate);
 		tempSchedule.setLessonNum(lessonNum);
 		tempSchedule.setWillLessonBe(willLessonBe);

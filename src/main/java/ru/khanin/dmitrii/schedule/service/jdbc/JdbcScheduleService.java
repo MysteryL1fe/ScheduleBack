@@ -90,8 +90,8 @@ public class JdbcScheduleService implements ScheduleService {
 				});
 
 		Schedule schedule = new Schedule();
-		schedule.setFlow(foundFlow.getId());
-		schedule.setSubject(foundSubject.getId());
+		schedule.setFlow(foundFlow);
+		schedule.setSubject(foundSubject);
 		schedule.setDayOfWeek(dayOfWeek);
 		schedule.setLessonNum(lessonNum);
 		schedule.setNumerator(numerator);
@@ -153,9 +153,9 @@ public class JdbcScheduleService implements ScheduleService {
 				});
 
 		Schedule schedule = new Schedule();
-		schedule.setFlow(foundFlow.getId());
-		schedule.setSubject(foundSubject.getId());
-		schedule.setTeacher(foundTeacher.getId());
+		schedule.setFlow(foundFlow);
+		schedule.setSubject(foundSubject);
+		schedule.setTeacher(foundTeacher);
 		schedule.setDayOfWeek(dayOfWeek);
 		schedule.setLessonNum(lessonNum);
 		schedule.setNumerator(numerator);
@@ -216,9 +216,9 @@ public class JdbcScheduleService implements ScheduleService {
 				});
 
 		Schedule schedule = new Schedule();
-		schedule.setFlow(foundFlow.getId());
-		schedule.setSubject(foundSubject.getId());
-		schedule.setCabinet(foundCabinet.getId());
+		schedule.setFlow(foundFlow);
+		schedule.setSubject(foundSubject);
+		schedule.setCabinet(foundCabinet);
 		schedule.setDayOfWeek(dayOfWeek);
 		schedule.setLessonNum(lessonNum);
 		schedule.setNumerator(numerator);
@@ -302,10 +302,10 @@ public class JdbcScheduleService implements ScheduleService {
 				});
 
 		Schedule schedule = new Schedule();
-		schedule.setFlow(foundFlow.getId());
-		schedule.setSubject(foundSubject.getId());
-		schedule.setTeacher(foundTeacher.getId());
-		schedule.setCabinet(foundCabinet.getId());
+		schedule.setFlow(foundFlow);
+		schedule.setSubject(foundSubject);
+		schedule.setTeacher(foundTeacher);
+		schedule.setCabinet(foundCabinet);
 		schedule.setDayOfWeek(dayOfWeek);
 		schedule.setLessonNum(lessonNum);
 		schedule.setNumerator(numerator);
